@@ -1,0 +1,37 @@
+class Parser < Lexer
+  def initialize(string)
+    super
+  end
+
+  def self.parse(string)
+    Parser.new(string).parse
+  end
+
+  def parse
+    # Signup
+    if scan /^\s*(?:#|\.)?\s*(?:name|n)\s*@?(.+?)\s*$/i
+      return new_signup self[1].strip
+    elsif scan /^\s*'(.+)'?$/i
+      str = self[1].strip
+      str = str[0 ... -1] if str[-1] == "'"
+      return new_signup str.strip
+    end
+  end
+
+  def new_signup(string)
+    SignupNode.new :display_name => string, :suggested_login => string.gsub(/\s/, '_')
+  end
+end
+
+class Node
+  def initialize(attrs = {})
+    attrs.each do |k, v|
+      send "#{k}=", v
+    end
+  end
+end
+
+class SignupNode < Node
+  attr_accessor :display_name
+  attr_accessor :suggested_login
+end

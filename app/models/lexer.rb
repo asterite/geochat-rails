@@ -9,208 +9,240 @@ class Lexer < StringScanner
   end
 
   def next_token
-    @token.start = pos
-    @token.string = nil
-    @token.value = nil
+    if @token.next
+      @token = @token.next
+    else
+      scan_token @token
+    end
+    @token
+  end
+
+  def peek_next(token)
+    return token.next if token.next
+
+    peek = Token.new
+    scan_token peek
+    token.next = peek
+    peek
+  end
+
+  def next_token_skip_whitespace
+    tok = next_token
+    tok = next_token if tok.value == Token::Whitespace
+    tok
+  end
+
+  def peek_next_skip_whitespace(token)
+    tok = peek_next(token)
+    tok = peek_next(tok) if tok.value == Token::Whitespace
+    tok
+  end
+
+  private
+
+  def scan_token(token)
+    token.start = pos
+    token.string = nil
+    token.value = nil
 
     if eos?
-      @token.value = Token::EOF
+      token.value = Token::EOF
     elsif scan /(\s|\\n|\\r|\\t)+/
-      @token.value = Token::Whitespace
+      token.value = Token::Whitespace
     elsif scan /\*/
-      @token.value = Token::Star
+      token.value = Token::Star
     elsif scan /_/
-      @token.value = Token::Underscore
+      token.value = Token::Underscore
     elsif scan /\./
-      @token.value = Token::Dot
+      token.value = Token::Dot
     elsif scan /,/
-      @token.value = Token::Comma
+      token.value = Token::Comma
     elsif scan /:/
-      @token.value = Token::Colon
+      token.value = Token::Colon
     elsif scan /#/
-      @token.value = Token::Pound
+      token.value = Token::Pound
     elsif scan /\//
-      @token.value = Token::Slash
+      token.value = Token::Slash
     elsif scan(/°/) || scan(/º/)
-      @token.value = Token::Degrees
+      token.value = Token::Degrees
     elsif scan /''/
-      @token.value = Token::DoubleQuote
+      token.value = Token::DoubleQuote
     elsif scan /'/
-      @token.value = Token::SingleQuote
+      token.value = Token::SingleQuote
     elsif scan /!/
-      @token.value = Token::Exclamation
+      token.value = Token::Exclamation
     elsif scan(/(\+|-)?\d+\.\d+\.\d+\.\d+\b/) || scan(/(\+|-)?\d+,\d+,\d+,\d+\b/)
-      @token.value = Token::FourDotsNumber
+      token.value = Token::FourDotsNumber
     elsif scan(/(\+|-)?\d+\.\d+\.\d+\b/) || scan(/(\+|-)?\d+,\d+,\d+\b/)
-      @token.value = Token::ThreeDotsNumber
+      token.value = Token::ThreeDotsNumber
     elsif scan /(\+|-)?\d+((\.|,)\d+)?\b/
-      @token.value = Token::Number
-      @token.positive = self[1].nil? || self[1] == '+'
-      @token.signed = !self[1].nil?
-      @token.decimal = !self[2].nil?
+      token.value = Token::Number
+      token.positive = self[1].nil? || self[1] == '+'
+      token.signed = !self[1].nil?
+      token.decimal = !self[2].nil?
     elsif scan /-/
-      @token.value = Token::Minus
+      token.value = Token::Minus
     elsif scan /\+/
-      @token.value = Token::Plus
+      token.value = Token::Plus
     elsif scan />/
-      @token.value = Token::GreaterThan
+      token.value = Token::GreaterThan
     elsif scan /</
-      @token.value = Token::LessThan
+      token.value = Token::LessThan
     elsif scan /\(/
-      @token.value = Token::LeftParen
+      token.value = Token::LeftParen
     elsif scan /\)/
-      @token.value = Token::RightParen
+      token.value = Token::RightParen
     elsif scan /\$/
-      @token.value = Token::Dollar
+      token.value = Token::Dollar
     elsif scan /\?/
-      @token.value = Token::Question
+      token.value = Token::Question
     elsif scan(/\@(\w|-)+\b/i)
-      @token.value = Token::AtTarget
+      token.value = Token::AtTarget
     elsif scan(/alert\b/i)
-      @token.value = Token::Alert
+      token.value = Token::Alert
     elsif scan(/am\b/i)
-      @token.value = Token::Am
+      token.value = Token::Am
     elsif scan(/at\b/i)
-      @token.value = Token::At
+      token.value = Token::At
     elsif scan(/b\b/i)
-      @token.value = Token::B
+      token.value = Token::B
     elsif scan(/blast\b/i)
-      @token.value = Token::Blast
+      token.value = Token::Blast
     elsif scan(/block\b/i)
-      @token.value = Token::Block
+      token.value = Token::Block
     elsif scan(/bye\b/i)
-      @token.value = Token::Bye
+      token.value = Token::Bye
     elsif scan(/cg\b/i)
-      @token.value = Token::Cg
+      token.value = Token::Cg
     elsif scan(/chat\b/i)
-      @token.value = Token::Chat
+      token.value = Token::Chat
     elsif scan(/chatroom\b/i)
-      @token.value = Token::Chatroom
+      token.value = Token::Chatroom
     elsif scan(/create\b/i)
-      @token.value = Token::Create
+      token.value = Token::Create
     elsif scan(/creategroup\b/i)
-      @token.value = Token::Creategroup
+      token.value = Token::Creategroup
     elsif scan(/email\b/i)
-      @token.value = Token::Email
+      token.value = Token::Email
     elsif scan(/e\b/i)
-      @token.value = Token::E
+      token.value = Token::E
     elsif scan(/g\b/i)
-      @token.value = Token::G
+      token.value = Token::G
     elsif scan(/group\b/i)
-      @token.value = Token::Group
+      token.value = Token::Group
     elsif scan(/groups\b/i)
-      @token.value = Token::Groups
+      token.value = Token::Groups
     elsif scan(/h\b/i)
-      @token.value = Token::H
+      token.value = Token::H
     elsif scan(/help\b/i)
-      @token.value = Token::Help
+      token.value = Token::Help
     elsif scan(/hide\b/i)
-      @token.value = Token::Hide
+      token.value = Token::Hide
     elsif scan(/im\b/i) || scan(/i'm\b/i)
-      @token.value = Token::Im
+      token.value = Token::Im
     elsif scan(/i\b/i)
-      @token.value = Token::I
+      token.value = Token::I
     elsif scan(/iam\b/i)
-      @token.value = Token::Iam
+      token.value = Token::Iam
     elsif scan /in\b/i
-      @token.value = Token::In
+      token.value = Token::In
     elsif scan(/invite\b/i)
-      @token.value = Token::Invite
+      token.value = Token::Invite
     elsif scan /is\b/i
-      @token.value = Token::Is
+      token.value = Token::Is
     elsif scan(/join\b/i)
-      @token.value = Token::Join
+      token.value = Token::Join
     elsif scan(/j\b/i)
-      @token.value = Token::J
+      token.value = Token::J
     elsif scan(/l\b/i)
-      @token.value = Token::L
+      token.value = Token::L
     elsif scan(/lang\b/i)
-      @token.value = Token::Lang
+      token.value = Token::Lang
     elsif scan(/leave\b/i)
-      @token.value = Token::Leave
+      token.value = Token::Leave
     elsif scan(/li\b/i)
-      @token.value = Token::Li
+      token.value = Token::Li
     elsif scan(/lo\b/i)
-      @token.value = Token::Lo
+      token.value = Token::Lo
     elsif scan(/location\b/i)
-      @token.value = Token::Location
+      token.value = Token::Location
     elsif scan /log\b/i
-      @token.value = Token::Log
+      token.value = Token::Log
     elsif scan /login\b/i
-      @token.value = Token::Login
+      token.value = Token::Login
     elsif scan /logout\b/i
-      @token.value = Token::Logout
+      token.value = Token::Logout
     elsif scan /mobile\b/i
-      @token.value = Token::Mobile
+      token.value = Token::Mobile
     elsif scan /mobilenumber\b/i
-      @token.value = Token::Mobilenumber
+      token.value = Token::Mobilenumber
     elsif scan /my\b/i
-      @token.value = Token::My
+      token.value = Token::My
     elsif scan /n\b/i
-      @token.value = Token::N
+      token.value = Token::N
     elsif scan /name\b/i
-      @token.value = Token::Name
+      token.value = Token::Name
     elsif scan(/nochat\b/i)
-      @token.value = Token::Nochat
+      token.value = Token::Nochat
     elsif scan(/nohide\b/i)
-      @token.value = Token::Nohide
+      token.value = Token::Nohide
     elsif scan /number\b/i
-      @token.value = Token::NumberWord
+      token.value = Token::NumberWord
     elsif scan(/off\b/i)
-      @token.value = Token::Off
+      token.value = Token::Off
     elsif scan(/on\b/i)
-      @token.value = Token::On
+      token.value = Token::On
     elsif scan(/ow\b/i)
-      @token.value = Token::Ow
+      token.value = Token::Ow
     elsif scan(/owner\b/i)
-      @token.value = Token::Owner
+      token.value = Token::Owner
     elsif scan(/password\b/i)
-      @token.value = Token::Password
+      token.value = Token::Password
     elsif scan(/phone\b/i)
-      @token.value = Token::Phone
+      token.value = Token::Phone
     elsif scan(/phonenumber\b/i)
-      @token.value = Token::Phonenumber
+      token.value = Token::Phonenumber
     elsif scan(/private\b/i)
-      @token.value = Token::Private
+      token.value = Token::Private
     elsif scan(/public\b/i)
-      @token.value = Token::Public
+      token.value = Token::Public
     elsif scan(/r\b/i)
-      @token.value = Token::R
+      token.value = Token::R
     elsif scan(/s\b/i)
-      @token.value = Token::S
+      token.value = Token::S
     elsif scan(/start\b/i)
-      @token.value = Token::Start
+      token.value = Token::Start
     elsif scan(/stop\b/i)
-      @token.value = Token::Stop
+      token.value = Token::Stop
     elsif scan(/visible\b/i)
-      @token.value = Token::Visible
+      token.value = Token::Visible
     elsif scan(/w\b/i)
-      @token.value = Token::W
+      token.value = Token::W
     elsif scan(/wh\b/i)
-      @token.value = Token::Wh
+      token.value = Token::Wh
     elsif scan(/where\b/i)
-      @token.value = Token::Where
+      token.value = Token::Where
     elsif scan(/whereis\b/i)
-      @token.value = Token::Whereis
+      token.value = Token::Whereis
     elsif scan(/wi\b/i)
-      @token.value = Token::Wi
+      token.value = Token::Wi
     elsif scan(/who\b/i)
-      @token.value = Token::Who
+      token.value = Token::Who
     elsif scan(/whois\b/i)
-      @token.value = Token::Whois
+      token.value = Token::Whois
     elsif scan /.+?\@.+?(\..+?)*\b/
-      @token.value = Token::Identifier
+      token.value = Token::Identifier
     elsif scan(/.+?:\/\/.+?\s/) || scan(/.+?:\/\/.+\b/)
-      @token.value = Token::Identifier
+      token.value = Token::Identifier
     elsif scan /.+?(\/.+)+\b/
-      @token.value = Token::Identifier
+      token.value = Token::Identifier
     else
       scan /.+?\b/
-      @token.value = Token::Identifier
+      token.value = Token::Identifier
     end
 
-    @token.string = matched.to_s
+    token.string = matched.to_s
 
-    @token
+    token
   end
 end

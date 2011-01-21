@@ -99,6 +99,7 @@ class Token
     eval "#{name} = :#{name}"
   end
 
+  attr_accessor :next
   attr_accessor :start
   attr_accessor :value
   attr_accessor :string
