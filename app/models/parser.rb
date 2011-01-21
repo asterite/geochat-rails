@@ -16,6 +16,11 @@ class Parser < Lexer
       str = str[0 ... -1] if str[-1] == "'"
       return new_signup str.strip
     end
+
+    # Login
+    if scan /^\s*(?:#|\.)?\s*(?:login|log\s+in|li|iam|i\s+am|i'm|im)\s*(?:@\s*)?(.+?)\s+(.+?)\s*$/i
+      return LoginNode.new :login => self[1], :password => self[2]
+    end
   end
 
   def new_signup(string)
@@ -34,4 +39,9 @@ end
 class SignupNode < Node
   attr_accessor :display_name
   attr_accessor :suggested_login
+end
+
+class LoginNode < Node
+  attr_accessor :login
+  attr_accessor :password
 end
