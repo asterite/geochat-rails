@@ -40,12 +40,49 @@ class Parser < Lexer
     if scan /^\s*(?:#|\.)*?\s*(off|stop)\s*$/i
       return OffNode.new
     elsif scan /^\s*-\s*$/i
-      return OnNode.new
+      return OffNode.new
+    end
+
+    # Create group
+    if scan /\s*(?:#|\.)*?\s*(?:create\s+group|create|creategroup|cg)\s+(?:@\s*)?(.+?)(\s+.+?)?$/i
+      return new_create_group self[1], self[2]
+    elsif scan /\s*\*\s*(?:@\s*)?(.+?)(\s+.+?)?$/i
+      return new_create_group self[1], self[2]
     end
   end
 
   def new_signup(string)
     SignupNode.new :display_name => string, :suggested_login => string.gsub(/\s/, '_')
+  end
+
+  def new_create_group(group_alias, pieces)
+    options = {:group => self[1], :public => false, :nochat => false}
+    if pieces
+      pieces = pieces.split
+      in_name = false
+      name = nil
+      pieces.each do |piece|
+        down = piece.downcase
+        case down
+        when 'name'
+          in_name = true
+          name = ''
+        when 'nochat', 'alert'
+          options[:nochat] = true
+          in_name = false
+        when 'public', 'nohide', 'visible'
+          options[:public] = true
+          in_name = false
+        when 'chat', 'chatroom', 'hide', 'private'
+          in_name = false
+        else
+          name << piece
+          name << ' '
+        end
+      end
+    end
+    options[:name] = name.strip if name
+    CreateGroupNode.new options
   end
 end
 
@@ -74,4 +111,11 @@ class OnNode < Node
 end
 
 class OffNode < Node
+end
+
+class CreateGroupNode < Node
+  attr_accessor :group
+  attr_accessor :public
+  attr_accessor :nochat
+  attr_accessor :name
 end

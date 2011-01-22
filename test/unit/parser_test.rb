@@ -8,7 +8,8 @@ class ParserTest < ActiveSupport::TestCase
       node = Parser.parse(string)
       assert node.is_a?(clazz)
       options.each do |k, v|
-        assert_equal v, node.send(k)
+        r = node.send(k)
+        assert_equal v, r, "expected #{k} to be #{v} but was #{r}"
       end
     end
   end
@@ -36,6 +37,10 @@ class ParserTest < ActiveSupport::TestCase
 
   def self.it_parses_off(string)
     it_parses_node string, OffNode
+  end
+
+  def self.it_parses_create_group(string, options = {})
+    it_parses_node string, CreateGroupNode, options
   end
 
   it_parses_signup 'name DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
@@ -106,4 +111,30 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_off "#off"
   it_parses_off "#stop"
   it_parses_off "-"
+
+  it_parses_create_group "create alias", :group => 'alias'
+  it_parses_create_group "create 123alias", :group => '123alias'
+  it_parses_create_group "creategroup alias", :group => 'alias'
+  it_parses_create_group "create group alias", :group => 'alias'
+  it_parses_create_group "create @alias", :group => 'alias'
+  it_parses_create_group "create @ alias", :group => 'alias'
+  it_parses_create_group "create alias nochat", :group => 'alias', :nochat => true
+  it_parses_create_group "create alias alert", :group => 'alias', :nochat => true
+  it_parses_create_group "create alias public", :group => 'alias', :public => true
+  it_parses_create_group "create alias nohide", :group => 'alias', :public => true
+  it_parses_create_group "create alias hide", :group => 'alias', :public => false
+  it_parses_create_group "create alias private", :group => 'alias', :public => false
+  it_parses_create_group "create alias visible", :group => 'alias', :public => true
+  it_parses_create_group "create alias chat", :group => 'alias', :nochat => false
+  it_parses_create_group "create alias chatroom", :group => 'alias', :nochat => false
+  it_parses_create_group "create alias public nochat", :group => 'alias', :public => true, :nochat => true
+  it_parses_create_group "create alias nochat public", :group => 'alias', :public => true, :nochat => true
+  it_parses_create_group "create alias name foobar", :group => 'alias', :name => 'foobar'
+  it_parses_create_group "create alias name foo bar baz", :group => 'alias', :name => 'foo bar baz'
+  it_parses_create_group "create alias name foo bar baz public nochat", :group => 'alias', :name => 'foo bar baz', :public => true, :nochat => true
+  it_parses_create_group "create alias public name foo bar baz nochat", :group => 'alias', :name => 'foo bar baz', :public => true, :nochat => true
+  it_parses_create_group ".cg alias", :group => 'alias'
+  it_parses_create_group "#cg alias", :group => 'alias'
+  it_parses_create_group "*alias", :group => 'alias'
+  it_parses_create_group "* alias", :group => 'alias'
 end
