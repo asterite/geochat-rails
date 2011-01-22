@@ -25,8 +25,15 @@ class Parser < Lexer
     # Logout
     if scan /^\s*(?:#|\.)*?\s*(logout|log\s*out|lo|bye)\s*$/i
       return LogoutNode.new
-    elsif scan /^\s*\)\s*$/
+    elsif scan /^\s*\)\s*$/i
       return LogoutNode.new
+    end
+
+    # On
+    if scan /^\s*(?:#|\.)*?\s*(on|start)\s*/i
+      return OnNode.new
+    elsif scan /^\s*\!\s*$/i
+      return OnNode.new
     end
   end
 
@@ -54,4 +61,7 @@ class LoginNode < Node
 end
 
 class LogoutNode < Node
+end
+
+class OnNode < Node
 end

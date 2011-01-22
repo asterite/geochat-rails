@@ -30,6 +30,10 @@ class ParserTest < ActiveSupport::TestCase
     it_parses_node string, LogoutNode
   end
 
+  def self.it_parses_on(string)
+    it_parses_node string, OnNode
+  end
+
   it_parses_signup 'name DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
   it_parses_signup 'name @loginname', :display_name => 'loginname'
   it_parses_signup 'nAmE DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
@@ -80,4 +84,13 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_logout "#bye"
   it_parses_logout "#lo"
   it_parses_logout ")"
+
+  it_parses_on "on"
+  it_parses_on "start"
+  it_parses_on "sTaRt"
+  it_parses_on ".on"
+  it_parses_on ".start"
+  it_parses_on "#on"
+  it_parses_on "#start"
+  it_parses_on "!"
 end
