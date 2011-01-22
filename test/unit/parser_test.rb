@@ -34,6 +34,10 @@ class ParserTest < ActiveSupport::TestCase
     it_parses_node string, OnNode
   end
 
+  def self.it_parses_off(string)
+    it_parses_node string, OffNode
+  end
+
   it_parses_signup 'name DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
   it_parses_signup 'name @loginname', :display_name => 'loginname'
   it_parses_signup 'nAmE DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
@@ -93,4 +97,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_on "#on"
   it_parses_on "#start"
   it_parses_on "!"
+
+  it_parses_off "off"
 end
