@@ -3,6 +3,16 @@
 require 'test_helper'
 
 class ParserTest < ActiveSupport::TestCase
+  def self.it_parses_node(string, clazz, options = {})
+    test "parses #{clazz} #{string}" do
+      node = Parser.parse(string)
+      assert node.is_a?(clazz)
+      options.each do |k, v|
+        assert_equal v, node.send(k)
+      end
+    end
+  end
+
   def self.it_parses_signup(string, options = {})
     test "parses signup #{string}" do
       node = Parser.parse(string)
@@ -13,12 +23,11 @@ class ParserTest < ActiveSupport::TestCase
   end
 
   def self.it_parses_login(string, options = {})
-    test "parses login #{string}" do
-      node = Parser.parse(string)
-      assert node.is_a?(LoginNode)
-      assert_equal options[:login], node.login
-      assert_equal options[:password], node.password
-    end
+    it_parses_node string, LoginNode, options
+  end
+
+  def self.it_parses_logout(string)
+    it_parses_node string, LogoutNode
   end
 
   it_parses_signup 'name DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
@@ -57,4 +66,18 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_login "(username password", :login => 'username', :password => 'password'
   it_parses_login "( username password", :login => 'username', :password => 'password'
   it_parses_login "( @username password", :login => 'username', :password => 'password'
+
+  it_parses_logout "logout"
+  it_parses_logout "lOgOuT"
+  it_parses_logout "log out"
+  it_parses_logout "bye"
+  it_parses_logout ".logout"
+  it_parses_logout ".log out"
+  it_parses_logout ".bye"
+  it_parses_logout ".lo"
+  it_parses_logout "#logout"
+  it_parses_logout "#log out"
+  it_parses_logout "#bye"
+  it_parses_logout "#lo"
+  it_parses_logout ")"
 end

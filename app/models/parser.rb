@@ -21,6 +21,13 @@ class Parser < Lexer
     if scan /^\s*(?:#|\.)*?\s*(?:login|log\s+in|li|iam|i\s+am|i'm|im|\()\s*(?:@\s*)?(.+?)\s+(.+?)\s*$/i
       return LoginNode.new :login => self[1], :password => self[2]
     end
+
+    # Logout
+    if scan /^\s*(?:#|\.)*?\s*(logout|log\s*out|lo|bye)\s*$/i
+      return LogoutNode.new
+    elsif scan /^\s*\)\s*$/
+      return LogoutNode.new
+    end
   end
 
   def new_signup(string)
@@ -44,4 +51,7 @@ end
 class LoginNode < Node
   attr_accessor :login
   attr_accessor :password
+end
+
+class LogoutNode < Node
 end
