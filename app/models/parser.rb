@@ -9,7 +9,7 @@ class Parser < Lexer
 
   def parse
     # Signup
-    if scan /^\s*(?:#|\.)?\s*(?:name|n)\s*@?(.+?)\s*$/i
+    if scan /^\s*(?:#|\.)*?\s*(?:name|n)\s*@?(.+?)\s*$/i
       return new_signup self[1].strip
     elsif scan /^\s*'(.+)'?$/i
       str = self[1].strip
@@ -18,7 +18,7 @@ class Parser < Lexer
     end
 
     # Login
-    if scan /^\s*(?:#|\.)?\s*(?:login|log\s+in|li|iam|i\s+am|i'm|im)\s*(?:@\s*)?(.+?)\s+(.+?)\s*$/i
+    if scan /^\s*(?:#|\.)*?\s*(?:login|log\s+in|li|iam|i\s+am|i'm|im|\()\s*(?:@\s*)?(.+?)\s+(.+?)\s*$/i
       return LoginNode.new :login => self[1], :password => self[2]
     end
   end

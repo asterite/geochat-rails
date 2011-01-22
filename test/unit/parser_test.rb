@@ -53,4 +53,8 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_login ". iam username password", :login => 'username', :password => 'password'
   it_parses_login ".li username password", :login => 'username', :password => 'password'
   it_parses_login "# iam username password", :login => 'username', :password => 'password'
+  it_parses_login "...iam username password", :login => 'username', :password => 'password'
+  it_parses_login "(username password", :login => 'username', :password => 'password'
+  it_parses_login "( username password", :login => 'username', :password => 'password'
+  it_parses_login "( @username password", :login => 'username', :password => 'password'
 end
