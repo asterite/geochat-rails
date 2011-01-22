@@ -3,9 +3,16 @@
 require 'test_helper'
 
 class ParserTest < ActiveSupport::TestCase
+  def parse(string)
+    lookup = stub('lookup', :is_group? => false)
+    lookup.expects(:is_group?).with('MyGroup').returns(true)
+
+    Parser.parse(string, lookup)
+  end
+
   def self.it_parses_node(string, clazz, options = {})
     test "parses #{clazz} #{string}" do
-      node = Parser.parse(string)
+      node = parse(string)
       assert node.is_a?(clazz)
       options.each do |k, v|
         r = node.send(k)
@@ -16,7 +23,7 @@ class ParserTest < ActiveSupport::TestCase
 
   def self.it_parses_signup(string, options = {})
     test "parses signup #{string}" do
-      node = Parser.parse(string)
+      node = parse(string)
       assert node.is_a?(SignupNode)
       assert_equal options[:display_name], node.display_name
       assert_equal options[:suggested_login] || options[:display_name], node.suggested_login
@@ -145,6 +152,7 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_invite "invite 0823242342", :users => ['0823242342']
   it_parses_invite "invite someone", :users => ['someone']
   it_parses_invite "invite 0823242342 group", :users => ['0823242342'], :group => 'group'
+  it_parses_invite "invite +0823242342 group", :users => ['0823242342'], :group => 'group'
   it_parses_invite "invite 0823242342 @group", :users => ['0823242342'], :group => 'group'
   it_parses_invite "invite group 0823242342", :users => ['0823242342'], :group => 'group'
   it_parses_invite "invite @group 0823242342", :users => ['0823242342'], :group => 'group'
@@ -154,5 +162,18 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_invite "invite someone group", :users => ['group'], :group => 'someone'
   it_parses_invite "invite someone @group", :users => ['group'], :group => 'someone'
   it_parses_invite "invite @group someone", :users => ['group'], :group => 'someone'
-  it_parses_invite "@group invite someone", :users => ['group'], :group => 'someone'
+  it_parses_invite "@group invite someone", :users => ['someone'], :group => 'group'
+  it_parses_invite "MyGroup invite someone", :users => ['someone'], :group => 'MyGroup'
+  it_parses_invite "MyGroup invite +someone", :users => ['someone'], :group => 'MyGroup'
+  it_parses_invite "MyGroup invite someone other", :users => ['someone', 'other'], :group => 'MyGroup'
+  it_parses_invite "MyGroup invite +1234", :users => ['1234'], :group => 'MyGroup'
+  it_parses_invite "MyGroup invite 1234", :users => ['1234'], :group => 'MyGroup'
+  it_parses_invite ".invite 0823242342", :users => ['0823242342']
+  it_parses_invite ".i 0823242342", :users => ['0823242342']
+  it_parses_invite "#invite 0823242342", :users => ['0823242342']
+  it_parses_invite "#i 0823242342", :users => ['0823242342']
+  it_parses_invite "MyGroup .invite 1234", :users => ['1234'], :group => 'MyGroup'
+  it_parses_invite "MyGroup .i 1234", :users => ['1234'], :group => 'MyGroup'
+  it_parses_invite "MyGroup #invite 1234", :users => ['1234'], :group => 'MyGroup'
+  it_parses_invite "MyGroup #i 1234", :users => ['1234'], :group => 'MyGroup'
 end

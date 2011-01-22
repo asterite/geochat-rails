@@ -7,6 +7,10 @@ gem 'rails', '3.0.3'
 
 gem 'sqlite3-ruby', :require => 'sqlite3'
 
+group :test do
+  gem 'mocha'
+end
+
 # Use unicorn as the web server
 # gem 'unicorn'
 

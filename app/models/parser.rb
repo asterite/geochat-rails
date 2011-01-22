@@ -1,13 +1,29 @@
 class Parser < Lexer
-  def initialize(string)
-    super
+  def initialize(string, lookup)
+    super(string)
+    @lookup = lookup
   end
 
-  def self.parse(string)
-    Parser.new(string).parse
+  def self.parse(string, lookup)
+    Parser.new(string, lookup).parse
   end
 
   def parse
+    # Check if first token is a group
+    if scan /^\s*(.+?)\s+(.+?)$/i
+      group = self[1]
+      if @lookup.is_group? group
+        rest = StringScanner.new self[2]
+
+        # Invite
+        if rest.scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+(.+?)$/i
+          return InviteNode.new :group => group, :users => rest[1].split.without_prefix!('+')
+        end
+      end
+
+      unscan
+    end
+
     # Signup
     if scan /^\s*(?:#|\.)*?\s*(?:name|n)\s*@?(.+?)\s*$/i
       return new_signup self[1].strip
@@ -51,25 +67,27 @@ class Parser < Lexer
     end
 
     # Invite
-    if scan /^\s*invite\s+\+?(\d+\s+\+?\d+\s+.+?)$/i
-      users = self[1].split.map!{|x| x.start_with?('+') ? x[1 .. -1] : x}
+    if scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+\+?(\d+\s+\+?\d+\s+.+?)$/i
+      users = self[1].split.without_prefix! '+'
       return InviteNode.new :users => users
-    elsif scan /^\s*invite\s+(\d+)\s+(?:@\s*)?(.+?)$/i
+    elsif scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+\+?(\d+)\s+(?:@\s*)?(.+?)$/i
       return InviteNode.new :users => [self[1].strip], :group => self[2].strip
-    elsif scan /^\s*invite\s+(?:@\s*)?(.+?)\s+\+?(\d+\s*.*?)$/i
+    elsif scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+(?:@\s*)?(.+?)\s+\+?(\d+\s*.*?)$/i
       group = self[1].strip
-      users = self[2].split.map!{|x| x.start_with?('+') ? x[1 .. -1] : x}
+      users = self[2].split.without_prefix! '+'
       return InviteNode.new :users => users, :group => group
-    elsif scan /^\s*invite\s+@\s*(.+?)\s+(.+?)$/i
+    elsif scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+@\s*(.+?)\s+(.+?)$/i
       users = [self[1].strip]
       group = self[2].strip
       return InviteNode.new :users => users, :group => group
-    elsif scan /^\s*invite\s+(.+?)$/i
-      pieces = self[1].split
-      pieces.map!{|x| x.start_with?('@') ? x[1 .. -1] : x}
+    elsif scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+(.+?)$/i
+      pieces = self[1].split.without_prefix! '@'
       group, *users = pieces
       group, users = nil, [group] if users.empty?
       return InviteNode.new :users => users, :group => group
+    elsif scan /^\s*@\s*(.+?)\s+(?:invite|\.invite|\#invite|\.i|\#i)\s+(.+?)$/i
+      users = self[2].split
+      return InviteNode.new :users => users, :group => self[1]
     end
   end
 
