@@ -44,10 +44,32 @@ class Parser < Lexer
     end
 
     # Create group
-    if scan /\s*(?:#|\.)*?\s*(?:create\s+group|create|creategroup|cg)\s+(?:@\s*)?(.+?)(\s+.+?)?$/i
+    if scan /^\s*(?:#|\.)*?\s*(?:create\s+group|create|creategroup|cg)\s+(?:@\s*)?(.+?)(\s+.+?)?$/i
       return new_create_group self[1], self[2]
-    elsif scan /\s*\*\s*(?:@\s*)?(.+?)(\s+.+?)?$/i
+    elsif scan /^\s*\*\s*(?:@\s*)?(.+?)(\s+.+?)?$/i
       return new_create_group self[1], self[2]
+    end
+
+    # Invite
+    if scan /^\s*invite\s+\+?(\d+\s+\+?\d+\s+.+?)$/i
+      users = self[1].split.map!{|x| x.start_with?('+') ? x[1 .. -1] : x}
+      return InviteNode.new :users => users
+    elsif scan /^\s*invite\s+(\d+)\s+(?:@\s*)?(.+?)$/i
+      return InviteNode.new :users => [self[1].strip], :group => self[2].strip
+    elsif scan /^\s*invite\s+(?:@\s*)?(.+?)\s+\+?(\d+\s*.*?)$/i
+      group = self[1].strip
+      users = self[2].split.map!{|x| x.start_with?('+') ? x[1 .. -1] : x}
+      return InviteNode.new :users => users, :group => group
+    elsif scan /^\s*invite\s+@\s*(.+?)\s+(.+?)$/i
+      users = [self[1].strip]
+      group = self[2].strip
+      return InviteNode.new :users => users, :group => group
+    elsif scan /^\s*invite\s+(.+?)$/i
+      pieces = self[1].split
+      pieces.map!{|x| x.start_with?('@') ? x[1 .. -1] : x}
+      group, *users = pieces
+      group, users = nil, [group] if users.empty?
+      return InviteNode.new :users => users, :group => group
     end
   end
 
@@ -118,4 +140,9 @@ class CreateGroupNode < Node
   attr_accessor :public
   attr_accessor :nochat
   attr_accessor :name
+end
+
+class InviteNode < Node
+  attr_accessor :group
+  attr_accessor :users
 end

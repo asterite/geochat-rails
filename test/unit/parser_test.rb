@@ -43,6 +43,10 @@ class ParserTest < ActiveSupport::TestCase
     it_parses_node string, CreateGroupNode, options
   end
 
+  def self.it_parses_invite(string, options = {})
+    it_parses_node string, InviteNode, options
+  end
+
   it_parses_signup 'name DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
   it_parses_signup 'name @loginname', :display_name => 'loginname'
   it_parses_signup 'nAmE DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
@@ -137,4 +141,18 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_create_group "#cg alias", :group => 'alias'
   it_parses_create_group "*alias", :group => 'alias'
   it_parses_create_group "* alias", :group => 'alias'
+
+  it_parses_invite "invite 0823242342", :users => ['0823242342']
+  it_parses_invite "invite someone", :users => ['someone']
+  it_parses_invite "invite 0823242342 group", :users => ['0823242342'], :group => 'group'
+  it_parses_invite "invite 0823242342 @group", :users => ['0823242342'], :group => 'group'
+  it_parses_invite "invite group 0823242342", :users => ['0823242342'], :group => 'group'
+  it_parses_invite "invite @group 0823242342", :users => ['0823242342'], :group => 'group'
+  it_parses_invite "invite group +0823242342", :users => ['0823242342'], :group => 'group'
+  it_parses_invite "invite group +0823242342 +another user", :users => ['0823242342', 'another', 'user'], :group => 'group'
+  it_parses_invite "invite +0823242342 +1234 +another user", :users => ['0823242342', '1234', 'another', 'user'], :group => nil
+  it_parses_invite "invite someone group", :users => ['group'], :group => 'someone'
+  it_parses_invite "invite someone @group", :users => ['group'], :group => 'someone'
+  it_parses_invite "invite @group someone", :users => ['group'], :group => 'someone'
+  it_parses_invite "@group invite someone", :users => ['group'], :group => 'someone'
 end
