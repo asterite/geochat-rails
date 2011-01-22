@@ -99,4 +99,11 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_on "!"
 
   it_parses_off "off"
+  it_parses_off "ofF"
+  it_parses_off "stop"
+  it_parses_off ".off"
+  it_parses_off ".stop"
+  it_parses_off "#off"
+  it_parses_off "#stop"
+  it_parses_off "-"
 end

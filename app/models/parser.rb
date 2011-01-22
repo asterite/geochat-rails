@@ -35,6 +35,13 @@ class Parser < Lexer
     elsif scan /^\s*\!\s*$/i
       return OnNode.new
     end
+
+    # Off
+    if scan /^\s*(?:#|\.)*?\s*(off|stop)\s*$/i
+      return OffNode.new
+    elsif scan /^\s*-\s*$/i
+      return OnNode.new
+    end
   end
 
   def new_signup(string)
@@ -64,4 +71,7 @@ class LogoutNode < Node
 end
 
 class OnNode < Node
+end
+
+class OffNode < Node
 end
