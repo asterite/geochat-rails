@@ -358,4 +358,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "owner", :node => OwnerNode
   it_parses_help ".ow ?", :node => OwnerNode
   it_parses_help "? .ow", :node => OwnerNode
+  it_parses_help "block ?", :node => BlockNode
+  it_parses_help "? block", :node => BlockNode
 end
