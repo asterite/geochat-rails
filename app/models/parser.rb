@@ -66,7 +66,9 @@ class Parser < Lexer
     end
 
     # On
-    if scan /^\s*(?:#|\.)*?\s*(on|start)\s*/i
+    if scan /^\s*(?:#|\.)*?\s*(on|start)\s+(help|\?)\s*$/i
+      return HelpNode.new :node => OnNode
+    elsif scan /^\s*(?:#|\.)*?\s*(on|start)\s*/i
       return OnNode.new
     elsif scan /^\s*\!\s*$/i
       return OnNode.new
@@ -230,6 +232,8 @@ class Parser < Lexer
       return HelpNode.new :node => LogoutNode
     elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(stop|off)\s*$/i
       return HelpNode.new :node => OffNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(start|on)\s*$/i
+      return HelpNode.new :node => OnNode
     end
 
     # Message
