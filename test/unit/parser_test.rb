@@ -390,5 +390,11 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "help .cg", :node => CreateGroupNode
   it_parses_help "help *", :node => CreateGroupNode
   it_parses_help "* help", :node => CreateGroupNode
+  it_parses_help "help join", :node => JoinNode
+  it_parses_help "join help", :node => JoinNode
+  it_parses_help "join group help", :node => JoinNode
+  it_parses_help "help join group", :node => JoinNode
+  it_parses_help "help >", :node => JoinNode
+  it_parses_help "> help", :node => JoinNode
 
 end

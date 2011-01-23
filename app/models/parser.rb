@@ -115,7 +115,9 @@ class Parser < Lexer
     end
 
     # Join
-    if scan /^\s*(?:join|join\s+group|\.\s*j|\.\s*join|\#\s*j|\#\s*join)\s+(?:@\s*)?(\S+)$/i
+    if scan /^\s*(?:join|join\s+group|\.\s*j|\.\s*join|\#\s*j|\#\s*join|>)(\s+(help|\?))?\s*$/i
+      return HelpNode.new :node => JoinNode
+    elsif scan /^\s*(?:join|join\s+group|\.\s*j|\.\s*join|\#\s*j|\#\s*join)\s+(?:@\s*)?(\S+)$/i
       return JoinNode.new :group => self[1]
     elsif scan /^\s*>\s*(?:@\s*)?(\S+)$/i
       return JoinNode.new :group => self[1]
@@ -210,6 +212,8 @@ class Parser < Lexer
       return HelpNode.new :node => LanguageNode
     elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:create\s+group|create|creategroup|cg|\*)\s*$/i
       return HelpNode.new :node => CreateGroupNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:join\s+group|join|joingroup|>)\s*$/i
+      return HelpNode.new :node => JoinNode
     end
 
     # Message
