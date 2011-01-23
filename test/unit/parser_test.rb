@@ -66,6 +66,10 @@ class ParserTest < ActiveSupport::TestCase
     it_parses_node string, BlockNode, options
   end
 
+  def self.it_parses_owner(string, options = {})
+    it_parses_node string, OwnerNode, options
+  end
+
   def self.it_parses_message(string, options = {})
     it_parses_node string, MessageNode, options
   end
@@ -235,6 +239,7 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_leave "< alias", :group => 'alias'
 
   it_parses_block "block someone", :user => 'someone'
+  it_parses_block "block @someone", :user => 'someone'
   it_parses_block ".block someone", :user => 'someone'
   it_parses_block "#block someone", :user => 'someone'
   it_parses_block "block someone somegroup", :user => 'someone', :group => 'somegroup'
@@ -244,6 +249,24 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_block "MyGroup block someone", :user => 'someone', :group => 'MyGroup'
   it_parses_block "MyGroup #block someone", :user => 'someone', :group => 'MyGroup'
   it_parses_block "MyGroup .block someone", :user => 'someone', :group => 'MyGroup'
+
+  it_parses_owner "owner someone", :user => 'someone'
+  it_parses_owner "owner @someone", :user => 'someone'
+  it_parses_owner "owner someone somegroup", :user => 'someone', :group => 'somegroup'
+  it_parses_owner "owner 123456 somegroup", :user => '123456', :group => 'somegroup'
+  it_parses_owner "owner somegroup 123456", :user => '123456', :group => 'somegroup'
+  it_parses_owner ".owner someone", :user => 'someone'
+  it_parses_owner ".ow someone", :user => 'someone'
+  it_parses_owner "#owner someone", :user => 'someone'
+  it_parses_owner "#ow someone", :user => 'someone'
+  it_parses_owner "@somegroup owner someone", :user => 'someone', :group => 'somegroup'
+  it_parses_owner "@somegroup .ow someone", :user => 'someone', :group => 'somegroup'
+  it_parses_owner "MyGroup owner someone", :user => 'someone', :group => 'MyGroup'
+  it_parses_owner "MyGroup .ow someone", :user => 'someone', :group => 'MyGroup'
+  it_parses_owner "$someone", :user => 'someone'
+  it_parses_owner "$ someone", :user => 'someone'
+  it_parses_owner "$someone somegroup", :user => 'someone', :group => 'somegroup'
+  it_parses_owner "MyGroup $someone", :user => 'someone', :group => 'MyGroup'
 
   it_parses_my "#my groups", :key => MyNode::Groups, :value => nil
   it_parses_my ".my groups", :key => MyNode::Groups, :value => nil

@@ -22,10 +22,17 @@ class Parser < Lexer
 
         # Block
         if rest.scan /^\s*(?:#|\.)*?\s*block\s+(\S+)$/i
-          return BlockNode.new :group => group, :user => rest[1].strip
+          return BlockNode.new :group => group, :user => rest[1]
         end
 
-        return Message.new :targets => [group], :body => rest.string
+        # Owner
+        if rest.scan /^\s*(?:#|\.)*?\s*(?:owner|.owner|.ow|#owner|#ow)\s+(\S+)$/i
+          return OwnerNode.new :group => group, :user => rest[1]
+        elsif rest.scan /^\s*\$\s*(\S+)$/i
+          return OwnerNode.new :group => group, :user => rest[1]
+        end
+
+        return MessageNode.new :targets => [group], :body => rest.string
       end
 
       unscan
@@ -120,12 +127,27 @@ class Parser < Lexer
     end
 
     # Block
-    if scan /^\s*(?:#|\.)*?\s*block\s+(\S+)$/i
+    if scan /^\s*(?:#|\.)*?\s*block\s+(?:@\s*)?(\S+)$/i
       return BlockNode.new :user => self[1]
     elsif scan /^\s*(?:#|\.)*?\s*block\s+(\S+)\s+(\S+)$/i
       return BlockNode.new :user => self[1], :group => self[2]
-    elsif scan /^\s*@(\S+)\s*(?:#|\.)*?\s*block\s+(\S+)$/i
+    elsif scan /^\s*@\s*(\S+)\s*(?:#|\.)*?\s*block\s+(\S+)$/i
       return BlockNode.new :user => self[2], :group => self[1]
+    end
+
+    # Owner
+    if scan /^\s*(?:#|\.)*?\s*(?:owner|.owner|.ow|#owner|#ow)\s+(?:@\s*)?(\S+)$/i
+      return OwnerNode.new :user => self[1]
+    elsif scan /^\s*(?:#|\.)*?\s*(?:owner|.owner|.ow|#owner|#ow)\s+(?:@\s*)?(\S+)\s+(?:\+\s*)?(\d+)$/i
+      return OwnerNode.new :user => self[2], :group => self[1]
+    elsif scan /^\s*(?:#|\.)*?\s*(?:owner|.owner|.ow|#owner|#ow)\s+(?:@\s*)?(\S+)\s+(?:@\s*)?(\S+)$/i
+      return OwnerNode.new :user => self[1], :group => self[2]
+    elsif scan /^\s*@\s*(\S+)\s*(?:#|\.)*?\s*(?:owner|.owner|.ow|#owner|#ow)\s+(\S+)$/i
+      return OwnerNode.new :user => self[2], :group => self[1]
+    elsif scan /^\s*\$\s*(\S+)\s*$/i
+      return OwnerNode.new :user => self[1]
+    elsif scan /^\s*\$\s*(\S+)\s+(\S+)\s*$/i
+      return OwnerNode.new :user => self[1], :group => self[2]
     end
 
     # My
@@ -271,6 +293,11 @@ class HelpNode < Node
 end
 
 class BlockNode < Node
+  attr_accessor :user
+  attr_accessor :group
+end
+
+class OwnerNode < Node
   attr_accessor :user
   attr_accessor :group
 end
