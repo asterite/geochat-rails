@@ -78,6 +78,10 @@ class ParserTest < ActiveSupport::TestCase
     it_parses_node string, MyNode, options
   end
 
+  def self.it_parses_whois(string, options = {})
+    it_parses_node string, WhoIsNode, options
+  end
+
   it_parses_signup 'name DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
   it_parses_signup 'name @loginname', :display_name => 'loginname'
   it_parses_signup 'nAmE DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
@@ -288,6 +292,14 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_my "#my password something", :key => MyNode::Password, :value => 'something'
   it_parses_my ".my password something", :key => MyNode::Password, :value => 'something'
   # TODO set multiple things at once
+
+  it_parses_whois "whois someuser", :user => 'someuser'
+  it_parses_whois "whois @someuser", :user => 'someuser'
+  it_parses_whois "whois someuser?", :user => 'someuser'
+  it_parses_whois ".wi someuser", :user => 'someuser'
+  it_parses_whois ".wi someuser?", :user => 'someuser'
+  it_parses_whois "#wi someuser", :user => 'someuser'
+  it_parses_whois "#wi someuser?", :user => 'someuser'
 
   it_parses_message "@group 1234", :body => '1234', :targets => ['group']
   it_parses_message "1234", :body => '1234'

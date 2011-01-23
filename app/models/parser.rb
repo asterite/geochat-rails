@@ -154,11 +154,16 @@ class Parser < Lexer
     elsif scan /^\s*(?:#|\.)*\s*my\s+login\s*$/i
       return MyNode.new :key => MyNode::Login
     elsif scan /^\s*(?:#|\.)*\s*my\s+login\s+(\S+)\s*$/i
-      return MyNode.new :key => MyNode::Login, :value => self[1].strip
+      return MyNode.new :key => MyNode::Login, :value => self[1]
     elsif scan /^\s*(?:#|\.)*\s*my\s+password\s*$/i
       return MyNode.new :key => MyNode::Password
     elsif scan /^\s*(?:#|\.)*\s*my\s+password\s+(\S+)\s*$/i
-      return MyNode.new :key => MyNode::Password, :value => self[1].strip
+      return MyNode.new :key => MyNode::Password, :value => self[1]
+    end
+
+    # Who is
+    if scan /^\s*(?:#|\.)*\s*(?:whois|wi)\s+(?:@\s*)?(.+?)\s*\??\s*$/i
+      return WhoIsNode.new :user => self[1].strip
     end
 
     # Message
@@ -277,4 +282,8 @@ class MyNode < Node
   Password = :password
   Number = :number
   Location = :location
+end
+
+class WhoIsNode < Node
+  attr_accessor :user
 end
