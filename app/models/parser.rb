@@ -76,7 +76,7 @@ class Parser < Lexer
     end
 
     # Create group
-    if scan /^\s*(?:#|\.)*?\s*(?:create\s+group|create|creategroup|cg)(\s+(help|\?))?\s*$/i
+    if scan /^\s*(?:#|\.)*?\s*(?:create\s+group|create|creategroup|cg|\*)(\s+(help|\?))?\s*$/i
       return HelpNode.new :node => CreateGroupNode
     elsif scan /^\s*(?:#|\.)*?\s*(?:create\s+group|create|creategroup|cg)\s+(?:@\s*)?(.+?)(\s+.+?)?$/i
       return new_create_group self[1], self[2]
@@ -208,7 +208,7 @@ class Parser < Lexer
       return HelpNode.new :node => BlockNode
     elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(lang|_)\s*$/i
       return HelpNode.new :node => LanguageNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:create\s+group|create|creategroup|cg)\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:create\s+group|create|creategroup|cg|\*)\s*$/i
       return HelpNode.new :node => CreateGroupNode
     end
 
