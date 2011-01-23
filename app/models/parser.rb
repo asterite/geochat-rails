@@ -19,6 +19,8 @@ class Parser < Lexer
         if rest.scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+(.+?)$/i
           return InviteNode.new :group => group, :users => rest[1].split.without_prefix!('+')
         end
+
+        return Message.new :targets => [group], :body => rest.string
       end
 
       unscan
@@ -87,8 +89,19 @@ class Parser < Lexer
       return InviteNode.new :users => users, :group => group
     elsif scan /^\s*@\s*(.+?)\s+(?:invite|\.invite|\#invite|\.i|\#i)\s+(.+?)$/i
       users = self[2].split
-      return InviteNode.new :users => users, :group => self[1]
+      return InviteNode.new :users => users, :group => self[1].strip
+    elsif scan /^\s*\+\s*(.+?)$/i
+      return InviteNode.new :users => self[1].split
+    elsif scan /^\s*@\s*(.+?)\s+\+\s*(.+?)$/i
+      return InviteNode.new :users => self[2].split, :group => self[1].strip
     end
+
+    # Message
+    if scan /^\s*@\s*(.+?)\s+(.+?)$/i
+      return MessageNode.new :body => self[2], :targets => [self[1]]
+    end
+
+    MessageNode.new :body => string
   end
 
   def new_signup(string)
@@ -163,4 +176,9 @@ end
 class InviteNode < Node
   attr_accessor :group
   attr_accessor :users
+end
+
+class MessageNode < Node
+  attr_accessor :body
+  attr_accessor :targets
 end

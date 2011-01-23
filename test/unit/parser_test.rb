@@ -54,6 +54,10 @@ class ParserTest < ActiveSupport::TestCase
     it_parses_node string, InviteNode, options
   end
 
+  def self.it_parses_message(string, options = {})
+    it_parses_node string, MessageNode, options
+  end
+
   it_parses_signup 'name DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
   it_parses_signup 'name @loginname', :display_name => 'loginname'
   it_parses_signup 'nAmE DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
@@ -176,4 +180,12 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_invite "MyGroup .i 1234", :users => ['1234'], :group => 'MyGroup'
   it_parses_invite "MyGroup #invite 1234", :users => ['1234'], :group => 'MyGroup'
   it_parses_invite "MyGroup #i 1234", :users => ['1234'], :group => 'MyGroup'
+  it_parses_invite "+1234", :users => ['1234']
+  it_parses_invite "+ 1234", :users => ['1234']
+  it_parses_invite "+someone", :users => ['someone']
+  it_parses_invite "+some one", :users => ['some', 'one']
+  it_parses_invite "@group +1234", :users => ['1234'], :group => 'group'
+
+  it_parses_message "@group 1234", :body => '1234', :targets => ['group']
+  it_parses_message "1234", :body => '1234'
 end
