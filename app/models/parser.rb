@@ -127,7 +127,9 @@ class Parser < Lexer
     end
 
     # Block
-    if scan /^\s*(?:#|\.)*?\s*block\s+(?:@\s*)?(\S+)$/i
+    if scan /^\s*(?:#|\.)*?\s*block(\s+(?:help|\?))?\s*$/i
+      return HelpNode.new :node => BlockNode
+    elsif scan /^\s*(?:#|\.)*?\s*block\s+(?:@\s*)?(\S+)$/i
       return BlockNode.new :user => self[1]
     elsif scan /^\s*(?:#|\.)*?\s*block\s+(\S+)\s+(\S+)$/i
       return BlockNode.new :user => self[1], :group => self[2]
@@ -136,15 +138,15 @@ class Parser < Lexer
     end
 
     # Owner
-    if scan /^\s*(?:#|\.)*?\s*(?:owner|.owner|.ow|#owner|#ow)(\s+(?:help|\?))?\s*$/i
+    if scan /^\s*(?:#|\.)*?\s*(?:owner|ow)(\s+(?:help|\?))?\s*$/i
       return HelpNode.new :node => OwnerNode
-    elsif scan /^\s*(?:#|\.)*?\s*(?:owner|.owner|.ow|#owner|#ow)\s+(?:@\s*)?(\S+)$/i
+    elsif scan /^\s*(?:#|\.)*?\s*(?:owner|ow)\s+(?:@\s*)?(\S+)$/i
       return OwnerNode.new :user => self[1]
-    elsif scan /^\s*(?:#|\.)*?\s*(?:owner|.owner|.ow|#owner|#ow)\s+(?:@\s*)?(\S+)\s+(?:\+\s*)?(\d+)$/i
+    elsif scan /^\s*(?:#|\.)*?\s*(?:owner|ow)\s+(?:@\s*)?(\S+)\s+(?:\+\s*)?(\d+)$/i
       return OwnerNode.new :user => self[2], :group => self[1]
-    elsif scan /^\s*(?:#|\.)*?\s*(?:owner|.owner|.ow|#owner|#ow)\s+(?:@\s*)?(\S+)\s+(?:@\s*)?(\S+)$/i
+    elsif scan /^\s*(?:#|\.)*?\s*(?:owner|ow)\s+(?:@\s*)?(\S+)\s+(?:@\s*)?(\S+)$/i
       return OwnerNode.new :user => self[1], :group => self[2]
-    elsif scan /^\s*@\s*(\S+)\s*(?:#|\.)*?\s*(?:owner|.owner|.ow|#owner|#ow)\s+(\S+)$/i
+    elsif scan /^\s*@\s*(\S+)\s*(?:#|\.)*?\s*(?:owner|ow)\s+(\S+)$/i
       return OwnerNode.new :user => self[2], :group => self[1]
     elsif scan /^\s*\$\s*(\S+)\s*$/i
       return OwnerNode.new :user => self[1]
@@ -190,11 +192,20 @@ class Parser < Lexer
       return WhoIsNode.new :user => self[1].strip
     end
 
+    # Language
+    if scan /^\s*(?:#|\.)*\s*(?:lang|_)(\s+(?:help|\?))?\s*$/i
+      return HelpNode.new :node => LanguageNode
+    end
+
     # Help
     if scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s*$/i
       return HelpNode.new
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(owner|group\s+owner|owner\s+group|\.ow|#ow|\.owner|#owner)$/i
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(owner|group\s+owner|owner\s+group|.ow|#ow|\.owner|#owner)\s*$/i
       return HelpNode.new :node => OwnerNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(block)\s*$/i
+      return HelpNode.new :node => BlockNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(lang|_)\s*$/i
+      return HelpNode.new :node => LanguageNode
     end
 
     # Message
@@ -322,4 +333,8 @@ end
 
 class WhoIsNode < Node
   attr_accessor :user
+end
+
+class LanguageNode < Node
+  attr_accessor :name
 end
