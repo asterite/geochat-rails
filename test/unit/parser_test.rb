@@ -422,5 +422,9 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "? on", :node => OnNode
   it_parses_help "on help", :node => OnNode
   it_parses_help "on ?", :node => OnNode
+  it_parses_help "name help", :node => SignupNode
+  it_parses_help "help name", :node => SignupNode
+  it_parses_help "name ?", :node => SignupNode
+  it_parses_help "? name", :node => SignupNode
 
 end
