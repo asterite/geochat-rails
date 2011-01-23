@@ -13,7 +13,7 @@ class ParserTest < ActiveSupport::TestCase
   def self.it_parses_node(string, clazz, options = {})
     test "parses #{clazz} #{string}" do
       node = parse(string)
-      assert node.is_a?(clazz)
+      assert node.is_a?(clazz), "expected to be #{clazz} but was #{node.class}"
       options.each do |k, v|
         r = node.send(k)
         assert_equal v, r, "expected #{k} to be #{v} but was #{r}"
@@ -88,6 +88,18 @@ class ParserTest < ActiveSupport::TestCase
 
   def self.it_parses_whereis(string, options = {})
     it_parses_node string, WhereIsNode, options
+  end
+
+  def self.location(*args)
+    [deg(*args[0 .. 2]), deg(*args[3 .. 5])]
+  end
+
+  def self.deg(*args)
+    if args[0] < 0
+      -(-args[0] + args[1] / 60.0 + args[2] / 3600.0)
+    else
+      args[0] + args[1] / 60.0 + args[2] / 3600.0
+    end
   end
 
   it_parses_signup 'name DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
@@ -338,6 +350,54 @@ class ParserTest < ActiveSupport::TestCase
 
   it_parses_message "@group 1234", :body => '1234', :targets => ['group']
   it_parses_message "1234", :body => '1234'
+  it_parses_message "at bangkok", :location => "bangkok", :body => nil
+  it_parses_message "at bangkok *", :location => "bangkok", :body => nil
+  it_parses_message "l: bangkok", :location => "bangkok", :body => nil
+  it_parses_message "l: bangkok *", :location => "bangkok", :body => nil
+  it_parses_message "at", :body => 'at', :location => nil
+  it_parses_message "l:", :body => 'l:', :location => nil
+  it_parses_message "bangkok *", :location => "bangkok", :body => nil
+
+  it_parses_message "30° 31' 32'' N * 33° 34' 35'' E", :location => location(30, 31, 32, 33, 34, 35)
+  it_parses_message "30 31' 32'' N * 33° 34' 35'' E", :location => location(30, 31, 32, 33, 34, 35)
+  it_parses_message "30° 31 32'' N * 33° 34' 35'' E", :location => location(30, 31, 32, 33, 34, 35)
+  it_parses_message "30° 31' 32 N * 33° 34' 35'' E", :location => location(30, 31, 32, 33, 34, 35)
+  it_parses_message "30° 31' 32'' * 33° 34' 35'' E", :location => location(30, 31, 32, 33, 34, 35)
+  it_parses_message "30° 31' 32'' N 33° 34' 35'' E", :location => location(30, 31, 32, 33, 34, 35)
+  it_parses_message "30° 31' 32'' N * 33 34' 35'' E", :location => location(30, 31, 32, 33, 34, 35)
+  it_parses_message "30° 31' 32'' N * 33° 34 35'' E", :location => location(30, 31, 32, 33, 34, 35)
+  it_parses_message "30° 31' 32'' N * 33° 34' 35 E", :location => location(30, 31, 32, 33, 34, 35)
+  it_parses_message "30° 31' 32'' N * 33° 34' 35''", :location => location(30, 31, 32, 33, 34, 35)
+  it_parses_message "30° 31' N * 33° 34' 35'' E", :location => location(30, 31, 0, 33, 34, 35)
+  it_parses_message "30° N * 33° 34' 35'' E", :location => location(30, 0, 0, 33, 34, 35)
+  it_parses_message "30° * 33° 34' 35'' E", :location => location(30, 0, 0, 33, 34, 35)
+  it_parses_message "30° 31' 32'' N * 33° 34' E", :location => location(30, 31, 32, 33, 34, 0)
+  it_parses_message "30° 31' 32'' N * 33° E", :location => location(30, 31, 32, 33, 0, 0)
+  it_parses_message "30° 31' 32'' N * 33°", :location => location(30, 31, 32, 33, 0, 0)
+  it_parses_message "30° 32'' N * 33° 34' 35'' E", :location => location(30, 0, 32, 33, 34, 35)
+  #it_parses_message "30° 31' 32'' N * 33° 35'' E", :location => location(30, 31, 32, 33, 0, 35) # => currently fails
+  it_parses_message "N 30° 31' 32'' * E 33° 34' 35''", :location => location(30, 31, 32, 33, 34, 35)
+  it_parses_message "-30° 31' 32'' * E 33° 34' 35''", :location => location(-30, 31, 32, 33, 34, 35)
+  it_parses_message "- 30° 31' 32'' * E 33° 34' 35''", :location => location(-30, 31, 32, 33, 34, 35)
+  it_parses_message "+30° 31' 32'' * E 33° 34' 35''", :location => location(30, 31, 32, 33, 34, 35)
+  it_parses_message "+ 30° 31' 32'' * E 33° 34' 35''", :location => location(30, 31, 32, 33, 34, 35)
+  it_parses_message "30° 31' 32'' * -33° 34' 35''", :location => location(30, 31, 32, -33, 34, 35)
+  it_parses_message "30° 31' 32'' * - 33° 34' 35''", :location => location(30, 31, 32, -33, 34, 35)
+  it_parses_message "30° 31' 32'' * +33° 34' 35''", :location => location(30, 31, 32, 33, 34, 35)
+  it_parses_message "30° 31' 32'' * + 33° 34' 35''", :location => location(30, 31, 32, 33, 34, 35)
+  it_parses_message "30° 31' 32'' S * 33° 34' 35'' E", :location => location(-30, 31, 32, 33, 34, 35)
+  it_parses_message "30° 31' 32'' N * 33° 34' 35'' W", :location => location(30, 31, 32, -33, 34, 35)
+  it_parses_message "S 30° 31' 32'' * 33° 34' 35'' E", :location => location(-30, 31, 32, 33, 34, 35)
+  it_parses_message "30° 31' 32'' N * W 33° 34' 35''", :location => location(30, 31, 32, -33, 34, 35)
+  it_parses_message "at 30° 31' 32'' N * W 33° 34' 35''", :location => location(30, 31, 32, -33, 34, 35)
+  it_parses_message "l: 30° 31' 32'' N * W 33° 34' 35''", :location => location(30, 31, 32, -33, 34, 35)
+  it_parses_message "1 2 3 N 4 W", :location => location(1, 2, 3, -4, 0, 0)
+  it_parses_message "1 2 N 4 W", :location => location(1, 2, 0, -4, 0, 0)
+  it_parses_message "1 N 4 E", :location => location(1, 0, 0, 4, 0, 0)
+  it_parses_message "N 1 E 4", :location => location(1, 0, 0, 4, 0, 0)
+  it_parses_message "12.24 N 45.67 E", :location => location(12.24, 0, 0, 45.67, 0, 0)
+  it_parses_message "at N 1 E 4", :location => location(1, 0, 0, 4, 0, 0)
+  it_parses_message "l: N 1 E 4", :location => location(1, 0, 0, 4, 0, 0)
 
   it_parses_help "help", :node => nil
   it_parses_help ".help", :node => nil

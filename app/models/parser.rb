@@ -1,3 +1,5 @@
+# coding: utf-8
+
 class Parser < Lexer
   def initialize(string, lookup)
     super(string)
@@ -38,10 +40,64 @@ class Parser < Lexer
       unscan
     end
 
+    # Help
+    if scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s*$/i
+      return HelpNode.new
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(owner|group\s+owner|owner\s+group|.ow|#ow|\.owner|#owner)\s*$/i
+      return HelpNode.new :node => OwnerNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(block)\s*$/i
+      return HelpNode.new :node => BlockNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(lang|_)\s*$/i
+      return HelpNode.new :node => LanguageNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:create\s+group|create|creategroup|cg|\*)\s*$/i
+      return HelpNode.new :node => CreateGroupNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:join\s+group|join|joingroup|j|>)\s*$/i
+      return HelpNode.new :node => JoinNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:leave\s+group|leave|leavegroup|l|<)\s*$/i
+      return HelpNode.new :node => LeaveNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:login|log\s+in|li|iam|i\s+am|i'm|im|\()\s*$/i
+      return HelpNode.new :node => LoginNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(logout|log\s*out|lo|bye|\))\s*$/i
+      return HelpNode.new :node => LogoutNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(stop|off)\s*$/i
+      return HelpNode.new :node => OffNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(start|on)\s*$/i
+      return HelpNode.new :node => OnNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(name|n)\s*$/i
+      return HelpNode.new :node => SignupNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(whois|wh)\s*$/i
+      return HelpNode.new :node => WhoIsNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(whereis|wi)\s*$/i
+      return HelpNode.new :node => WhereIsNode
+    end
+
+    # Message with location
+    if scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+)(?:\s*°\s*|\s+)(\d+)?(?:\s*'\s*|\s+)(\d+)?(?:\s*''\s*|\s*)(N|S)?\s*\*?\s*(E|W)?\s*((?:\+|\-)?\s*\d+)(?:\s*°\s*|\s*)(\d+)?(?:\s*'\s*|\s*)(\d+)?(?:\s*''\s*|\s*)(E|W)?\s*$/i
+      sign0 = self[1] == 'S' || self[5] == 'S' ? -1 : 1
+      sign1 = self[6] == 'W' || self[10] == 'W' ? -1 : 1
+      loc = location(self[2].gsub(/\s/, ''), self[3], self[4], self[7].gsub(/\s/, ''), self[8], self[9])
+      loc[0] = loc[0] * sign0
+      loc[1] = loc[1] * sign1
+      return MessageNode.new :location => loc
+    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(N|S)?(?:\s*\*\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(E|W)?\s*$/i
+      sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
+      sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
+      loc = [self[2].gsub(/\s/, '').to_f, self[5].gsub(/\s/, '').to_f]
+      loc[0] = loc[0] * sign0
+      loc[1] = loc[1] * sign1
+      return MessageNode.new :location => loc
+    elsif scan /^\s*(?:at|l:)\s+(.+?)(?:\s*\*)?\s*$/i
+      return MessageNode.new :location => self[1]
+    elsif scan /^\s*(.+?)\s*\*\s*$/i
+      return MessageNode.new :location => self[1]
+    end
+
     # Signup
     if scan /^\s*(?:#|\.)*?\s*(?:name|n)(\s+(help|\?))?\s*$/i
       return HelpNode.new :node => SignupNode
-    elsif scan /^\s*(?:#|\.)*?\s*(?:name|n)\s*@?(.+?)\s*$/i
+    elsif scan /^\s*(?:#|\.)*?\s*name\s*@?(.+?)\s*$/i
+      return new_signup self[1].strip
+    elsif scan /^\s*(?:#|\.)+\s*n\s*@?(.+?)\s*$/i
       return new_signup self[1].strip
     elsif scan /^\s*'(.+)'?$/i
       str = self[1].strip
@@ -222,36 +278,6 @@ class Parser < Lexer
       return HelpNode.new :node => LanguageNode
     end
 
-    # Help
-    if scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s*$/i
-      return HelpNode.new
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(owner|group\s+owner|owner\s+group|.ow|#ow|\.owner|#owner)\s*$/i
-      return HelpNode.new :node => OwnerNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(block)\s*$/i
-      return HelpNode.new :node => BlockNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(lang|_)\s*$/i
-      return HelpNode.new :node => LanguageNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:create\s+group|create|creategroup|cg|\*)\s*$/i
-      return HelpNode.new :node => CreateGroupNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:join\s+group|join|joingroup|j|>)\s*$/i
-      return HelpNode.new :node => JoinNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:leave\s+group|leave|leavegroup|l|<)\s*$/i
-      return HelpNode.new :node => LeaveNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:login|log\s+in|li|iam|i\s+am|i'm|im|\()\s*$/i
-      return HelpNode.new :node => LoginNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(logout|log\s*out|lo|bye|\))\s*$/i
-      return HelpNode.new :node => LogoutNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(stop|off)\s*$/i
-      return HelpNode.new :node => OffNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(start|on)\s*$/i
-      return HelpNode.new :node => OnNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(name|n)\s*$/i
-      return HelpNode.new :node => SignupNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(whois|wh)\s*$/i
-      return HelpNode.new :node => WhoIsNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(whereis|wi)\s*$/i
-      return HelpNode.new :node => WhereIsNode
-    end
 
     # Message
     if scan /^\s*@\s*(.+?)\s+(.+?)$/i
@@ -293,6 +319,19 @@ class Parser < Lexer
     end
     options[:name] = name.strip if name
     CreateGroupNode.new options
+  end
+
+  def location(*args)
+    [deg(*args[0 .. 2]), deg(*args[3 .. 5])]
+  end
+
+  def deg(*args)
+    first = args[0].to_f
+    if first < 0
+      -(-first + args[1].to_f / 60.0 + args[2].to_f / 3600.0)
+    else
+      first + args[1].to_f / 60.0 + args[2].to_f / 3600.0
+    end
   end
 end
 
@@ -346,6 +385,7 @@ end
 class MessageNode < Node
   attr_accessor :body
   attr_accessor :targets
+  attr_accessor :location
 end
 
 class HelpNode < Node
