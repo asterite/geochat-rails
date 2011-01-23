@@ -204,8 +204,17 @@ class Parser < Lexer
     end
 
     # Who is
-    if scan /^\s*(?:#|\.)*\s*(?:whois|wi)\s+(?:@\s*)?(.+?)\s*\??\s*$/i
+    if scan /^\s*(?:#|\.)*\s*(?:whois|wi)(\s+(?:help|\?))?\s*$/i
+      return HelpNode.new :node => WhoIsNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:whois|wi)\s+(?:@\s*)?(.+?)\s*\??\s*$/i
       return WhoIsNode.new :user => self[1].strip
+    end
+
+    # Where is
+    if scan /^\s*(?:#|\.)*\s*(?:whereis|wh)(\s+(?:help|\?))?\s*$/i
+      return HelpNode.new :node => WhereIsNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:whereis|wh)\s+(?:@\s*)?(.+?)\s*\??\s*$/i
+      return WhereIsNode.new :user => self[1].strip
     end
 
     # Language
@@ -238,6 +247,10 @@ class Parser < Lexer
       return HelpNode.new :node => OnNode
     elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(name|n)\s*$/i
       return HelpNode.new :node => SignupNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(whois|wh)\s*$/i
+      return HelpNode.new :node => WhoIsNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(whereis|wi)\s*$/i
+      return HelpNode.new :node => WhereIsNode
     end
 
     # Message
@@ -364,6 +377,10 @@ class MyNode < Node
 end
 
 class WhoIsNode < Node
+  attr_accessor :user
+end
+
+class WhereIsNode < Node
   attr_accessor :user
 end
 

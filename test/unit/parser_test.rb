@@ -86,6 +86,10 @@ class ParserTest < ActiveSupport::TestCase
     it_parses_node string, WhoIsNode, options
   end
 
+  def self.it_parses_whereis(string, options = {})
+    it_parses_node string, WhereIsNode, options
+  end
+
   it_parses_signup 'name DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
   it_parses_signup 'name @loginname', :display_name => 'loginname'
   it_parses_signup 'nAmE DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
@@ -324,6 +328,14 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_whois "#wi someuser", :user => 'someuser'
   it_parses_whois "#wi someuser?", :user => 'someuser'
 
+  it_parses_whereis "whereis someuser", :user => 'someuser'
+  it_parses_whereis "whereis @someuser", :user => 'someuser'
+  it_parses_whereis "whereis someuser?", :user => 'someuser'
+  it_parses_whereis ".wh someuser", :user => 'someuser'
+  it_parses_whereis ".wh someuser?", :user => 'someuser'
+  it_parses_whereis "#wh someuser", :user => 'someuser'
+  it_parses_whereis "#wh someuser?", :user => 'someuser'
+
   it_parses_message "@group 1234", :body => '1234', :targets => ['group']
   it_parses_message "1234", :body => '1234'
 
@@ -426,5 +438,13 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "help name", :node => SignupNode
   it_parses_help "name ?", :node => SignupNode
   it_parses_help "? name", :node => SignupNode
+  it_parses_help "whois ?", :node => WhoIsNode
+  it_parses_help "help whois", :node => WhoIsNode
+  it_parses_help "whois help", :node => WhoIsNode
+  it_parses_help "? whois", :node => WhoIsNode
+  it_parses_help "whereis ?", :node => WhereIsNode
+  it_parses_help "help whereis", :node => WhereIsNode
+  it_parses_help "whereis help", :node => WhereIsNode
+  it_parses_help "? whereis", :node => WhereIsNode
 
 end
