@@ -377,4 +377,16 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "_", :node => LanguageNode
   it_parses_help "_ ?", :node => LanguageNode
   it_parses_help "? _", :node => LanguageNode
+  it_parses_help "help create", :node => CreateGroupNode
+  it_parses_help "help creategroup", :node => CreateGroupNode
+  it_parses_help "help create group", :node => CreateGroupNode
+  it_parses_help "? create", :node => CreateGroupNode
+  it_parses_help "create help", :node => CreateGroupNode
+  it_parses_help "create ?", :node => CreateGroupNode
+  it_parses_help "create group help", :node => CreateGroupNode
+  it_parses_help "creategroup help", :node => CreateGroupNode
+  it_parses_help ".cg help", :node => CreateGroupNode
+  it_parses_help "#cg help", :node => CreateGroupNode
+  it_parses_help "help .cg", :node => CreateGroupNode
+
 end
