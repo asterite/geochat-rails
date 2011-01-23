@@ -136,7 +136,9 @@ class Parser < Lexer
     end
 
     # Owner
-    if scan /^\s*(?:#|\.)*?\s*(?:owner|.owner|.ow|#owner|#ow)\s+(?:@\s*)?(\S+)$/i
+    if scan /^\s*(?:#|\.)*?\s*(?:owner|.owner|.ow|#owner|#ow)(\s+(?:help|\?))?\s*$/i
+      return HelpNode.new :node => OwnerNode
+    elsif scan /^\s*(?:#|\.)*?\s*(?:owner|.owner|.ow|#owner|#ow)\s+(?:@\s*)?(\S+)$/i
       return OwnerNode.new :user => self[1]
     elsif scan /^\s*(?:#|\.)*?\s*(?:owner|.owner|.ow|#owner|#ow)\s+(?:@\s*)?(\S+)\s+(?:\+\s*)?(\d+)$/i
       return OwnerNode.new :user => self[2], :group => self[1]
@@ -191,6 +193,8 @@ class Parser < Lexer
     # Help
     if scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s*$/i
       return HelpNode.new
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(owner|group\s+owner|owner\s+group|\.ow|#ow|\.owner|#owner)$/i
+      return HelpNode.new :node => OwnerNode
     end
 
     # Message

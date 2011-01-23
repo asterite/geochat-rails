@@ -349,4 +349,13 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "#i", :node => InviteNode
   it_parses_help "#my", :node => MyNode
   it_parses_help ".my", :node => MyNode
+  it_parses_help "owner help", :node => OwnerNode
+  it_parses_help "help owner", :node => OwnerNode
+  it_parses_help "help group owner", :node => OwnerNode
+  it_parses_help "help owner group", :node => OwnerNode
+  it_parses_help "owner ?", :node => OwnerNode
+  it_parses_help "? owner", :node => OwnerNode
+  it_parses_help "owner", :node => OwnerNode
+  it_parses_help ".ow ?", :node => OwnerNode
+  it_parses_help "? .ow", :node => OwnerNode
 end
