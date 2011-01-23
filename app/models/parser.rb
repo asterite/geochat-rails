@@ -121,11 +121,44 @@ class Parser < Lexer
 
     # Block
     if scan /^\s*(?:#|\.)*?\s*block\s+(\S+)$/i
-      return BlockNode.new :user => self[1].strip
+      return BlockNode.new :user => self[1]
     elsif scan /^\s*(?:#|\.)*?\s*block\s+(\S+)\s+(\S+)$/i
-      return BlockNode.new :user => self[1].strip, :group => self[2].strip
+      return BlockNode.new :user => self[1], :group => self[2]
     elsif scan /^\s*@(\S+)\s*(?:#|\.)*?\s*block\s+(\S+)$/i
-      return BlockNode.new :user => self[2].strip, :group => self[1].strip
+      return BlockNode.new :user => self[2], :group => self[1]
+    end
+
+    # My
+    if scan /^\s*(?:#|\.)*\s*my\s*$/i
+      return HelpNode.new :node => MyNode
+    elsif scan /^\s*(?:#|\.)*\s*my\s+groups\s*$/i
+      return MyNode.new :key => MyNode::Groups
+    elsif scan /^\s*(?:#|\.)*\s*my\s+(?:group|g)\s*$/i
+      return MyNode.new :key => MyNode::Group
+    elsif scan /^\s*(?:#|\.)*\s*my\s+(?:group|g)\s+(?:@\s*)?(\S+)\s*$/i
+      return MyNode.new :key => MyNode::Group, :value => self[1].strip
+    elsif scan /^\s*(?:#|\.)*\s*my\s+name\s*$/i
+      return MyNode.new :key => MyNode::Name
+    elsif scan /^\s*(?:#|\.)*\s*my\s+name\s+(.+?)\s*$/i
+      return MyNode.new :key => MyNode::Name, :value => self[1].strip
+    elsif scan /^\s*(?:#|\.)*\s*my\s+email\s*$/i
+      return MyNode.new :key => MyNode::Email
+    elsif scan /^\s*(?:#|\.)*\s*my\s+email\s+(.+?)\s*$/i
+      return MyNode.new :key => MyNode::Email, :value => self[1].strip
+    elsif scan /^\s*(?:#|\.)*\s*my\s+(number|phone|phonenumber|phone\s+number|mobile|mobilenumber|mobile\s+number)\s*$/i
+      return MyNode.new :key => MyNode::Number
+    elsif scan /^\s*(?:#|\.)*\s*my\s+location\s*$/i
+      return MyNode.new :key => MyNode::Location
+    elsif scan /^\s*(?:#|\.)*\s*my\s+location\s+(.+?)\s*$/i
+      return MyNode.new :key => MyNode::Location, :value => self[1].strip
+    elsif scan /^\s*(?:#|\.)*\s*my\s+login\s*$/i
+      return MyNode.new :key => MyNode::Login
+    elsif scan /^\s*(?:#|\.)*\s*my\s+login\s+(\S+)\s*$/i
+      return MyNode.new :key => MyNode::Login, :value => self[1].strip
+    elsif scan /^\s*(?:#|\.)*\s*my\s+password\s*$/i
+      return MyNode.new :key => MyNode::Password
+    elsif scan /^\s*(?:#|\.)*\s*my\s+password\s+(\S+)\s*$/i
+      return MyNode.new :key => MyNode::Password, :value => self[1].strip
     end
 
     # Message
@@ -230,4 +263,18 @@ end
 class BlockNode < Node
   attr_accessor :user
   attr_accessor :group
+end
+
+class MyNode < Node
+  attr_accessor :key
+  attr_accessor :value
+
+  Groups = :groups
+  Group = :group
+  Name = :name
+  Email = :email
+  Login = :login
+  Password = :password
+  Number = :number
+  Location = :location
 end

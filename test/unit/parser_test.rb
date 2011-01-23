@@ -74,6 +74,10 @@ class ParserTest < ActiveSupport::TestCase
     it_parses_node string, HelpNode, options
   end
 
+  def self.it_parses_my(string, options = {})
+    it_parses_node string, MyNode, options
+  end
+
   it_parses_signup 'name DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
   it_parses_signup 'name @loginname', :display_name => 'loginname'
   it_parses_signup 'nAmE DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
@@ -237,6 +241,54 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_block "MyGroup #block someone", :user => 'someone', :group => 'MyGroup'
   it_parses_block "MyGroup .block someone", :user => 'someone', :group => 'MyGroup'
 
+  it_parses_my "#my groups", :key => MyNode::Groups, :value => nil
+  it_parses_my ".my groups", :key => MyNode::Groups, :value => nil
+  it_parses_my "#my group", :key => MyNode::Group, :value => nil
+  it_parses_my ".my group", :key => MyNode::Group, :value => nil
+  it_parses_my "#my g", :key => MyNode::Group, :value => nil
+  it_parses_my ".my g", :key => MyNode::Group, :value => nil
+  it_parses_my "#my group something", :key => MyNode::Group, :value => 'something'
+  it_parses_my ".my group something", :key => MyNode::Group, :value => 'something'
+  it_parses_my "#my g something", :key => MyNode::Group, :value => 'something'
+  it_parses_my ".my g something", :key => MyNode::Group, :value => 'something'
+  it_parses_my ".my g @something", :key => MyNode::Group, :value => 'something'
+  it_parses_my "#my name", :key => MyNode::Name, :value => nil
+  it_parses_my ".my name", :key => MyNode::Name, :value => nil
+  it_parses_my "#my name something", :key => MyNode::Name, :value => 'something'
+  it_parses_my ".my name something", :key => MyNode::Name, :value => 'something'
+  it_parses_my ".my name something something", :key => MyNode::Name, :value => 'something something'
+  it_parses_my "#my email", :key => MyNode::Email, :value => nil
+  it_parses_my ".my email", :key => MyNode::Email, :value => nil
+  it_parses_my "#my email something", :key => MyNode::Email, :value => 'something'
+  it_parses_my ".my email something", :key => MyNode::Email, :value => 'something'
+  it_parses_my "#my number", :key => MyNode::Number, :value => nil
+  it_parses_my ".my number", :key => MyNode::Number, :value => nil
+  it_parses_my "#my phone", :key => MyNode::Number, :value => nil
+  it_parses_my ".my phone", :key => MyNode::Number, :value => nil
+  it_parses_my "#my phonenumber", :key => MyNode::Number, :value => nil
+  it_parses_my ".my phonenumber", :key => MyNode::Number, :value => nil
+  it_parses_my "#my phone number", :key => MyNode::Number, :value => nil
+  it_parses_my ".my phone number", :key => MyNode::Number, :value => nil
+  it_parses_my "#my mobile", :key => MyNode::Number, :value => nil
+  it_parses_my ".my mobile", :key => MyNode::Number, :value => nil
+  it_parses_my "#my mobilenumber", :key => MyNode::Number, :value => nil
+  it_parses_my ".my mobilenumber", :key => MyNode::Number, :value => nil
+  it_parses_my "#my mobile number", :key => MyNode::Number, :value => nil
+  it_parses_my ".my mobile number", :key => MyNode::Number, :value => nil
+  it_parses_my "#my location", :key => MyNode::Location, :value => nil
+  it_parses_my ".my location", :key => MyNode::Location, :value => nil
+  it_parses_my "#my location something long", :key => MyNode::Location, :value => 'something long'
+  it_parses_my ".my location something long", :key => MyNode::Location, :value => 'something long'
+  it_parses_my "#my login", :key => MyNode::Login, :value => nil
+  it_parses_my ".my login", :key => MyNode::Login, :value => nil
+  it_parses_my "#my login something", :key => MyNode::Login, :value => 'something'
+  it_parses_my ".my login something", :key => MyNode::Login, :value => 'something'
+  it_parses_my "#my password", :key => MyNode::Password, :value => nil
+  it_parses_my ".my password", :key => MyNode::Password, :value => nil
+  it_parses_my "#my password something", :key => MyNode::Password, :value => 'something'
+  it_parses_my ".my password something", :key => MyNode::Password, :value => 'something'
+  # TODO set multiple things at once
+
   it_parses_message "@group 1234", :body => '1234', :targets => ['group']
   it_parses_message "1234", :body => '1234'
 
@@ -253,4 +305,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "#i help", :node => InviteNode
   it_parses_help "#i ?", :node => InviteNode
   it_parses_help "#i", :node => InviteNode
+  it_parses_help "#my", :node => MyNode
+  it_parses_help ".my", :node => MyNode
 end
