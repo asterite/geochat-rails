@@ -409,4 +409,11 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "( ?", :node => LoginNode
   it_parses_help "help (", :node => LoginNode
 
+  it_parses_help "help logout", :node => LogoutNode
+  it_parses_help "logout help", :node => LogoutNode
+  it_parses_help "? logout", :node => LogoutNode
+  it_parses_help "logout ?", :node => LogoutNode
+  it_parses_help ") ?", :node => LogoutNode
+  it_parses_help "help )", :node => LogoutNode
+
 end
