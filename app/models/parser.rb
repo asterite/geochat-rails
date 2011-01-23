@@ -166,6 +166,11 @@ class Parser < Lexer
       return WhoIsNode.new :user => self[1].strip
     end
 
+    # Help
+    if scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s*$/i
+      return HelpNode.new
+    end
+
     # Message
     if scan /^\s*@\s*(.+?)\s+(.+?)$/i
       return MessageNode.new :body => self[2], :targets => [self[1]]

@@ -304,6 +304,13 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_message "@group 1234", :body => '1234', :targets => ['group']
   it_parses_message "1234", :body => '1234'
 
+  it_parses_help "help", :node => nil
+  it_parses_help ".help", :node => nil
+  it_parses_help "#help", :node => nil
+  it_parses_help "h", :node => nil
+  it_parses_help ".h", :node => nil
+  it_parses_help "#h", :node => nil
+  it_parses_help "?", :node => nil
   it_parses_help ".im", :node => LoginNode
   it_parses_help ".im username", :node => LoginNode
   it_parses_help "#im", :node => LoginNode
