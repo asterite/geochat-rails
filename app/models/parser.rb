@@ -48,7 +48,9 @@ class Parser < Lexer
     end
 
     # Login
-    if scan /^\s*(?:#|\.)*?\s*(?:login|log\s+in|li|iam|i\s+am|i'm|im|\()\s*(?:@\s*)?(.+?)\s+(.+?)\s*$/i
+    if scan /^\s*(?:#|\.)*?\s*(?:login|log\s+in|li|iam|i\s+am|i'm|im|\()(\s+(help|\?))?\s*$/i
+      return HelpNode.new :node => LoginNode
+    elsif scan /^\s*(?:#|\.)*?\s*(?:login|log\s+in|li|iam|i\s+am|i'm|im|\()\s*(?:@\s*)?(.+?)\s+(.+?)\s*$/i
       return LoginNode.new :login => self[1], :password => self[2]
     elsif scan /^\s*(?:#|\.)*?\s*(.im)(\s+\S+)?\s*$/i
       return HelpNode.new :node => LoginNode
@@ -218,6 +220,8 @@ class Parser < Lexer
       return HelpNode.new :node => JoinNode
     elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:leave\s+group|leave|leavegroup|l|<)\s*$/i
       return HelpNode.new :node => LeaveNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:login|log\s+in|li|iam|i\s+am|i'm|im|\()\s*$/i
+      return HelpNode.new :node => LoginNode
     end
 
     # Message

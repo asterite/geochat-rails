@@ -396,12 +396,17 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "help join group", :node => JoinNode
   it_parses_help "help >", :node => JoinNode
   it_parses_help "> help", :node => JoinNode
-
   it_parses_help "help leave", :node => LeaveNode
   it_parses_help "leave help", :node => LeaveNode
   it_parses_help "leave group help", :node => LeaveNode
   it_parses_help "help leave group", :node => LeaveNode
   it_parses_help "help <", :node => LeaveNode
   it_parses_help "< help", :node => LeaveNode
+  it_parses_help "help login", :node => LoginNode
+  it_parses_help "login help", :node => LoginNode
+  it_parses_help "? login", :node => LoginNode
+  it_parses_help "login ?", :node => LoginNode
+  it_parses_help "( ?", :node => LoginNode
+  it_parses_help "help (", :node => LoginNode
 
 end
