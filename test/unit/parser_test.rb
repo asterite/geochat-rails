@@ -408,12 +408,15 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "login ?", :node => LoginNode
   it_parses_help "( ?", :node => LoginNode
   it_parses_help "help (", :node => LoginNode
-
   it_parses_help "help logout", :node => LogoutNode
   it_parses_help "logout help", :node => LogoutNode
   it_parses_help "? logout", :node => LogoutNode
   it_parses_help "logout ?", :node => LogoutNode
   it_parses_help ") ?", :node => LogoutNode
   it_parses_help "help )", :node => LogoutNode
+  it_parses_help "help stop", :node => OffNode
+  it_parses_help "? stop", :node => OffNode
+  it_parses_help "stop help", :node => OffNode
+  it_parses_help "stop ?", :node => OffNode
 
 end
