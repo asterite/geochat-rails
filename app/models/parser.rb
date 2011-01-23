@@ -96,6 +96,13 @@ class Parser < Lexer
       return InviteNode.new :users => self[2].split, :group => self[1].strip
     end
 
+    # Join
+    if scan /^\s*(?:join|join\s+group|\.\s*j|\.\s*join|\#\s*j|\#\s*join)\s+(?:@\s*)?(\S+)$/i
+      return JoinNode.new :group => self[1]
+    elsif scan /^\s*>\s*(?:@\s*)?(\S+)$/i
+      return JoinNode.new :group => self[1]
+    end
+
     # Message
     if scan /^\s*@\s*(.+?)\s+(.+?)$/i
       return MessageNode.new :body => self[2], :targets => [self[1]]
@@ -176,6 +183,10 @@ end
 class InviteNode < Node
   attr_accessor :group
   attr_accessor :users
+end
+
+class JoinNode < Node
+  attr_accessor :group
 end
 
 class MessageNode < Node

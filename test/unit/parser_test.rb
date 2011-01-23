@@ -54,6 +54,10 @@ class ParserTest < ActiveSupport::TestCase
     it_parses_node string, InviteNode, options
   end
 
+  def self.it_parses_join(string, options = {})
+    it_parses_node string, JoinNode, options
+  end
+
   def self.it_parses_message(string, options = {})
     it_parses_node string, MessageNode, options
   end
@@ -185,6 +189,18 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_invite "+someone", :users => ['someone']
   it_parses_invite "+some one", :users => ['some', 'one']
   it_parses_invite "@group +1234", :users => ['1234'], :group => 'group'
+
+  it_parses_join "join alias", :group => 'alias'
+  it_parses_join "join @alias", :group => 'alias'
+  it_parses_join "join group alias", :group => 'alias'
+  it_parses_join "join group @alias", :group => 'alias'
+  it_parses_join ".j @alias", :group => 'alias'
+  it_parses_join ".join @alias", :group => 'alias'
+  it_parses_join "#j @alias", :group => 'alias'
+  it_parses_join "#join @alias", :group => 'alias'
+  it_parses_join ">alias", :group => 'alias'
+  it_parses_join ">@alias", :group => 'alias'
+  it_parses_join "> alias", :group => 'alias'
 
   it_parses_message "@group 1234", :body => '1234', :targets => ['group']
   it_parses_message "1234", :body => '1234'
