@@ -418,5 +418,9 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "? stop", :node => OffNode
   it_parses_help "stop help", :node => OffNode
   it_parses_help "stop ?", :node => OffNode
+  it_parses_help "help on", :node => OnNode
+  it_parses_help "? on", :node => OnNode
+  it_parses_help "on help", :node => OnNode
+  it_parses_help "on ?", :node => OnNode
 
 end
