@@ -58,6 +58,10 @@ class ParserTest < ActiveSupport::TestCase
     it_parses_node string, JoinNode, options
   end
 
+  def self.it_parses_leave(string, options = {})
+    it_parses_node string, LeaveNode, options
+  end
+
   def self.it_parses_message(string, options = {})
     it_parses_node string, MessageNode, options
   end
@@ -201,6 +205,18 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_join ">alias", :group => 'alias'
   it_parses_join ">@alias", :group => 'alias'
   it_parses_join "> alias", :group => 'alias'
+
+  it_parses_leave "leave alias", :group => 'alias'
+  it_parses_leave "leave @alias", :group => 'alias'
+  it_parses_leave "leave group alias", :group => 'alias'
+  it_parses_leave "leave group @alias", :group => 'alias'
+  it_parses_leave ".l @alias", :group => 'alias'
+  it_parses_leave ".leave @alias", :group => 'alias'
+  it_parses_leave "#l @alias", :group => 'alias'
+  it_parses_leave "#leave @alias", :group => 'alias'
+  it_parses_leave "<alias", :group => 'alias'
+  it_parses_leave "<@alias", :group => 'alias'
+  it_parses_leave "< alias", :group => 'alias'
 
   it_parses_message "@group 1234", :body => '1234', :targets => ['group']
   it_parses_message "1234", :body => '1234'
