@@ -43,6 +43,8 @@ class Parser < Lexer
     # Login
     if scan /^\s*(?:#|\.)*?\s*(?:login|log\s+in|li|iam|i\s+am|i'm|im|\()\s*(?:@\s*)?(.+?)\s+(.+?)\s*$/i
       return LoginNode.new :login => self[1], :password => self[2]
+    elsif scan /^\s*(?:#|\.)*?\s*(.im)(\s+\S+)?\s*$/i
+      return HelpNode.new :node => LoginNode
     end
 
     # Logout
@@ -74,7 +76,9 @@ class Parser < Lexer
     end
 
     # Invite
-    if scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+\+?(\d+\s+\+?\d+\s+.+?)$/i
+    if scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)(\s+(help|\?))?\s*$/i
+      return HelpNode.new :node => InviteNode
+    elsif scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+\+?(\d+\s+\+?\d+\s+.+?)$/i
       users = self[1].split.without_prefix! '+'
       return InviteNode.new :users => users
     elsif scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+\+?(\d+)\s+(?:@\s*)?(.+?)$/i
@@ -217,6 +221,10 @@ end
 class MessageNode < Node
   attr_accessor :body
   attr_accessor :targets
+end
+
+class HelpNode < Node
+  attr_accessor :node
 end
 
 class BlockNode < Node

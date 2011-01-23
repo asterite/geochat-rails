@@ -62,12 +62,16 @@ class ParserTest < ActiveSupport::TestCase
     it_parses_node string, LeaveNode, options
   end
 
+  def self.it_parses_block(string, options = {})
+    it_parses_node string, BlockNode, options
+  end
+
   def self.it_parses_message(string, options = {})
     it_parses_node string, MessageNode, options
   end
 
-  def self.it_parses_block(string, options = {})
-    it_parses_node string, BlockNode, options
+  def self.it_parses_help(string, options = {})
+    it_parses_node string, HelpNode, options
   end
 
   it_parses_signup 'name DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
@@ -235,4 +239,18 @@ class ParserTest < ActiveSupport::TestCase
 
   it_parses_message "@group 1234", :body => '1234', :targets => ['group']
   it_parses_message "1234", :body => '1234'
+
+  it_parses_help ".im", :node => LoginNode
+  it_parses_help ".im username", :node => LoginNode
+  it_parses_help "#im", :node => LoginNode
+  it_parses_help "#im username", :node => LoginNode
+  it_parses_help "invite help", :node => InviteNode
+  it_parses_help "invite ?", :node => InviteNode
+  it_parses_help "invite", :node => InviteNode
+  it_parses_help ".i help", :node => InviteNode
+  it_parses_help ".i ?", :node => InviteNode
+  it_parses_help ".i", :node => InviteNode
+  it_parses_help "#i help", :node => InviteNode
+  it_parses_help "#i ?", :node => InviteNode
+  it_parses_help "#i", :node => InviteNode
 end
