@@ -39,7 +39,9 @@ class Parser < Lexer
     end
 
     # Signup
-    if scan /^\s*(?:#|\.)*?\s*(?:name|n)\s*@?(.+?)\s*$/i
+    if scan /^\s*(?:#|\.)*?\s*(?:name|n)(\s+(help|\?))?\s*$/i
+      return HelpNode.new :node => SignupNode
+    elsif scan /^\s*(?:#|\.)*?\s*(?:name|n)\s*@?(.+?)\s*$/i
       return new_signup self[1].strip
     elsif scan /^\s*'(.+)'?$/i
       str = self[1].strip
@@ -234,6 +236,8 @@ class Parser < Lexer
       return HelpNode.new :node => OffNode
     elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(start|on)\s*$/i
       return HelpNode.new :node => OnNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(name|n)\s*$/i
+      return HelpNode.new :node => SignupNode
     end
 
     # Message
