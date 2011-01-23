@@ -20,6 +20,11 @@ class Parser < Lexer
           return InviteNode.new :group => group, :users => rest[1].split.without_prefix!('+')
         end
 
+        # Block
+        if rest.scan /^\s*(?:#|\.)*?\s*block\s+(\S+)$/i
+          return BlockNode.new :group => group, :user => rest[1].strip
+        end
+
         return Message.new :targets => [group], :body => rest.string
       end
 
@@ -108,6 +113,15 @@ class Parser < Lexer
       return LeaveNode.new :group => self[1]
     elsif scan /^\s*<\s*(?:@\s*)?(\S+)$/i
       return LeaveNode.new :group => self[1]
+    end
+
+    # Block
+    if scan /^\s*(?:#|\.)*?\s*block\s+(\S+)$/i
+      return BlockNode.new :user => self[1].strip
+    elsif scan /^\s*(?:#|\.)*?\s*block\s+(\S+)\s+(\S+)$/i
+      return BlockNode.new :user => self[1].strip, :group => self[2].strip
+    elsif scan /^\s*@(\S+)\s*(?:#|\.)*?\s*block\s+(\S+)$/i
+      return BlockNode.new :user => self[2].strip, :group => self[1].strip
     end
 
     # Message
@@ -203,4 +217,9 @@ end
 class MessageNode < Node
   attr_accessor :body
   attr_accessor :targets
+end
+
+class BlockNode < Node
+  attr_accessor :user
+  attr_accessor :group
 end

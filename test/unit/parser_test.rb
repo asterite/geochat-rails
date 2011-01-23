@@ -66,6 +66,10 @@ class ParserTest < ActiveSupport::TestCase
     it_parses_node string, MessageNode, options
   end
 
+  def self.it_parses_block(string, options = {})
+    it_parses_node string, BlockNode, options
+  end
+
   it_parses_signup 'name DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
   it_parses_signup 'name @loginname', :display_name => 'loginname'
   it_parses_signup 'nAmE DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
@@ -217,6 +221,17 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_leave "<alias", :group => 'alias'
   it_parses_leave "<@alias", :group => 'alias'
   it_parses_leave "< alias", :group => 'alias'
+
+  it_parses_block "block someone", :user => 'someone'
+  it_parses_block ".block someone", :user => 'someone'
+  it_parses_block "#block someone", :user => 'someone'
+  it_parses_block "block someone somegroup", :user => 'someone', :group => 'somegroup'
+  it_parses_block "@somegroup block someone", :user => 'someone', :group => 'somegroup'
+  it_parses_block "@somegroup #block someone", :user => 'someone', :group => 'somegroup'
+  it_parses_block "@somegroup .block someone", :user => 'someone', :group => 'somegroup'
+  it_parses_block "MyGroup block someone", :user => 'someone', :group => 'MyGroup'
+  it_parses_block "MyGroup #block someone", :user => 'someone', :group => 'MyGroup'
+  it_parses_block "MyGroup .block someone", :user => 'someone', :group => 'MyGroup'
 
   it_parses_message "@group 1234", :body => '1234', :targets => ['group']
   it_parses_message "1234", :body => '1234'
