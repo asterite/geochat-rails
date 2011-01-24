@@ -26,16 +26,35 @@ class Parser < StringScanner
         node.tags ||= []
         node.tags << match.first
       end
+
+      # Check locations
+      node.body.scan /\s+\/[^\/]+\/|\s+\/\S+/ do |match|
+        match = match.strip
+        match = match[1 .. -1] if match.start_with?('/')
+        ['/', ',', '.', ';'].each do |char|
+          match = match[0 .. -2] if match.end_with?(char)
+        end
+        if match.present?
+          node.locations ||= []
+          node.locations << match
+        end
+      end
+
+      # Check numeric locations
+      node.locations.map!{|x| check_numeric_location x} if node.locations
     end
     node
   end
 
   def parse_node
+    options = {}
+    options[:blast] = check_blast
+
     # Check if first token is a group
     if scan /^\s*(@)?\s*(.+?)\s+(.+?)$/i
       group = self[2]
       if (self[1] && target = UnknownTarget.new(group)) || (target = @lookup.get_target(group))
-        targets = [target]
+        options[:targets] = [target]
 
         rest = StringScanner.new self[3]
 
@@ -62,12 +81,12 @@ class Parser < StringScanner
 
         while rest.scan /^\s*(@)?\s*(.+?)\s+(.+?)$/i
           if rest[1]
-            targets << UnknownTarget.new(rest[2])
+            options[:targets] << UnknownTarget.new(rest[2])
             rest = StringScanner.new rest[3]
           else
             target = @lookup.get_target rest[2]
             if target
-              targets << target
+              options[:targets] << target
               rest = StringScanner.new rest[3]
             else
               unscan
@@ -77,10 +96,10 @@ class Parser < StringScanner
 
         self.string = rest.string
 
-        node = parse_message_with_location targets
+        node = parse_message_with_location options
         return node if node
 
-        return MessageNode.new :targets => targets, :body => string
+        return MessageNode.new options.merge(:body => string)
       end
 
       unscan
@@ -117,7 +136,7 @@ class Parser < StringScanner
       return HelpNode.new :node => WhereIsNode
     end
 
-    node = parse_message_with_location
+    node = parse_message_with_location options
     return node if node
 
     # Signup
@@ -310,34 +329,67 @@ class Parser < StringScanner
       return LanguageNode.new :name => self[1].strip
     end
 
-    MessageNode.new :body => string
+    MessageNode.new options.merge(:body => string)
   end
 
-  def parse_message_with_location(targets = nil)
-    if scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+)(?:\s*°\s*|\s+)(\d+)?(?:\s*'\s*|\s+)(\d+)?(?:\s*''\s*|\s*)(N|S)?\s*\*?\s*(E|W)?\s*((?:\+|\-)?\s*\d+)(?:\s*°\s*|\s*)(\d+)?(?:\s*'\s*|\s*)(\d+)?(?:\s*''\s*|\s*)(E|W)?\s*$/i
-      sign0 = self[1] == 'S' || self[5] == 'S' ? -1 : 1
-      sign1 = self[6] == 'W' || self[10] == 'W' ? -1 : 1
-      loc = location(self[2].gsub(/\s/, ''), self[3], self[4], self[7].gsub(/\s/, ''), self[8], self[9])
-      loc[0] = loc[0] * sign0
-      loc[1] = loc[1] * sign1
-      MessageNode.new :location => loc, :targets => targets
-    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(N|S)?(?:\s*\*\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(E|W)?\s*$/i
+  def parse_message_with_location(options = {})
+    if scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*°\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*°\s*(E|W)?\s*([^\s\d].+?)?$/i
       sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
       sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
       loc = [self[2].gsub(/\s/, '').to_f, self[5].gsub(/\s/, '').to_f]
       loc[0] = loc[0] * sign0
       loc[1] = loc[1] * sign1
-      MessageNode.new :location => loc, :targets => targets
-    elsif scan /^\s*(?:at|l:)\s+\/?(.+?)\/?\s*\*\s*(.+?)?$/i
-      MessageNode.new :location => self[1], :targets => targets, :body => self[2].try(:strip)
-    elsif scan /^\s*(?:at|l:)\s+\/(.+?)\/\s*(.+?)?$/i
-      MessageNode.new :location => self[1], :targets => targets, :body => self[2].try(:strip)
+      MessageNode.new options.merge(:location => loc, :body => self[7].try(:strip))
+    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)(?:\s*°\s*|\s+)(\d+)?(?:\s*'\s*|\s+)(\d+)?(?:\s*''\s*)?\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)(?:\s*°\s*|\s*)(\d+)?(?:\s*'\s*|\s*)(\d+)?(?:\s*''\s*)?\s*(E|W)?\s*(.+?)?$/i
+      sign0 = self[1] == 'S' || self[5] == 'S' ? -1 : 1
+      sign1 = self[6] == 'W' || self[10] == 'W' ? -1 : 1
+      loc = location(self[2].gsub(/\s/, ''), self[3], self[4], self[7].gsub(/\s/, ''), self[8], self[9])
+      loc[0] = loc[0] * sign0
+      loc[1] = loc[1] * sign1
+      MessageNode.new options.merge(:location => loc, :body => self[11].try(:strip))
+    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(N|S)?(?:\s*\*\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(E|W)?\s*(.+?)?$/i
+      sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
+      sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
+      loc = [self[2].gsub(/\s/, '').to_f, self[5].gsub(/\s/, '').to_f]
+      loc[0] = loc[0] * sign0
+      loc[1] = loc[1] * sign1
+      MessageNode.new options.merge(:location => loc, :body => self[7].try(:strip))
+    elsif scan /^\s*(?:at|l:)\s+\/?(.+?)\/?\s*\*\s*([^\/]+)?$/i
+      MessageNode.new options.merge(:location => self[1], :body => self[2].try(:strip))
+    elsif scan /^\s*(?:at|l:)\s+\/(.+?)\/\s*(!)?\s*(.+?)?$/i
+      MessageNode.new options.merge(:location => self[1], :body => self[3].try(:strip), :blast => self[2] ? true : options[:blast])
+    elsif scan /^\s*\/?(.+?)\/?\s*\*\s*([^\/]+)?$/i
+      MessageNode.new options.merge(:location => self[1], :body => self[2].try(:strip))
+    elsif scan /^\s*(?:(?:at|l:)\s+)?\s*\/([^\/]+)$/i
+      pieces = self[1].split ' ', 2
+      if pieces[1] && pieces[1].start_with?('!')
+        options[:blast] = true
+        pieces[1] = pieces[1][1 .. -1].strip
+      end
+      MessageNode.new options.merge(:location => pieces[0], :body => pieces[1])
     elsif scan /^\s*(?:at|l:)\s+\/?(.+?)\/?$/i
-      MessageNode.new :location => self[1], :targets => targets
-    elsif scan /^\s*\/?(.+?)\/?\s*\*\s*(.+?)?$/i
-      MessageNode.new :location => self[1], :targets => targets, :body => self[2].try(:strip)
+      MessageNode.new options.merge(:location => self[1])
+    elsif scan /^\s*\/(.+?)\/\s*(!)?\s*(.+?)?$/i
+      MessageNode.new options.merge(:location => self[1], :body => self[3].try(:strip), :blast => self[2] ? true : options[:blast])
     else
       nil
+    end
+  end
+
+  def check_blast
+    if scan /\s*!(.+?)$/i
+      self.string = self[1]
+      true
+    else
+      nil
+    end
+  end
+
+  def check_numeric_location(string)
+    if string =~ /^\s*(\d+(?:\.\d+)?)(?:\s+|\s*(?:,|\*)\s*)(\d+(?:\.\d+)?)\s*$/
+      [$1.to_f, $2.to_f]
+    else
+      string
     end
   end
 

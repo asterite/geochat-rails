@@ -111,7 +111,11 @@ class ParserTest < ActiveSupport::TestCase
   end
 
   def self.location(*args)
-    [deg(*args[0 .. 2]), deg(*args[3 .. 5])]
+    if args.length == 2
+      args
+    else
+      [deg(*args[0 .. 2]), deg(*args[3 .. 5])]
+    end
   end
 
   def self.deg(*args)
@@ -422,14 +426,15 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_message "l: 30° 31' 32'' N * W 33° 34' 35''", :location => location(30, 31, 32, -33, 34, 35)
   it_parses_message "1 2 3 N 4 W", :location => location(1, 2, 3, -4, 0, 0)
   it_parses_message "1 2 N 4 W", :location => location(1, 2, 0, -4, 0, 0)
-  it_parses_message "1 N 4 E", :location => location(1, 0, 0, 4, 0, 0)
-  it_parses_message "N 1 E 4", :location => location(1, 0, 0, 4, 0, 0)
-  it_parses_message "12.24 N 45.67 E", :location => location(12.24, 0, 0, 45.67, 0, 0)
-  it_parses_message "at N 1 E 4", :location => location(1, 0, 0, 4, 0, 0)
-  it_parses_message "l: N 1 E 4", :location => location(1, 0, 0, 4, 0, 0)
+  it_parses_message "1 N 4 E", :location => location(1, 4)
+  it_parses_message "N 1 E 4", :location => location(1, 4)
+  it_parses_message "12.24 N 45.67 E", :location => location(12.24, 45.67)
+  it_parses_message "at N 1 E 4", :location => location(1, 4)
+  it_parses_message "l: N 1 E 4", :location => location(1, 4)
   it_parses_message "+10 25 +2", :location => location(10, 25, 0, 2, 0, 0)
   # TODO USNG
   it_parses_message "Hello All!", :body => :unchanged
+  it_parses_message "!Hello All", :body => "Hello All", :blast => true
   it_parses_message "Hey, we should tell @somegroup about this!", :body => :unchanged, :mentions => ['somegroup']
   it_parses_message "Hey, we should tell @ somegroup about this!", :body => :unchanged, :mentions => ['somegroup']
   it_parses_message "Hey, we should tell @somegroup and @someothergroup about this!", :body => :unchanged, :mentions => ['somegroup', 'someothergroup']
@@ -461,6 +466,48 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_message "at /bangkok * Hello", :body => "Hello", :location => 'bangkok'
   it_parses_message "at /bangkok/ * Hello", :body => "Hello", :location => 'bangkok'
   it_parses_message "at /bangkok/ Hello", :body => "Hello", :location => 'bangkok'
+  it_parses_message "at /Buenos Aires/ * Hello", :body => "Hello", :location => 'Buenos Aires'
+  it_parses_message "at /Buenos Aires/ Hello", :body => "Hello", :location => 'Buenos Aires'
+  it_parses_message "!at /Buenos Aires/ Hello", :body => "Hello", :location => 'Buenos Aires', :blast => true
+  it_parses_message "at /Buenos Aires/ ! Hello", :body => "Hello", :location => 'Buenos Aires', :blast => true
+  it_parses_message "/Buenos Aires/ Hello", :body => "Hello", :location => 'Buenos Aires'
+  it_parses_message "!/Buenos Aires/ Hello", :body => "Hello", :location => 'Buenos Aires', :blast => true
+  it_parses_message "/Buenos Aires/ ! Hello", :body => "Hello", :location => 'Buenos Aires', :blast => true
+  it_parses_message "at /France Hello", :body => "Hello", :location => 'France'
+  it_parses_message "!at /France Hello", :body => "Hello", :location => 'France', :blast => true
+  it_parses_message "at /France ! Hello", :body => "Hello", :location => 'France', :blast => true
+  it_parses_message "/France Hello", :body => "Hello", :location => 'France'
+  it_parses_message "!/France Hello", :body => "Hello", :location => 'France', :blast => true
+  it_parses_message "/France ! Hello", :body => "Hello", :location => 'France', :blast => true
+  it_parses_message "at bangkok * I'm here", :body => "I'm here", :location => 'bangkok'
+  # it_parses_message "at * bangkok * I'm here", :body => "I'm here", :location => 'bangkok' # => currently fails
+  it_parses_message "Hello guys, I've just arrived to /bangkok meeting you in a sec", :body => :unchanged, :location => 'bangkok'
+  it_parses_message "Hello guys, I've just arrived to /bangkok, meeting you in a sec", :body => :unchanged, :location => 'bangkok'
+  it_parses_message "Hello guys, I've just arrived to /Buenos Aires/, meeting you in a sec", :body => :unchanged, :location => 'Buenos Aires'
+  it_parses_message "/Buenos Aires/ is cool", :body => 'is cool', :location => 'Buenos Aires'
+  it_parses_message "/Buenos Aires/ is cool, also /France", :body => 'is cool, also /France', :locations => ['Buenos Aires', 'France']
+  it_parses_message "/Buenos Aires/ is cool, but not /Malos Aires/", :body => 'is cool, but not /Malos Aires/', :locations => ['Buenos Aires', 'Malos Aires']
+  it_parses_message "We are at /10 20/", :body => :unchanged, :location => location(10, 20)
+  it_parses_message "We are at /10.23 20.45/", :body => :unchanged, :location => location(10.23, 20.45)
+  it_parses_message "We are at /10, 20/", :body => :unchanged, :location => location(10, 20)
+  it_parses_message "We are at /10 * 20/", :body => :unchanged, :location => location(10, 20)
+  # TODO USNG
+  it_parses_message "at 865 cambridge ave. menlo park, ca", :location => "865 cambridge ave. menlo park, ca"
+  it_parses_message "at 865 cambridge ave. menlo park, ca * Hello", :location => "865 cambridge ave. menlo park, ca", :body => "Hello"
+  it_parses_message "+30 31 - 33 34 35 Hello!", :body => "Hello!", :location => location(30, 31, 0, -33, 34, 35)
+  it_parses_message "+30 31 + 33 34 Hello!", :body => "Hello!", :location => location(30, 31, 0, 33, 34, 0)
+  it_parses_message "+30 31 -33 34 35 Hello!", :body => "Hello!", :location => location(30, 31, 0, -33, 34, 35)
+  it_parses_message "+30 31 +33 34 35 Hello!", :body => "Hello!", :location => location(30, 31, 0, 33, 34, 35)
+  it_parses_message "at +30 31 +33 34 35 Hello!", :body => "Hello!", :location => location(30, 31, 0, 33, 34, 35)
+  it_parses_message "-34.508° -12.234° foobar", :body => 'foobar', :location => location(-34.508, -12.234)
+  it_parses_message "30° 31° foobar", :body => 'foobar', :location => location(30, 31)
+  it_parses_message "30 31 foobar", :body => 'foobar', :location => location(30, 31)
+  it_parses_message "30.25° 31.26° foobar", :body => 'foobar', :location => location(30.25, 31.26)
+  it_parses_message "30.25 31.26 foobar", :body => 'foobar', :location => location(30.25, 31.26)
+  it_parses_message "30.25° 31.26°", :location => location(30.25, 31.26)
+  # it_parses_message "30° 31 foobar", :body => 'foobar', :location => location(30, 31) # currently fails
+  it_parses_message "hola /+10 -20 hello/", :location => "+10 -20 hello", :body => :unchanged
+  #it_parses_message "at 10.20.30 40.50.60", :location => location(10, 20, 30, 40, 50, 60)
 
   it_parses_help "help", :node => nil
   it_parses_help ".help", :node => nil
