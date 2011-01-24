@@ -126,18 +126,18 @@ class ParserTest < ActiveSupport::TestCase
     end
   end
 
-  it_parses_signup 'name DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
+  it_parses_signup 'name DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAYNAME'
   it_parses_signup 'name @loginname', :display_name => 'loginname'
-  it_parses_signup 'nAmE DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
-  it_parses_signup '  name    DISPLAY NAME   ', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
+  it_parses_signup 'nAmE DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAYNAME'
+  it_parses_signup '  name    DISPLAY NAME   ', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAYNAME'
   it_parses_signup '#name @loginname', :display_name => 'loginname'
   it_parses_signup '.name @loginname', :display_name => 'loginname'
   it_parses_signup '. name @loginname', :display_name => 'loginname'
   it_parses_signup '.n @loginname', :display_name => 'loginname'
   it_parses_signup '#n @loginname', :display_name => 'loginname'
-  it_parses_signup "'DISPLAY NAME'", :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
-  it_parses_signup "'DISPLAY NAME", :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
-  it_parses_signup "   '   DISPLAY NAME   '  ", :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAY_NAME'
+  it_parses_signup "'DISPLAY NAME'", :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAYNAME'
+  it_parses_signup "'DISPLAY NAME", :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAYNAME'
+  it_parses_signup "   '   DISPLAY NAME   '  ", :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAYNAME'
 
   it_parses_login "login username password", :login => 'username', :password => 'password'
   it_parses_login "LoGiN username password", :login => 'username', :password => 'password'

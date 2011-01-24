@@ -3,12 +3,12 @@
 require 'strscan'
 
 class Parser < StringScanner
-  def initialize(string, lookup)
+  def initialize(string, lookup = nil)
     super(string)
     @lookup = lookup
   end
 
-  def self.parse(string, lookup)
+  def self.parse(string, lookup = nil)
     Parser.new(string, lookup).parse
   end
 
@@ -53,7 +53,7 @@ class Parser < StringScanner
     # Check if first token is a group
     if scan /^\s*(@)?\s*(.+?)\s+(.+?)$/i
       group = self[2]
-      if (self[1] && target = UnknownTarget.new(group)) || (target = @lookup.get_target(group))
+      if (self[1] && target = UnknownTarget.new(group)) || (@lookup && target = @lookup.get_target(group))
         options[:targets] = [target]
 
         rest = StringScanner.new self[3]
@@ -83,7 +83,7 @@ class Parser < StringScanner
           if rest[1]
             options[:targets] << UnknownTarget.new(rest[2])
             rest = StringScanner.new rest[3]
-          else
+          elsif @lookup
             target = @lookup.get_target rest[2]
             if target
               options[:targets] << target
@@ -91,6 +91,8 @@ class Parser < StringScanner
             else
               unscan
             end
+          else
+            unscan
           end
         end
 
@@ -422,7 +424,7 @@ class Parser < StringScanner
   end
 
   def new_signup(string)
-    SignupNode.new :display_name => string, :suggested_login => string.gsub(/\s/, '_')
+    SignupNode.new :display_name => string, :suggested_login => string.gsub(/\s/, '')
   end
 
   def new_create_group(group_alias, pieces)
