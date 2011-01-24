@@ -328,10 +328,14 @@ class Parser < StringScanner
       loc[0] = loc[0] * sign0
       loc[1] = loc[1] * sign1
       MessageNode.new :location => loc, :targets => targets
-    elsif scan /^\s*(?:at|l:)\s+(.+?)(?:\s*\*)?\s*$/i
+    elsif scan /^\s*(?:at|l:)\s+\/?(.+?)\/?\s*\*\s*(.+?)?$/i
+      MessageNode.new :location => self[1], :targets => targets, :body => self[2].try(:strip)
+    elsif scan /^\s*(?:at|l:)\s+\/(.+?)\/\s*(.+?)?$/i
+      MessageNode.new :location => self[1], :targets => targets, :body => self[2].try(:strip)
+    elsif scan /^\s*(?:at|l:)\s+\/?(.+?)\/?$/i
       MessageNode.new :location => self[1], :targets => targets
-    elsif scan /^\s*(.+?)\s*\*\s*$/i
-      MessageNode.new :location => self[1], :targets => targets
+    elsif scan /^\s*\/?(.+?)\/?\s*\*\s*(.+?)?$/i
+      MessageNode.new :location => self[1], :targets => targets, :body => self[2].try(:strip)
     else
       nil
     end

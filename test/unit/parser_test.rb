@@ -452,6 +452,15 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_message "Hello All # tag1 # tag2", :body => :unchanged, :tags => ['tag1', 'tag2']
   it_parses_message "Hello All! # tag1 # tag2", :body => :unchanged, :tags => ['tag1', 'tag2']
   it_parses_message "Hello All. # tag1 # tag2", :body => :unchanged, :tags => ['tag1', 'tag2']
+  it_parses_message "bangkok * Hello", :body => "Hello", :location => 'bangkok'
+  it_parses_message "/bangkok * Hello", :body => "Hello", :location => 'bangkok'
+  it_parses_message "/bangkok/ * Hello", :body => "Hello", :location => 'bangkok'
+  it_parses_message "at bangkok * Hello", :body => "Hello", :location => 'bangkok'
+  it_parses_message "at /bangkok", :location => 'bangkok'
+  it_parses_message "at /bangkok/", :location => 'bangkok'
+  it_parses_message "at /bangkok * Hello", :body => "Hello", :location => 'bangkok'
+  it_parses_message "at /bangkok/ * Hello", :body => "Hello", :location => 'bangkok'
+  it_parses_message "at /bangkok/ Hello", :body => "Hello", :location => 'bangkok'
 
   it_parses_help "help", :node => nil
   it_parses_help ".help", :node => nil
