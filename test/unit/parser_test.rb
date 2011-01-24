@@ -490,6 +490,7 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_message "We are at /10 20/", :body => :unchanged, :location => location(10, 20)
   it_parses_message "We are at /10.23 20.45/", :body => :unchanged, :location => location(10.23, 20.45)
   it_parses_message "We are at /10, 20/", :body => :unchanged, :location => location(10, 20)
+  it_parses_message "We are at /10. 20/", :body => :unchanged, :location => location(10, 20)
   it_parses_message "We are at /10 * 20/", :body => :unchanged, :location => location(10, 20)
   # TODO USNG
   it_parses_message "at 865 cambridge ave. menlo park, ca", :location => "865 cambridge ave. menlo park, ca"
@@ -507,7 +508,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_message "30.25° 31.26°", :location => location(30.25, 31.26)
   # it_parses_message "30° 31 foobar", :body => 'foobar', :location => location(30, 31) # currently fails
   it_parses_message "hola /+10 -20 hello/", :location => "+10 -20 hello", :body => :unchanged
-  #it_parses_message "at 10.20.30 40.50.60", :location => location(10, 20, 30, 40, 50, 60)
 
   it_parses_help "help", :node => nil
   it_parses_help ".help", :node => nil
