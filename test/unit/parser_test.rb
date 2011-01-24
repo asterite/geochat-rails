@@ -492,6 +492,8 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_message "We are at /10, 20/", :body => :unchanged, :location => location(10, 20)
   it_parses_message "We are at /10. 20/", :body => :unchanged, :location => location(10, 20)
   it_parses_message "We are at /10 * 20/", :body => :unchanged, :location => location(10, 20)
+  it_parses_message "We are at /10.20 * 20.30/", :body => :unchanged, :location => location(10.20, 20.30)
+  it_parses_message "We are at /10,20 * 20,30/", :body => :unchanged, :location => location(10.20, 20.30)
   # TODO USNG
   it_parses_message "at 865 cambridge ave. menlo park, ca", :location => "865 cambridge ave. menlo park, ca"
   it_parses_message "at 865 cambridge ave. menlo park, ca * Hello", :location => "865 cambridge ave. menlo park, ca", :body => "Hello"
@@ -508,6 +510,20 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_message "30.25° 31.26°", :location => location(30.25, 31.26)
   # it_parses_message "30° 31 foobar", :body => 'foobar', :location => location(30, 31) # currently fails
   it_parses_message "hola /+10 -20 hello/", :location => "+10 -20 hello", :body => :unchanged
+  it_parses_message "10.20.30 40.50.60", :location => location(10, 20, 30, 40, 50, 60)
+  it_parses_message "at 10.20.30 40.50.60", :location => location(10, 20, 30, 40, 50, 60)
+  it_parses_message "10,20,30 40,50,60", :location => location(10, 20, 30, 40, 50, 60)
+  it_parses_message "at 10,20,30 40,50,60", :location => location(10, 20, 30, 40, 50, 60)
+  it_parses_message "at -34.619683, -58.37431", :location => location(-34.619683, -58.37431)
+  it_parses_message "-34.619683, -58.37431", :location => location(-34.619683, -58.37431)
+  it_parses_message "at 34.619683,58.37431", :location => location(34.619683, 58.37431)
+  it_parses_message "at 10,20", :location => location(10, 20)
+  it_parses_message "at 30° 31' 32'' N * 33° 34' 35'' E * Yeah!", :location => location(30, 31, 32, 33, 34, 35), :body => 'Yeah!'
+  it_parses_message "at 30° 31' 32'' N * 33° 34' 35'' E Yeah!", :location => location(30, 31, 32, 33, 34, 35), :body => 'Yeah!'
+  it_parses_message "at 30 31 32 33 34 35 Yeah!", :location => location(30, 31, 32, 33, 34, 35), :body => 'Yeah!'
+  it_parses_message "30 31 32 33 34 35 * Yeah!", :location => location(30, 31, 32, 33, 34, 35), :body => 'Yeah!'
+  it_parses_message "10.20.30.40 40.50.60.70", :location => location(10, 20, 30.40, 40, 50, 60.70)
+  it_parses_message "10,20,30,40 40,50,60,70", :location => location(10, 20, 30.40, 40, 50, 60.70)
 
   it_parses_help "help", :node => nil
   it_parses_help ".help", :node => nil

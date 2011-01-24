@@ -333,21 +333,49 @@ class Parser < StringScanner
   end
 
   def parse_message_with_location(options = {})
-    if scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*°\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*°\s*(E|W)?\s*([^\s\d].+?)?$/i
+    if scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+\.\d+\.\d+)\s*°?\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+\.\d+\.\d+)\s*°?\s*(E|W)?\s*\*?\s*(.+?)?$/i
+      sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
+      sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
+      loc = location(* self[2].gsub(/\s/, '').split('.') + self[5].gsub(/\s/, '').split('.'))
+      loc[0] = loc[0] * sign0
+      loc[1] = loc[1] * sign1
+      MessageNode.new options.merge(:location => loc, :body => self[7].try(:strip))
+    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+\,\d+\,\d+)\s*°?\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+\,\d+\,\d+)\s*°?\s*(E|W)?\s*\*?\s*(.+?)?$/i
+      sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
+      sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
+      loc = location(* self[2].gsub(/\s/, '').split(',') + self[5].gsub(/\s/, '').split(','))
+      loc[0] = loc[0] * sign0
+      loc[1] = loc[1] * sign1
+      MessageNode.new options.merge(:location => loc, :body => self[7].try(:strip))
+    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+\.\d+\.\d+\.\d+)\s*°?\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+\.\d+\.\d+\.\d+)\s*°?\s*(E|W)?\s*\*?\s*(.+?)?$/i
+      sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
+      sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
+      loc = location(* self[2].gsub(/\s/, '').split('.') + self[5].gsub(/\s/, '').split('.'))
+      loc[0] = loc[0] * sign0
+      loc[1] = loc[1] * sign1
+      MessageNode.new options.merge(:location => loc, :body => self[7].try(:strip))
+    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+\,\d+\,\d+\,\d+)\s*°?\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+\,\d+\,\d+\,\d+)\s*°?\s*(E|W)?\s*\*?\s*(.+?)?$/i
+      sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
+      sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
+      loc = location(* self[2].gsub(/\s/, '').split(',') + self[5].gsub(/\s/, '').split(','))
+      loc[0] = loc[0] * sign0
+      loc[1] = loc[1] * sign1
+      MessageNode.new options.merge(:location => loc, :body => self[7].try(:strip))
+    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*°\s*(N|S)?(?:\s*(?:\*|,)?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*°\s*(E|W)?\s*\*?\s*([^\s\d].+?)?$/i
       sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
       sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
       loc = [self[2].gsub(/\s/, '').to_f, self[5].gsub(/\s/, '').to_f]
       loc[0] = loc[0] * sign0
       loc[1] = loc[1] * sign1
       MessageNode.new options.merge(:location => loc, :body => self[7].try(:strip))
-    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)(?:\s*°\s*|\s+)(\d+)?(?:\s*'\s*|\s+)(\d+)?(?:\s*''\s*)?\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)(?:\s*°\s*|\s*)(\d+)?(?:\s*'\s*|\s*)(\d+)?(?:\s*''\s*)?\s*(E|W)?\s*(.+?)?$/i
+    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)(?:\s*°\s*|\s+)(\d+)?(?:\s*'\s*|\s+)(\d+)?(?:\s*''\s*)?\s*(N|S)?(?:\s*(?:\*|,)?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)(?:\s*°\s*|\s*)(\d+)?(?:\s*'\s*|\s*)(\d+)?(?:\s*''\s*)?\s*(E|W)?\s*\*?\s*(.+?)?$/i
       sign0 = self[1] == 'S' || self[5] == 'S' ? -1 : 1
       sign1 = self[6] == 'W' || self[10] == 'W' ? -1 : 1
       loc = location(self[2].gsub(/\s/, ''), self[3], self[4], self[7].gsub(/\s/, ''), self[8], self[9])
       loc[0] = loc[0] * sign0
       loc[1] = loc[1] * sign1
       MessageNode.new options.merge(:location => loc, :body => self[11].try(:strip))
-    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(N|S)?(?:\s*\*\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(E|W)?\s*(.+?)?$/i
+    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(N|S)?(?:\s*(?:\*|,)\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(E|W)?\s*\*?\s*(.+?)?$/i
       sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
       sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
       loc = [self[2].gsub(/\s/, '').to_f, self[5].gsub(/\s/, '').to_f]
@@ -386,8 +414,8 @@ class Parser < StringScanner
   end
 
   def check_numeric_location(string)
-    if string =~ /^\s*(\d+(?:\.\d+)?)(?:\s+|\s*(?:,|\*)\s*)(\d+(?:\.\d+)?)\s*$/
-      [$1.to_f, $2.to_f]
+    if string =~ /^\s*(\d+(?:(?:\.|,)\d+)?)(?:\s+|\s*(?:,|\.|\*)\s*)(\d+(?:(?:\.|,)\d+)?)\s*$/
+      location($1, $2)
     else
       string
     end
@@ -428,10 +456,19 @@ class Parser < StringScanner
   end
 
   def location(*args)
-    [deg(*args[0 .. 2]), deg(*args[3 .. 5])]
+    if args.length == 2
+      args.map{|x| x.gsub(',', '.').to_f}
+    elsif args.length == 6
+      [deg(*args[0 .. 2]), deg(*args[3 .. 5])]
+    elsif args.length == 8
+      [deg(*args[0 .. 3]), deg(*args[4 .. 7])]
+    end
   end
 
   def deg(*args)
+    if args.length == 4
+      args = [args[0], args[1], "#{args[2]}.#{args[3]}"]
+    end
     first = args[0].to_f
     if first < 0
       -(-first + args[1].to_f / 60.0 + args[2].to_f / 3600.0)
