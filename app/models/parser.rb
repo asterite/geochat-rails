@@ -20,6 +20,12 @@ class Parser < StringScanner
         node.mentions ||= []
         node.mentions << match.first
       end
+
+      # Check tags
+      node.body.scan /#\s*(\S+)/ do |match|
+        node.tags ||= []
+        node.tags << match.first
+      end
     end
     node
   end
@@ -33,28 +39,40 @@ class Parser < StringScanner
 
         rest = StringScanner.new self[3]
 
-        # Invite
-        if rest.scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+(.+?)$/i
-          return InviteNode.new :group => group, :users => rest[1].split.without_prefix!('+')
-        elsif rest.scan /^\s*\+\s*(.+?)$/i
-          return InviteNode.new :users => rest[1].split, :group => group
+        if !target.is_a?(UserTarget)
+          # Invite
+          if rest.scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+(.+?)$/i
+            return InviteNode.new :group => group, :users => rest[1].split.without_prefix!('+')
+          elsif rest.scan /^\s*\+\s*(.+?)$/i
+            return InviteNode.new :users => rest[1].split, :group => group
+          end
+
+          # Block
+          if rest.scan /^\s*(?:#|\.)*?\s*block\s+(\S+)$/i
+            return BlockNode.new :group => group, :user => rest[1]
+          end
+
+          # Owner
+          if rest.scan /^\s*(?:#|\.)*?\s*(?:owner|.owner|.ow|#owner|#ow)\s+(\S+)$/i
+            return OwnerNode.new :group => group, :user => rest[1]
+          elsif rest.scan /^\s*\$\s*(\S+)$/i
+            return OwnerNode.new :group => group, :user => rest[1]
+          end
         end
 
-        # Block
-        if rest.scan /^\s*(?:#|\.)*?\s*block\s+(\S+)$/i
-          return BlockNode.new :group => group, :user => rest[1]
-        end
-
-        # Owner
-        if rest.scan /^\s*(?:#|\.)*?\s*(?:owner|.owner|.ow|#owner|#ow)\s+(\S+)$/i
-          return OwnerNode.new :group => group, :user => rest[1]
-        elsif rest.scan /^\s*\$\s*(\S+)$/i
-          return OwnerNode.new :group => group, :user => rest[1]
-        end
-
-        while rest.scan /^\s*@\s*(\S+)\s+(.+?)$/i
-          targets << UnknownTarget.new(rest[1])
-          rest = StringScanner.new rest[2]
+        while rest.scan /^\s*(@)?\s*(.+?)\s+(.+?)$/i
+          if rest[1]
+            targets << UnknownTarget.new(rest[2])
+            rest = StringScanner.new rest[3]
+          else
+            target = @lookup.get_target rest[2]
+            if target
+              targets << target
+              rest = StringScanner.new rest[3]
+            else
+              unscan
+            end
+          end
         end
 
         self.string = rest.string

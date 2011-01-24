@@ -6,6 +6,9 @@ class ParserTest < ActiveSupport::TestCase
   def parse(string)
     lookup = stub('lookup', :get_target => nil)
     lookup.expects(:get_target).with('MyGroup').returns(GroupTarget.new('MyGroup'))
+    lookup.expects(:get_target).with('AnotherGroup').returns(GroupTarget.new('AnotherGroup'))
+    lookup.expects(:get_target).with('MyUser').returns(UserTarget.new('MyUser'))
+    lookup.expects(:get_target).with('AnotherUser').returns(UserTarget.new('AnotherUser'))
 
     Parser.parse(string, lookup)
   end
@@ -435,11 +438,20 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_message "Hello All, visit us at http://www.geochat.com/foo/bar.php", :body => :unchanged
   it_parses_message "Hello All // comment", :body => :unchanged
   it_parses_message "MyGroup Hello All", :body => "Hello All", :target => GroupTarget.new('MyGroup')
+  it_parses_message "MyGroup AnotherGroup Hello All", :body => "Hello All", :targets => [GroupTarget.new('MyGroup'), GroupTarget.new('AnotherGroup')]
   it_parses_message "@somegroup Hello All", :body => "Hello All", :target => UnknownTarget.new('somegroup')
   it_parses_message "@ somegroup Hello All", :body => "Hello All", :target => UnknownTarget.new('somegroup')
   it_parses_message "MyGroup @group2 Hello All", :body => "Hello All", :targets => [GroupTarget.new('MyGroup'), UnknownTarget.new('group2')]
   it_parses_message "@group1 @group2 Hello All", :body => "Hello All", :targets => [UnknownTarget.new('group1'), UnknownTarget.new('group2')]
   it_parses_message "@ group1 @ group2 Hello All", :body => "Hello All", :targets => [UnknownTarget.new('group1'), UnknownTarget.new('group2')]
+  it_parses_message "MyUser Hello All", :body => "Hello All", :targets => [UserTarget.new('MyUser')]
+  it_parses_message "foo@MyUser Hello All", :body => :unchanged
+  it_parses_message "@MyUser Hello All", :body => "Hello All", :targets => [UnknownTarget.new('MyUser')]
+  it_parses_message "MyUser @AnotherUser Hello All", :body => "Hello All", :targets => [UserTarget.new('MyUser'), UnknownTarget.new('AnotherUser')]
+  it_parses_message "Hello All #tag1 #tag2", :body => :unchanged, :tags => ['tag1', 'tag2']
+  it_parses_message "Hello All # tag1 # tag2", :body => :unchanged, :tags => ['tag1', 'tag2']
+  it_parses_message "Hello All! # tag1 # tag2", :body => :unchanged, :tags => ['tag1', 'tag2']
+  it_parses_message "Hello All. # tag1 # tag2", :body => :unchanged, :tags => ['tag1', 'tag2']
 
   it_parses_help "help", :node => nil
   it_parses_help ".help", :node => nil
