@@ -75,7 +75,11 @@ class ParserTest < ActiveSupport::TestCase
       node = parse(string)
       assert node.is_a?(MessageNode), "expected to be messagenode but was #{node.class}"
       options[:locations] = [options[:location]] if options[:location]
-      [:body, :targets, :locations, :mentions, :tags, :blast, :location].each do |k|
+      options[:location] = options[:locations].first if options[:locations]
+      options[:targets] = [options[:target]] if options[:target]
+      options[:target] = options[:targets].first if options[:targets]
+      options[:body] = string if options[:body] == :unchanged
+      [:body, :targets, :locations, :mentions, :tags, :blast, :location, :target].each do |k|
         expected = options[k]
         actual = node.send(k)
         assert_equal expected, actual, "expected #{k} to be #{expected} but was #{actual}"
@@ -370,7 +374,7 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_language "_ en", :name => 'en'
   it_parses_language "___ en", :name => 'en'
 
-  it_parses_message "@group 1234", :body => '1234', :targets => ['group']
+  it_parses_message "@group 1234", :body => '1234', :target => 'group'
   it_parses_message "1234", :body => '1234'
   it_parses_message "at bangkok", :location => "bangkok", :body => nil
   it_parses_message "at bangkok *", :location => "bangkok", :body => nil
@@ -422,8 +426,19 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_message "l: N 1 E 4", :location => location(1, 0, 0, 4, 0, 0)
   it_parses_message "+10 25 +2", :location => location(10, 25, 0, 2, 0, 0)
   # TODO USNG
-  it_parses_message "Hello All!", :body => "Hello All!"
-  it_parses_message "Hey, we should tell @somegroup about this!", :body => "Hey, we should tell @somegroup about this!", :mentions => ['somegroup']
+  it_parses_message "Hello All!", :body => :unchanged
+  it_parses_message "Hey, we should tell @somegroup about this!", :body => :unchanged, :mentions => ['somegroup']
+  it_parses_message "Hey, we should tell @ somegroup about this!", :body => :unchanged, :mentions => ['somegroup']
+  it_parses_message "Hey, we should tell @somegroup and @someothergroup about this!", :body => :unchanged, :mentions => ['somegroup', 'someothergroup']
+  it_parses_message "MyGroup Hey, we should tell @somegroup about this!", :body => "Hey, we should tell @somegroup about this!", :mentions => ['somegroup'], :target => 'MyGroup'
+  it_parses_message "Hey, we should tell foo@somegroup about this!", :body => :unchanged
+  it_parses_message "Hello All, visit us at http://www.geochat.com/foo/bar.php", :body => :unchanged
+  it_parses_message "Hello All // comment", :body => :unchanged
+  it_parses_message "MyGroup Hello All", :body => "Hello All", :target => 'MyGroup'
+  it_parses_message "@somegroup Hello All", :body => "Hello All", :target => 'somegroup'
+  it_parses_message "@ somegroup Hello All", :body => "Hello All", :target => 'somegroup'
+  it_parses_message "MyGroup @AnotherGroup Hello All", :body => "Hello All", :targets => ['MyGroup', 'AnotherGroup']
+  it_parses_message "@group1 @group2 Hello All", :body => "Hello All", :targets => ['group1', 'group2']
 
   it_parses_help "help", :node => nil
   it_parses_help ".help", :node => nil

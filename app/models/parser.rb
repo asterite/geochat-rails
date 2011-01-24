@@ -16,7 +16,7 @@ class Parser < StringScanner
     node = parse_node
     if node.is_a?(MessageNode) && node.body
       # Check mentions
-      node.body.scan /@(\S+)/ do |match|
+      node.body.scan /\s+@\s*(\S+)/ do |match|
         node.mentions ||= []
         node.mentions << match.first
       end
@@ -26,14 +26,18 @@ class Parser < StringScanner
 
   def parse_node
     # Check if first token is a group
-    if scan /^\s*(.+?)\s+(.+?)$/i
-      group = self[1]
-      if @lookup.is_group? group
-        rest = StringScanner.new self[2]
+    if scan /^\s*(@)?\s*(.+?)\s+(.+?)$/i
+      group = self[2]
+      if self[1] || @lookup.is_group?(group)
+        targets = [group]
+
+        rest = StringScanner.new self[3]
 
         # Invite
         if rest.scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+(.+?)$/i
           return InviteNode.new :group => group, :users => rest[1].split.without_prefix!('+')
+        elsif rest.scan /^\s*\+\s*(.+?)$/i
+          return InviteNode.new :users => rest[1].split, :group => group
         end
 
         # Block
@@ -48,7 +52,17 @@ class Parser < StringScanner
           return OwnerNode.new :group => group, :user => rest[1]
         end
 
-        return MessageNode.new :targets => [group], :body => rest.string
+        while rest.scan /^\s*@\s*(\S+)\s+(.+?)$/i
+          targets << rest[1]
+          rest = StringScanner.new rest[2]
+        end
+
+        self.string = rest.string
+
+        node = parse_message_with_location targets
+        return node if node
+
+        return MessageNode.new :targets => targets, :body => string
       end
 
       unscan
@@ -85,26 +99,8 @@ class Parser < StringScanner
       return HelpNode.new :node => WhereIsNode
     end
 
-    # Message with location
-    if scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+)(?:\s*°\s*|\s+)(\d+)?(?:\s*'\s*|\s+)(\d+)?(?:\s*''\s*|\s*)(N|S)?\s*\*?\s*(E|W)?\s*((?:\+|\-)?\s*\d+)(?:\s*°\s*|\s*)(\d+)?(?:\s*'\s*|\s*)(\d+)?(?:\s*''\s*|\s*)(E|W)?\s*$/i
-      sign0 = self[1] == 'S' || self[5] == 'S' ? -1 : 1
-      sign1 = self[6] == 'W' || self[10] == 'W' ? -1 : 1
-      loc = location(self[2].gsub(/\s/, ''), self[3], self[4], self[7].gsub(/\s/, ''), self[8], self[9])
-      loc[0] = loc[0] * sign0
-      loc[1] = loc[1] * sign1
-      return MessageNode.new :location => loc
-    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(N|S)?(?:\s*\*\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(E|W)?\s*$/i
-      sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
-      sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
-      loc = [self[2].gsub(/\s/, '').to_f, self[5].gsub(/\s/, '').to_f]
-      loc[0] = loc[0] * sign0
-      loc[1] = loc[1] * sign1
-      return MessageNode.new :location => loc
-    elsif scan /^\s*(?:at|l:)\s+(.+?)(?:\s*\*)?\s*$/i
-      return MessageNode.new :location => self[1]
-    elsif scan /^\s*(.+?)\s*\*\s*$/i
-      return MessageNode.new :location => self[1]
-    end
+    node = parse_message_with_location
+    return node if node
 
     # Signup
     if scan /^\s*(?:#|\.)*?\s*(?:name|n)(\s+(help|\?))?\s*$/i
@@ -296,13 +292,36 @@ class Parser < StringScanner
       return LanguageNode.new :name => self[1].strip
     end
 
-
     # Message
     if scan /^\s*@\s*(.+?)\s+(.+?)$/i
       return MessageNode.new :body => self[2], :targets => [self[1]]
     end
 
     MessageNode.new :body => string
+  end
+
+  def parse_message_with_location(targets = nil)
+    if scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+)(?:\s*°\s*|\s+)(\d+)?(?:\s*'\s*|\s+)(\d+)?(?:\s*''\s*|\s*)(N|S)?\s*\*?\s*(E|W)?\s*((?:\+|\-)?\s*\d+)(?:\s*°\s*|\s*)(\d+)?(?:\s*'\s*|\s*)(\d+)?(?:\s*''\s*|\s*)(E|W)?\s*$/i
+      sign0 = self[1] == 'S' || self[5] == 'S' ? -1 : 1
+      sign1 = self[6] == 'W' || self[10] == 'W' ? -1 : 1
+      loc = location(self[2].gsub(/\s/, ''), self[3], self[4], self[7].gsub(/\s/, ''), self[8], self[9])
+      loc[0] = loc[0] * sign0
+      loc[1] = loc[1] * sign1
+      MessageNode.new :location => loc, :targets => targets
+    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(N|S)?(?:\s*\*\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(E|W)?\s*$/i
+      sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
+      sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
+      loc = [self[2].gsub(/\s/, '').to_f, self[5].gsub(/\s/, '').to_f]
+      loc[0] = loc[0] * sign0
+      loc[1] = loc[1] * sign1
+      MessageNode.new :location => loc, :targets => targets
+    elsif scan /^\s*(?:at|l:)\s+(.+?)(?:\s*\*)?\s*$/i
+      MessageNode.new :location => self[1], :targets => targets
+    elsif scan /^\s*(.+?)\s*\*\s*$/i
+      MessageNode.new :location => self[1], :targets => targets
+    else
+      nil
+    end
   end
 
   def new_signup(string)
@@ -409,11 +428,19 @@ class MessageNode < Node
   attr_accessor :blast
 
   def location
-    @locations ? @locations.first : nil
+    @locations.try(:first)
   end
 
   def location=(value)
     @locations = [value]
+  end
+
+  def target
+    @targets.try(:first)
+  end
+
+  def target=(value)
+    @targets = [value]
   end
 end
 
