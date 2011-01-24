@@ -90,6 +90,10 @@ class ParserTest < ActiveSupport::TestCase
     it_parses_node string, WhereIsNode, options
   end
 
+  def self.it_parses_language(string, options = {})
+    it_parses_node string, LanguageNode, options
+  end
+
   def self.location(*args)
     [deg(*args[0 .. 2]), deg(*args[3 .. 5])]
   end
@@ -347,6 +351,15 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_whereis ".wh someuser?", :user => 'someuser'
   it_parses_whereis "#wh someuser", :user => 'someuser'
   it_parses_whereis "#wh someuser?", :user => 'someuser'
+  it_parses_whereis ".w someuser", :user => 'someuser'
+  it_parses_whereis ".w someuser?", :user => 'someuser'
+
+  it_parses_language "lang en", :name => 'en'
+  it_parses_language ".lang en", :name => 'en'
+  it_parses_language "#lang en", :name => 'en'
+  it_parses_language "_en", :name => 'en'
+  it_parses_language "_ en", :name => 'en'
+  it_parses_language "___ en", :name => 'en'
 
   it_parses_message "@group 1234", :body => '1234', :targets => ['group']
   it_parses_message "1234", :body => '1234'
@@ -398,6 +411,8 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_message "12.24 N 45.67 E", :location => location(12.24, 0, 0, 45.67, 0, 0)
   it_parses_message "at N 1 E 4", :location => location(1, 0, 0, 4, 0, 0)
   it_parses_message "l: N 1 E 4", :location => location(1, 0, 0, 4, 0, 0)
+  it_parses_message "+10 25 +2", :location => location(10, 25, 0, 2, 0, 0)
+  # TODO USNG
 
   it_parses_help "help", :node => nil
   it_parses_help ".help", :node => nil

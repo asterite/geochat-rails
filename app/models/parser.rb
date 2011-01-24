@@ -69,7 +69,7 @@ class Parser < StringScanner
       return HelpNode.new :node => SignupNode
     elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(whois|wh)\s*$/i
       return HelpNode.new :node => WhoIsNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(whereis|wi)\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(whereis|wi|w)\s*$/i
       return HelpNode.new :node => WhereIsNode
     end
 
@@ -269,15 +269,19 @@ class Parser < StringScanner
     end
 
     # Where is
-    if scan /^\s*(?:#|\.)*\s*(?:whereis|wh)(\s+(?:help|\?))?\s*$/i
+    if scan /^\s*(?:#|\.)*\s*(?:whereis|wh|w)(\s+(?:help|\?))?\s*$/i
       return HelpNode.new :node => WhereIsNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:whereis|wh)\s+(?:@\s*)?(.+?)\s*\??\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*(?:whereis|wh|w)\s+(?:@\s*)?(.+?)\s*\??\s*$/i
       return WhereIsNode.new :user => self[1].strip
     end
 
     # Language
     if scan /^\s*(?:#|\.)*\s*(?:lang|_)(\s+(?:help|\?))?\s*$/i
       return HelpNode.new :node => LanguageNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:lang)\s+(.+?)\s*$/i
+      return LanguageNode.new :name => self[1].strip
+    elsif scan /^\s*(?:#|\.)*\s*_+\s*(.+?)\s*$/i
+      return LanguageNode.new :name => self[1].strip
     end
 
 
