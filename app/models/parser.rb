@@ -1,6 +1,8 @@
 # coding: utf-8
 
-class Parser < Lexer
+require 'strscan'
+
+class Parser < StringScanner
   def initialize(string, lookup)
     super(string)
     @lookup = lookup
