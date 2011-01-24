@@ -4,8 +4,8 @@ require 'test_helper'
 
 class ParserTest < ActiveSupport::TestCase
   def parse(string)
-    lookup = stub('lookup', :is_group? => false)
-    lookup.expects(:is_group?).with('MyGroup').returns(true)
+    lookup = stub('lookup', :get_target => nil)
+    lookup.expects(:get_target).with('MyGroup').returns(GroupTarget.new('MyGroup'))
 
     Parser.parse(string, lookup)
   end
@@ -374,7 +374,7 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_language "_ en", :name => 'en'
   it_parses_language "___ en", :name => 'en'
 
-  it_parses_message "@group 1234", :body => '1234', :target => 'group'
+  it_parses_message "@group 1234", :body => '1234', :target => UnknownTarget.new('group')
   it_parses_message "1234", :body => '1234'
   it_parses_message "at bangkok", :location => "bangkok", :body => nil
   it_parses_message "at bangkok *", :location => "bangkok", :body => nil
@@ -430,15 +430,16 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_message "Hey, we should tell @somegroup about this!", :body => :unchanged, :mentions => ['somegroup']
   it_parses_message "Hey, we should tell @ somegroup about this!", :body => :unchanged, :mentions => ['somegroup']
   it_parses_message "Hey, we should tell @somegroup and @someothergroup about this!", :body => :unchanged, :mentions => ['somegroup', 'someothergroup']
-  it_parses_message "MyGroup Hey, we should tell @somegroup about this!", :body => "Hey, we should tell @somegroup about this!", :mentions => ['somegroup'], :target => 'MyGroup'
+  it_parses_message "MyGroup Hey, we should tell @somegroup about this!", :body => "Hey, we should tell @somegroup about this!", :mentions => ['somegroup'], :target => GroupTarget.new('MyGroup')
   it_parses_message "Hey, we should tell foo@somegroup about this!", :body => :unchanged
   it_parses_message "Hello All, visit us at http://www.geochat.com/foo/bar.php", :body => :unchanged
   it_parses_message "Hello All // comment", :body => :unchanged
-  it_parses_message "MyGroup Hello All", :body => "Hello All", :target => 'MyGroup'
-  it_parses_message "@somegroup Hello All", :body => "Hello All", :target => 'somegroup'
-  it_parses_message "@ somegroup Hello All", :body => "Hello All", :target => 'somegroup'
-  it_parses_message "MyGroup @AnotherGroup Hello All", :body => "Hello All", :targets => ['MyGroup', 'AnotherGroup']
-  it_parses_message "@group1 @group2 Hello All", :body => "Hello All", :targets => ['group1', 'group2']
+  it_parses_message "MyGroup Hello All", :body => "Hello All", :target => GroupTarget.new('MyGroup')
+  it_parses_message "@somegroup Hello All", :body => "Hello All", :target => UnknownTarget.new('somegroup')
+  it_parses_message "@ somegroup Hello All", :body => "Hello All", :target => UnknownTarget.new('somegroup')
+  it_parses_message "MyGroup @group2 Hello All", :body => "Hello All", :targets => [GroupTarget.new('MyGroup'), UnknownTarget.new('group2')]
+  it_parses_message "@group1 @group2 Hello All", :body => "Hello All", :targets => [UnknownTarget.new('group1'), UnknownTarget.new('group2')]
+  it_parses_message "@ group1 @ group2 Hello All", :body => "Hello All", :targets => [UnknownTarget.new('group1'), UnknownTarget.new('group2')]
 
   it_parses_help "help", :node => nil
   it_parses_help ".help", :node => nil

@@ -28,8 +28,8 @@ class Parser < StringScanner
     # Check if first token is a group
     if scan /^\s*(@)?\s*(.+?)\s+(.+?)$/i
       group = self[2]
-      if self[1] || @lookup.is_group?(group)
-        targets = [group]
+      if (self[1] && target = UnknownTarget.new(group)) || (target = @lookup.get_target(group))
+        targets = [target]
 
         rest = StringScanner.new self[3]
 
@@ -53,7 +53,7 @@ class Parser < StringScanner
         end
 
         while rest.scan /^\s*@\s*(\S+)\s+(.+?)$/i
-          targets << rest[1]
+          targets << UnknownTarget.new(rest[1])
           rest = StringScanner.new rest[2]
         end
 
@@ -292,11 +292,6 @@ class Parser < StringScanner
       return LanguageNode.new :name => self[1].strip
     end
 
-    # Message
-    if scan /^\s*@\s*(.+?)\s+(.+?)$/i
-      return MessageNode.new :body => self[2], :targets => [self[1]]
-    end
-
     MessageNode.new :body => string
   end
 
@@ -482,4 +477,24 @@ end
 
 class LanguageNode < Node
   attr_accessor :name
+end
+
+class Target
+  attr_accessor :name
+  def initialize(name)
+    @name = name
+  end
+
+  def ==(other)
+    self.class == other.class && self.name == other.name
+  end
+end
+
+class GroupTarget < Target
+end
+
+class UserTarget < Target
+end
+
+class UnknownTarget < Target
 end
