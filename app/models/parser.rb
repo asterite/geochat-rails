@@ -13,6 +13,18 @@ class Parser < StringScanner
   end
 
   def parse
+    node = parse_node
+    if node.is_a?(MessageNode) && node.body
+      # Check mentions
+      node.body.scan /@(\S+)/ do |match|
+        node.mentions ||= []
+        node.mentions << match.first
+      end
+    end
+    node
+  end
+
+  def parse_node
     # Check if first token is a group
     if scan /^\s*(.+?)\s+(.+?)$/i
       group = self[1]
@@ -391,7 +403,18 @@ end
 class MessageNode < Node
   attr_accessor :body
   attr_accessor :targets
-  attr_accessor :location
+  attr_accessor :locations
+  attr_accessor :mentions
+  attr_accessor :tags
+  attr_accessor :blast
+
+  def location
+    @locations ? @locations.first : nil
+  end
+
+  def location=(value)
+    @locations = [value]
+  end
 end
 
 class HelpNode < Node

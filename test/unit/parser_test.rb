@@ -14,9 +14,9 @@ class ParserTest < ActiveSupport::TestCase
     test "parses #{clazz} #{string}" do
       node = parse(string)
       assert node.is_a?(clazz), "expected to be #{clazz} but was #{node.class}"
-      options.each do |k, v|
-        r = node.send(k)
-        assert_equal v, r, "expected #{k} to be #{v} but was #{r}"
+      options.each do |k, expected|
+        actual = node.send(k)
+        assert_equal expected, actual, "expected #{k} to be #{expected} but was #{actual}"
       end
     end
   end
@@ -71,7 +71,16 @@ class ParserTest < ActiveSupport::TestCase
   end
 
   def self.it_parses_message(string, options = {})
-    it_parses_node string, MessageNode, options
+    test "parses message #{string}" do
+      node = parse(string)
+      assert node.is_a?(MessageNode), "expected to be messagenode but was #{node.class}"
+      options[:locations] = [options[:location]] if options[:location]
+      [:body, :targets, :locations, :mentions, :tags, :blast, :location].each do |k|
+        expected = options[k]
+        actual = node.send(k)
+        assert_equal expected, actual, "expected #{k} to be #{expected} but was #{actual}"
+      end
+    end
   end
 
   def self.it_parses_help(string, options = {})
@@ -413,6 +422,8 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_message "l: N 1 E 4", :location => location(1, 0, 0, 4, 0, 0)
   it_parses_message "+10 25 +2", :location => location(10, 25, 0, 2, 0, 0)
   # TODO USNG
+  it_parses_message "Hello All!", :body => "Hello All!"
+  it_parses_message "Hey, we should tell @somegroup about this!", :body => "Hey, we should tell @somegroup about this!", :mentions => ['somegroup']
 
   it_parses_help "help", :node => nil
   it_parses_help ".help", :node => nil
