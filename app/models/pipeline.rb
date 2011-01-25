@@ -103,13 +103,20 @@ class Pipeline
       group = current_user.groups.first
     end
 
+    sent = []
+
     node.users.each do |name|
       user = User.find_by_login name
-      Invite.create! :group => group, :user => user
-      send_message_to_user user, "#{current_user.login} has invited you to group #{group.alias}. You can join by sending: join #{group.alias}"
+      if user
+        Invite.create! :group => group, :user => user
+        send_message_to_user user, "#{current_user.login} has invited you to group #{group.alias}. You can join by sending: join #{group.alias}"
+        sent << name
+      else
+        reply "Could not find a registered user '#{name}' for your invitation."
+      end
     end
 
-    reply "Invitation/s sent to #{node.users.join(', ')}"
+    reply "Invitation/s sent to #{sent.join(', ')}" if sent.present?
   end
 
   def get_target(name)

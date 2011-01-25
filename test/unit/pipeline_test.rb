@@ -83,6 +83,11 @@ class PipelineTest < ActiveSupport::TestCase
     end
   end
 
+  def assert_no_invite_exists
+    count = Invite.count
+    assert_equal 0, count, "Expected no invite to exist but there exist #{count} invites: #{Invite.all}"
+  end
+
   def create_users(*args)
     args.each do |num|
       send_message "sms://#{num}", ".name User#{num}"

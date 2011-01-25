@@ -98,4 +98,24 @@ class InviteTest < PipelineTest
     assert_messages_sent_to 2, "User1 has invited you to group Group2. You can join by sending: join Group2"
     assert_messages_sent_to 1, "Invitation/s sent to User2, User3"
   end
+
+  test "invite non existing user" do
+    create_users 1, 2
+
+    send_message 1, "create group Group1"
+
+    send_message 1, "invite User3"
+    assert_no_invite_exists
+    assert_messages_sent_to 1, "Could not find a registered user 'User3' for your invitation."
+  end
+
+  test "invite without groups" do
+    assert_no_invite_exists
+    create_users 1, 2
+
+    send_message 1, "invite User2"
+    assert_no_invite_exists
+
+    assert_messages_sent_to 1, "You don't belong to any group yet. To join a group send: join groupalias"
+  end
 end
