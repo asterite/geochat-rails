@@ -41,6 +41,6 @@ class PipelineTest < ActiveSupport::TestCase
   def assert_messages_sent_to(address, msgs)
     actual = @pipeline.messages[address]
     msgs = *msgs
-    assert_equal actual, msgs
+    assert_equal msgs, actual
   end
 end
