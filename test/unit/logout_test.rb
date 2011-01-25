@@ -4,12 +4,11 @@ require 'unit/pipeline_test'
 
 class LogoutTest < PipelineTest
   test "logout" do
-    send_message "sms://1", ".name Ary Manzana"
+    send_message "sms://1", ".name John Doe"
 
-            Send(1, "#bye");
-            AssertUserIsLoggedOff(1);
-            AssertMessageSentToPhone(1, "Ary Manzana, this device has been removed from your account.");
-            AssertNoSentMessagesLeft();
-            AssertNoSavedMessages();
+    send_message "sms://1", "#bye"
+
+    assert_channel_does_not_exist "sms://1"
+    assert_messages_sent_to "sms://1", "John Doe, this device has been removed from your account."
   end
 end

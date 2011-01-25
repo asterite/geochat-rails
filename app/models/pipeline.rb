@@ -10,6 +10,8 @@ class Pipeline
       process_signup node, address, message
     when LoginNode
       process_login node, address, message
+    when LogoutNode
+      process_logout node, address, message
     end
   end
 
@@ -38,5 +40,15 @@ class Pipeline
   end
 
   def process_login(node, address, message)
+  end
+
+  def process_logout(node, address, message)
+    protocol, address2 = address.split "://"
+    channel = Channel.find_by_protocol_and_address protocol, address2
+    user = channel.user
+
+    channel.destroy
+
+    @messages[address] << "#{user.display_name}, this device has been removed from your account."
   end
 end

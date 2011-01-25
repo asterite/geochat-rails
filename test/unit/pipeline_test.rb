@@ -23,22 +23,24 @@ class PipelineTest < ActiveSupport::TestCase
   end
 
   def assert_user_is_logged_in(address, login, display_name)
-    protocol, address = address.split "://"
-    channel = Channel.find_by_protocol_and_address protocol, address
-    assert_not_nil channel, "Channel for address #{protocol}://#{address} not found"
+    protocol, address2 = address.split "://"
+    channel = Channel.find_by_protocol_and_address protocol, address2
+    assert_not_nil channel, "Channel for address #{address} not found"
 
     user = channel.user
     assert_equal login, user.login
     assert_equal display_name, user.display_name
   end
 
-  def assert_user_is_logged_off(address, login)
-    user = User.find_by_login login
-
+  def assert_channel_does_not_exist(address)
+    protocol, address2 = address.split "://"
+    channel = Channel.find_by_protocol_and_address protocol, address2
+    assert_nil channel, "Channel for address #{address} expected not to be found"
   end
 
   def assert_messages_sent_to(address, msgs)
     actual = @pipeline.messages[address]
+    msgs = *msgs
     assert_equal actual, msgs
   end
 end

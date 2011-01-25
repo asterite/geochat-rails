@@ -5,10 +5,10 @@ require 'test_helper'
 class ParserTest < ActiveSupport::TestCase
   def parse(string)
     lookup = stub('lookup', :get_target => nil)
-    lookup.expects(:get_target).with('MyGroup').returns(GroupTarget.new('MyGroup'))
-    lookup.expects(:get_target).with('AnotherGroup').returns(GroupTarget.new('AnotherGroup'))
-    lookup.expects(:get_target).with('MyUser').returns(UserTarget.new('MyUser'))
-    lookup.expects(:get_target).with('AnotherUser').returns(UserTarget.new('AnotherUser'))
+    lookup.stubs(:get_target).with('MyGroup').returns(GroupTarget.new('MyGroup'))
+    lookup.stubs(:get_target).with('AnotherGroup').returns(GroupTarget.new('AnotherGroup'))
+    lookup.stubs(:get_target).with('MyUser').returns(UserTarget.new('MyUser'))
+    lookup.stubs(:get_target).with('AnotherUser').returns(UserTarget.new('AnotherUser'))
 
     Parser.parse(string, lookup)
   end
