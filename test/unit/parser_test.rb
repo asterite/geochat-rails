@@ -253,6 +253,8 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_invite "+someone", :users => ['someone']
   it_parses_invite "+some one", :users => ['some', 'one']
   it_parses_invite "@group +1234", :users => ['1234'], :group => 'group'
+  it_parses_invite "MyGroup +1234", :users => ['1234'], :group => 'MyGroup'
+  it_parses_invite "MyGroup +1234 +5678", :users => ['1234', '5678'], :group => 'MyGroup'
 
   it_parses_join "join alias", :group => 'alias'
   it_parses_join "join @alias", :group => 'alias'

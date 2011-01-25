@@ -76,6 +76,13 @@ class PipelineTest < ActiveSupport::TestCase
     assert_messages_sent_to user, 'You are not signed in GeoChat. Send "login USERNAME PASSWORD" to login, or "name YOUR_NAME" or "YOUR_NAME join GROUP_NAME" to register.'
   end
 
+  def assert_invite_exists(group, *users)
+    users.each do |user|
+      invite = Invite.joins(:group).joins(:user).where('groups.alias = ? AND users.login = ?', group, user).first
+      assert_not_nil invite, "Expected invite to #{user} in group #{group} to exist"
+    end
+  end
+
   def create_users(*args)
     args.each do |num|
       send_message "sms://#{num}", ".name User#{num}"

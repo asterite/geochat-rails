@@ -63,7 +63,7 @@ class Parser < StringScanner
           if rest.scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+(.+?)$/i
             return InviteNode.new :group => group, :users => rest[1].split.without_prefix!('+')
           elsif rest.scan /^\s*\+\s*(.+?)$/i
-            return InviteNode.new :users => rest[1].split, :group => group
+            return InviteNode.new :users => rest[1].split.without_prefix!('+'), :group => group
           end
 
           # Block
@@ -594,8 +594,10 @@ end
 
 class Target
   attr_accessor :name
-  def initialize(name)
+  attr_accessor :payload
+  def initialize(name, payload = nil)
     @name = name
+    @payload = payload
   end
 
   def ==(other)

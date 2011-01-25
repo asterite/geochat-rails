@@ -8,7 +8,7 @@ class Pipeline
     @message = message
     @messages = Hash.new{|k, v| k[v] = []}
 
-    node = Parser.parse(message)
+    node = Parser.parse(message, self)
 
     # Remove Node part and put first letter in downcase
     node_name = node.class.name[0 ... -4].tableize.singularize
@@ -87,6 +87,40 @@ class Pipeline
     reply "You sent '#on' and we have turned on SMS mobile updates to this phone. Reply with STOP to turn off. Questions email support@instedd.org."
   end
 
+  def process_invite(node)
+    if node.group
+      group = Group.find_by_alias node.group
+      if !group
+        group = Group.find_by_alias node.users.first
+        if group
+          node.users = [node.group]
+        else
+          node.users.insert 0, node.group
+          group = current_user.groups.first
+        end
+      end
+    else
+      group = current_user.groups.first
+    end
+
+    node.users.each do |name|
+      user = User.find_by_login name
+      Invite.create! :group => group, :user => user
+      send_message_to_user user, "#{current_user.login} has invited you to group #{group.alias}. You can join by sending: join #{group.alias}"
+    end
+
+    reply "Invitation/s sent to #{node.users.join(', ')}"
+  end
+
+  def get_target(name)
+    if current_user
+      group = current_user.groups.find_by_alias(name)
+      return GroupTarget.new(name, group) if group
+    end
+
+    nil
+  end
+
   private
 
   def not_logged_in
@@ -95,6 +129,16 @@ class Pipeline
 
   def reply(msg)
     @messages[@address] << msg
+  end
+
+  def send_message_to_user(user, msg)
+    user.channels.each do |channel|
+      send_message_to_channel channel, msg
+    end
+  end
+
+  def send_message_to_channel(channel, msg)
+    @messages[channel.full_address] << msg
   end
 
   def create_channel_for(user)

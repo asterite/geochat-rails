@@ -4,4 +4,8 @@ class Channel < ActiveRecord::Base
   def status
     self.attributes['status'].try(:to_sym)
   end
+
+  def full_address
+    "#{protocol}://#{address}"
+  end
 end
