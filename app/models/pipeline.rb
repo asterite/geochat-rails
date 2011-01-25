@@ -11,7 +11,7 @@ class Pipeline
     node = Parser.parse(message)
 
     # Remove Node part and put first letter in downcase
-    node_name = node.class.name[0].downcase + node.class.name[1 ... -4].downcase
+    node_name = node.class.name[0 ... -4].tableize.singularize
     eval("process_#{node_name} node")
   end
 
@@ -56,6 +56,17 @@ class Pipeline
     reply "#{current_channel.user.display_name}, this device has been removed from your account."
   end
 
+  def process_create_group(node)
+    return not_logged_in unless current_user
+
+    group = Group.create! :alias => node.group, :name => node.name || node.group
+    GroupUser.create! :user => current_user, :group => group
+
+    reply "Group '#{group.alias}' created. To require users your approval to join, go to geochat.instedd.org. Invite users by sending: #{group.alias} +PHONE_NUMBER"
+  end
+
+  private
+
   def not_logged_in
     reply 'You are not signed in GeoChat. Send "login USERNAME PASSWORD" to login, or "name YOUR_NAME" or "YOUR_NAME join GROUP_NAME" to register.'
   end
@@ -70,5 +81,9 @@ class Pipeline
 
   def current_channel
     @channel ||= Channel.find_by_protocol_and_address @protocol, @address2
+  end
+
+  def current_user
+    current_channel.try(:user)
   end
 end

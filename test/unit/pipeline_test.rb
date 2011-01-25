@@ -11,21 +11,22 @@ class PipelineTest < ActiveSupport::TestCase
   end
 
   def send_message(address, message)
+    address = "sms://#{address}" if address.is_a?(Integer)
     @pipeline.process address, message
   end
 
   def assert_user_doesnt_exist(login)
-    assert_nil User.find_by_login(login), "Expected user #{login} to not exist"
+    assert_nil User.find_by_login(login), "Expected user #{login} not to exist"
   end
 
   def assert_user_exists(login)
-    assert_not_nil User.find_by_login(login), "Expectes user #{login} to exist"
+    assert_not_nil User.find_by_login(login), "Expected user #{login} to exist"
   end
 
   def assert_user_is_logged_in(address, login, display_name = nil)
     protocol, address2 = address.split "://"
     channel = Channel.find_by_protocol_and_address protocol, address2
-    assert_not_nil channel, "Channel for address #{address} not found"
+    assert_not_nil channel, "Expected channel with address #{address} to exist"
 
     user = channel.user
     assert_equal login, user.login
@@ -35,12 +36,26 @@ class PipelineTest < ActiveSupport::TestCase
   def assert_channel_does_not_exist(address)
     protocol, address2 = address.split "://"
     channel = Channel.find_by_protocol_and_address protocol, address2
-    assert_nil channel, "Channel for address #{address} expected not to be found"
+    assert_nil channel, "Expected channel with address #{address} not to exist"
   end
 
   def assert_messages_sent_to(address, msgs)
+    address = "sms://#{address}" if address.is_a?(Integer)
     actual = @pipeline.messages[address]
     msgs = *msgs
     assert_equal msgs, actual
+  end
+
+  def assert_group_exists(group_alias, *users)
+    group = Group.find_by_alias group_alias
+    assert_not_nil "Expected group with alias #{group_alias} to exist"
+
+    assert_equal users.sort, group.users.map(&:login).sort
+  end
+
+  def create_users(*args)
+    args.each do |num|
+      send_message "sms://#{num}", ".name User#{num}"
+    end
   end
 end
