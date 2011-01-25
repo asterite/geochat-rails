@@ -195,31 +195,31 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_off "#stop"
   it_parses_off "-"
 
-  it_parses_create_group "create alias", :group => 'alias'
-  it_parses_create_group "create 123alias", :group => '123alias'
-  it_parses_create_group "creategroup alias", :group => 'alias'
-  it_parses_create_group "create group alias", :group => 'alias'
-  it_parses_create_group "create @alias", :group => 'alias'
-  it_parses_create_group "create @ alias", :group => 'alias'
-  it_parses_create_group "create alias nochat", :group => 'alias', :nochat => true
-  it_parses_create_group "create alias alert", :group => 'alias', :nochat => true
-  it_parses_create_group "create alias public", :group => 'alias', :public => true
-  it_parses_create_group "create alias nohide", :group => 'alias', :public => true
-  it_parses_create_group "create alias hide", :group => 'alias', :public => false
-  it_parses_create_group "create alias private", :group => 'alias', :public => false
-  it_parses_create_group "create alias visible", :group => 'alias', :public => true
-  it_parses_create_group "create alias chat", :group => 'alias', :nochat => false
-  it_parses_create_group "create alias chatroom", :group => 'alias', :nochat => false
-  it_parses_create_group "create alias public nochat", :group => 'alias', :public => true, :nochat => true
-  it_parses_create_group "create alias nochat public", :group => 'alias', :public => true, :nochat => true
-  it_parses_create_group "create alias name foobar", :group => 'alias', :name => 'foobar'
-  it_parses_create_group "create alias name foo bar baz", :group => 'alias', :name => 'foo bar baz'
-  it_parses_create_group "create alias name foo bar baz public nochat", :group => 'alias', :name => 'foo bar baz', :public => true, :nochat => true
-  it_parses_create_group "create alias public name foo bar baz nochat", :group => 'alias', :name => 'foo bar baz', :public => true, :nochat => true
-  it_parses_create_group ".cg alias", :group => 'alias'
-  it_parses_create_group "#cg alias", :group => 'alias'
-  it_parses_create_group "*alias", :group => 'alias'
-  it_parses_create_group "* alias", :group => 'alias'
+  it_parses_create_group "create alias", :alias => 'alias'
+  it_parses_create_group "create 123alias", :alias => '123alias'
+  it_parses_create_group "creategroup alias", :alias => 'alias'
+  it_parses_create_group "create group alias", :alias => 'alias'
+  it_parses_create_group "create @alias", :alias => 'alias'
+  it_parses_create_group "create @ alias", :alias => 'alias'
+  it_parses_create_group "create alias nochat", :alias => 'alias', :nochat => true
+  it_parses_create_group "create alias alert", :alias => 'alias', :nochat => true
+  it_parses_create_group "create alias public", :alias => 'alias', :public => true
+  it_parses_create_group "create alias nohide", :alias => 'alias', :public => true
+  it_parses_create_group "create alias hide", :alias => 'alias', :public => false
+  it_parses_create_group "create alias private", :alias => 'alias', :public => false
+  it_parses_create_group "create alias visible", :alias => 'alias', :public => true
+  it_parses_create_group "create alias chat", :alias => 'alias', :nochat => false
+  it_parses_create_group "create alias chatroom", :alias => 'alias', :nochat => false
+  it_parses_create_group "create alias public nochat", :alias => 'alias', :public => true, :nochat => true
+  it_parses_create_group "create alias nochat public", :alias => 'alias', :public => true, :nochat => true
+  it_parses_create_group "create alias name foobar", :alias => 'alias', :name => 'foobar'
+  it_parses_create_group "create alias name foo bar baz", :alias => 'alias', :name => 'foo bar baz'
+  it_parses_create_group "create alias name foo bar baz public nochat", :alias => 'alias', :name => 'foo bar baz', :public => true, :nochat => true
+  it_parses_create_group "create alias public name foo bar baz nochat", :alias => 'alias', :name => 'foo bar baz', :public => true, :nochat => true
+  it_parses_create_group ".cg alias", :alias => 'alias'
+  it_parses_create_group "#cg alias", :alias => 'alias'
+  it_parses_create_group "*alias", :alias => 'alias'
+  it_parses_create_group "* alias", :alias => 'alias'
 
   it_parses_invite "invite 0823242342", :users => ['0823242342']
   it_parses_invite "invite someone", :users => ['someone']

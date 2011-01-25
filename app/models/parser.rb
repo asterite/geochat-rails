@@ -428,7 +428,7 @@ class Parser < StringScanner
   end
 
   def new_create_group(group_alias, pieces)
-    options = {:group => self[1], :public => false, :nochat => false}
+    options = {:alias => self[1], :public => false, :nochat => false}
     if pieces
       pieces = pieces.split
       in_name = false
@@ -508,7 +508,7 @@ class OffNode < Node
 end
 
 class CreateGroupNode < Node
-  attr_accessor :group
+  attr_accessor :alias
   attr_accessor :public
   attr_accessor :nochat
   attr_accessor :name

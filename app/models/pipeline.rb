@@ -59,7 +59,11 @@ class Pipeline
   def process_create_group(node)
     return not_logged_in unless current_user
 
-    group = Group.create! :alias => node.group, :name => node.name || node.group
+    if Group.find_by_alias(node.alias)
+      return reply "The group #{node.alias} already exists. Please specify another alias."
+    end
+
+    group = Group.create! :alias => node.alias, :name => node.name || node.alias
     GroupUser.create! :user => current_user, :group => group
 
     reply "Group '#{group.alias}' created. To require users your approval to join, go to geochat.instedd.org. Invite users by sending: #{group.alias} +PHONE_NUMBER"

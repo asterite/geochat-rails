@@ -17,6 +17,6 @@ class LogoutTest < PipelineTest
     send_message "sms://1", "bye"
 
     assert_channel_does_not_exist "sms://1"
-    assert_messages_sent_to "sms://1", 'You are not signed in GeoChat. Send "login USERNAME PASSWORD" to login, or "name YOUR_NAME" or "YOUR_NAME join GROUP_NAME" to register.'
+    assert_not_logged_in_message_sent_to "sms://1"
   end
 end

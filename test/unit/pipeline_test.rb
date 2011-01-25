@@ -53,9 +53,17 @@ class PipelineTest < ActiveSupport::TestCase
     assert_equal users.sort, group.users.map(&:login).sort
   end
 
+  def assert_not_logged_in_message_sent_to(user)
+    assert_messages_sent_to user, 'You are not signed in GeoChat. Send "login USERNAME PASSWORD" to login, or "name YOUR_NAME" or "YOUR_NAME join GROUP_NAME" to register.'
+  end
+
   def create_users(*args)
     args.each do |num|
       send_message "sms://#{num}", ".name User#{num}"
     end
+  end
+
+  def create_group(user, group)
+    send_message user, "create group #{group}"
   end
 end
