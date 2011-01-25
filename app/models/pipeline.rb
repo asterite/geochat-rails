@@ -9,14 +9,10 @@ class Pipeline
     @messages = Hash.new{|k, v| k[v] = []}
 
     node = Parser.parse(message)
-    case node
-    when SignupNode
-      process_signup node
-    when LoginNode
-      process_login node
-    when LogoutNode
-      process_logout node
-    end
+
+    # Remove Node part and put first letter in downcase
+    node_name = node.class.name[0].downcase + node.class.name[1 ... -4].downcase
+    eval("process_#{node_name} node")
   end
 
   def process_signup(node)
@@ -32,13 +28,16 @@ class Pipeline
     end
 
     user = User.create! :login => login, :display_name => node.display_name
-    channel = Channel.create! :protocol => @protocol, :address => @address2, :user => user
+    channel = create_channel_for user
     reply "Welcome #{user.display_name} to GeoChat! Send HELP for instructions. http://geochat.instedd.org"
     reply "Remember you can log in to http://geochat.instedd.org by entering your login (#{login}) and the following password: #{password}"
     reply "To send messages to a group, you must first join one. Send: join GROUP"
   end
 
   def process_login(node)
+    user = User.find_by_login node.login
+    channel = create_channel_for user
+    reply "Hello #{user.display_name}. When you want to remove this device send: bye"
   end
 
   def process_logout(node)
@@ -57,6 +56,10 @@ class Pipeline
 
   def reply(msg)
     @messages[@address] << msg
+  end
+
+  def create_channel_for(user)
+    Channel.create! :protocol => @protocol, :address => @address2, :user => user
   end
 
   def current_channel

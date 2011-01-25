@@ -21,9 +21,7 @@ class SignupTest < PipelineTest
     send_message "sms://1", ".name John Doe"
 
     send_message "sms://1", ".name John Doe"
-    assert_messages_sent_to "sms://1", [
-      "This device already belongs to other user. To dettach it send: bye"
-    ]
+    assert_messages_sent_to "sms://1", "This device already belongs to other user. To dettach it send: bye"
   end
 
   test "signup with existing display name" do

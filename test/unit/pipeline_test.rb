@@ -22,14 +22,14 @@ class PipelineTest < ActiveSupport::TestCase
     assert_not_nil User.find_by_login(login), "Expectes user #{login} to exist"
   end
 
-  def assert_user_is_logged_in(address, login, display_name)
+  def assert_user_is_logged_in(address, login, display_name = nil)
     protocol, address2 = address.split "://"
     channel = Channel.find_by_protocol_and_address protocol, address2
     assert_not_nil channel, "Channel for address #{address} not found"
 
     user = channel.user
     assert_equal login, user.login
-    assert_equal display_name, user.display_name
+    assert_equal display_name, user.display_name if display_name
   end
 
   def assert_channel_does_not_exist(address)
