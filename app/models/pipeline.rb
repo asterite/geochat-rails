@@ -69,6 +69,24 @@ class Pipeline
     reply "Group '#{group.alias}' created. To require users your approval to join, go to geochat.instedd.org. Invite users by sending: #{group.alias} +PHONE_NUMBER"
   end
 
+  def process_off(node)
+    return if current_channel.status == :off
+
+    current_channel.status = :off
+    current_channel.save!
+
+    reply "GeoChat Alerts. You sent '#off' and we have turned off SMS updates to this phone. Reply with START to turn back on. Questions email support@instedd.org."
+  end
+
+  def process_on(node)
+    if current_channel.status != :on
+      current_channel.status = :on
+      current_channel.save!
+    end
+
+    reply "You sent '#on' and we have turned on SMS mobile updates to this phone. Reply with STOP to turn off. Questions email support@instedd.org."
+  end
+
   private
 
   def not_logged_in
@@ -80,7 +98,7 @@ class Pipeline
   end
 
   def create_channel_for(user)
-    Channel.create! :protocol => @protocol, :address => @address2, :user => user
+    Channel.create! :protocol => @protocol, :address => @address2, :user => user, :status => :on
   end
 
   def current_channel

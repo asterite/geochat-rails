@@ -24,9 +24,23 @@ class PipelineTest < ActiveSupport::TestCase
   end
 
   def assert_user_is_logged_in(address, login, display_name = nil)
+    address = "sms://#{address}" if address.is_a?(Integer)
     protocol, address2 = address.split "://"
     channel = Channel.find_by_protocol_and_address protocol, address2
     assert_not_nil channel, "Expected channel with address #{address} to exist"
+    assert_equal :on, channel.status
+
+    user = channel.user
+    assert_equal login, user.login
+    assert_equal display_name, user.display_name if display_name
+  end
+
+  def assert_user_is_logged_off(address, login, display_name = nil)
+    address = "sms://#{address}" if address.is_a?(Integer)
+    protocol, address2 = address.split "://"
+    channel = Channel.find_by_protocol_and_address protocol, address2
+    assert_not_nil channel, "Expected channel with address #{address} to exist"
+    assert_equal :off, channel.status
 
     user = channel.user
     assert_equal login, user.login
@@ -34,6 +48,7 @@ class PipelineTest < ActiveSupport::TestCase
   end
 
   def assert_channel_does_not_exist(address)
+    address = "sms://#{address}" if address.is_a?(Integer)
     protocol, address2 = address.split "://"
     channel = Channel.find_by_protocol_and_address protocol, address2
     assert_nil channel, "Expected channel with address #{address} not to exist"
@@ -44,6 +59,10 @@ class PipelineTest < ActiveSupport::TestCase
     actual = @pipeline.messages[address]
     msgs = *msgs
     assert_equal msgs, actual
+  end
+
+  def assert_no_messages_sent
+    assert @pipeline.messages.empty?, "Expected no messages sent but there are these messages: #{@pipeline.messages}"
   end
 
   def assert_group_exists(group_alias, *users)

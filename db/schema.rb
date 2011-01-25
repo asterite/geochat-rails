@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110125181315) do
+ActiveRecord::Schema.define(:version => 20110125184022) do
 
   create_table "channels", :force => true do |t|
     t.string   "protocol"
@@ -18,6 +18,7 @@ ActiveRecord::Schema.define(:version => 20110125181315) do
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "status"
   end
 
   create_table "group_users", :force => true do |t|
