@@ -52,4 +52,6 @@ class SignupTest < PipelineTest
     # TODO
   end
 
+  # TODO test signup when already logged in
+
 end

@@ -27,7 +27,7 @@ class Pipeline
       index += 1
     end
 
-    user = User.create! :login => login, :display_name => node.display_name
+    user = User.create! :login => login, :password => password, :display_name => node.display_name
     channel = create_channel_for user
     reply "Welcome #{user.display_name} to GeoChat! Send HELP for instructions. http://geochat.instedd.org"
     reply "Remember you can log in to http://geochat.instedd.org by entering your login (#{login}) and the following password: #{password}"
@@ -35,19 +35,25 @@ class Pipeline
   end
 
   def process_login(node)
-    user = User.find_by_login node.login
-    channel = create_channel_for user
+    user = User.find_by_login_and_password node.login, node.password
+    return reply "Invalid login" unless user
+
+    if current_channel
+      current_channel.user = user
+      current_channel.save!
+    else
+      channel = create_channel_for user
+    end
+
     reply "Hello #{user.display_name}. When you want to remove this device send: bye"
   end
 
   def process_logout(node)
     return not_logged_in unless current_channel
 
-    user = current_channel.user
-
     current_channel.destroy
 
-    reply "#{user.display_name}, this device has been removed from your account."
+    reply "#{current_channel.user.display_name}, this device has been removed from your account."
   end
 
   def not_logged_in
