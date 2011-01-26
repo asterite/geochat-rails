@@ -338,4 +338,44 @@ class InviteTest < PipelineTest
     assert_messages_sent_to 1, "Invitation/s sent to User3"
     assert_no_invite_exists
   end
+
+  test "invite when not owner, other side" do
+    create_users 1, 2, 3
+
+    send_message 1, "create group Group1"
+    set_requires_aproval_to_join "Group1"
+
+    send_message 1, "invite User2"
+    send_message 2, "join Group1"
+    assert_group_exists "Group1", "User1", "User2"
+    assert_no_invite_exists
+
+    send_message 2, "invite User3"
+    assert_invite_suggestion_exists "Group1", "User3"
+    assert_messages_sent_to 3, "User2 has invited you to group Group1. You can join by sending: join Group1"
+    assert_messages_sent_to 2, "Invitation/s sent to User3"
+
+    send_message 1, "invite User3"
+    assert_group_exists "Group1", "User1", "User2"
+    assert_invite_exists "Group1", "User3"
+    assert_messages_sent_to 1, "Invitation/s sent to User3"
+
+    send_message 3, "join Group1"
+    assert_group_exists "Group1", "User1", "User2", "User3"
+    assert_messages_sent_to 3, "Welcome User3 to group Group1. Reply with 'at TOWN NAME' or with any message to say hi to your group!"
+    assert_no_invite_exists
+  end
+
+  test "invite plus number group" do
+    send_message 1, ".name 1234"
+    send_message 2, ".name 2345"
+    send_message 1, "create group Group1"
+
+    send_message 1, "invite +2345 Group1"
+    assert_messages_sent_to 2, "1234 has invited you to group Group1. You can join by sending: join Group1"
+    assert_messages_sent_to 1, "Invitation/s sent to 2345"
+
+    assert_invite_exists "Group1", "2345"
+    assert_group_exists "Group1", "1234"
+  end
 end

@@ -149,6 +149,9 @@ class Pipeline
             user.join group
             send_message_to_user user, "Welcome #{user.login} to group #{group.alias}. Reply with 'at TOWN NAME' or with any message to say hi to your group!"
             invite.destroy
+          elsif current_user.is_owner_of(group)
+            invite.admin_accepted = true
+            invite.save!
           end
         else
           Invite.create! :group => group, :user => user, :admin_accepted => current_user.is_owner_of(group)
