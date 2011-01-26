@@ -378,4 +378,14 @@ class InviteTest < PipelineTest
     assert_invite_exists "Group1", "2345"
     assert_group_exists "Group1", "1234"
   end
+
+  test "invite not logged in" do
+    send_message 1, "invite Foo"
+    assert_not_logged_in_message_sent_to 1
+  end
+
+  test "join not logged in" do
+    send_message 1, "join Foo"
+    assert_not_logged_in_message_sent_to 1
+  end
 end

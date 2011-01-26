@@ -81,26 +81,31 @@ class Pipeline
   end
 
   def process_off(node)
+    return not_logged_in unless current_user
     return if current_channel.status == :off
 
     current_channel.status = :off
     current_channel.save!
 
     # TODO fix this message to be the original message
-    reply "GeoChat Alerts. You sent '#off' and we have turned off SMS updates to this phone. Reply with START to turn back on. Questions email support@instedd.org."
+    reply "GeoChat Alerts. You sent '#{@message.strip}' and we have turned off SMS updates to this phone. Reply with START to turn back on. Questions email support@instedd.org."
   end
 
   def process_on(node)
+    return not_logged_in unless current_user
+
     if current_channel.status != :on
       current_channel.status = :on
       current_channel.save!
     end
 
     # TODO fix this message to be the original message
-    reply "You sent '#on' and we have turned on SMS mobile updates to this phone. Reply with STOP to turn off. Questions email support@instedd.org."
+    reply "You sent '#{@message.strip}' and we have turned on SMS mobile updates to this phone. Reply with STOP to turn off. Questions email support@instedd.org."
   end
 
   def process_invite(node)
+    return not_logged_in unless current_user
+
     group = node.fix_group || default_group
     return if not group
 
@@ -142,6 +147,8 @@ class Pipeline
   end
 
   def process_join(node)
+    return not_logged_in unless current_user
+
     group = Group.find_by_alias node.group
     if group.requires_aproval_to_join
       invite = Invite.find_by_group_and_user group, current_user
