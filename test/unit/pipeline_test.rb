@@ -72,6 +72,12 @@ class PipelineTest < ActiveSupport::TestCase
     assert_equal users.sort, group.users.map(&:login).sort
   end
 
+  def assert_group_owners(group_alias, *users)
+    group = Group.find_by_alias group_alias
+    actual = group.owners.map!(&:login)
+    assert_equal users.sort, actual.sort
+  end
+
   def assert_not_logged_in_message_sent_to(user)
     assert_messages_sent_to user, 'You are not signed in GeoChat. Send "login USERNAME PASSWORD" to login, or "name YOUR_NAME" or "YOUR_NAME join GROUP_NAME" to register.'
   end
@@ -88,6 +94,32 @@ class PipelineTest < ActiveSupport::TestCase
     assert_equal 0, count, "Expected no invite to exist but there exist #{count} invites: #{Invite.all}"
   end
 
+  def assert_pending_approval(group, user)
+    invite = Invite.joins(:group).joins(:user).where('groups.alias = ? AND users.login = ?', group, user).first
+    assert invite.user_accepted
+    assert !invite.admin_accepted
+  end
+
+  def assert_invite_suggestion_exists(group, user)
+    invite = Invite.joins(:group).joins(:user).where('groups.alias = ? AND users.login = ?', group, user).first
+    assert !invite.user_accepted
+    assert !invite.admin_accepted
+  end
+
+  def assert_user_was_created_from_invite(user)
+    user = User.find_by_login user
+    assert user.created_from_invite, "Expected user #{user} to be created from invite"
+  end
+
+  def assert_user_was_not_created_from_invite(user)
+    user = User.find_by_login user
+    assert !user.created_from_invite, "Expected user #{user} not to be created from invite"
+  end
+
+  def assert_message_saved_as_blast(user, group, message)
+    # TODO
+  end
+
   def create_users(*args)
     args.each do |num|
       send_message "sms://#{num}", ".name User#{num}"
@@ -96,5 +128,11 @@ class PipelineTest < ActiveSupport::TestCase
 
   def create_group(user, group)
     send_message user, "create group #{group}"
+  end
+
+  def set_requires_aproval_to_join(group)
+    group = Group.find_by_alias group
+    group.requires_aproval_to_join = true
+    group.save!
   end
 end

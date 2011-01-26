@@ -3,13 +3,14 @@
 require 'strscan'
 
 class Parser < StringScanner
-  def initialize(string, lookup = nil)
+  def initialize(string, lookup = nil, options = {})
     super(string)
     @lookup = lookup
+    @parse_signup_and_join = options[:parse_signup_and_join]
   end
 
-  def self.parse(string, lookup = nil)
-    Parser.new(string, lookup).parse
+  def self.parse(string, lookup = nil, options = {})
+    Parser.new(string, lookup, options).parse
   end
 
   def parse
@@ -140,6 +141,15 @@ class Parser < StringScanner
 
     node = parse_message_with_location options
     return node if node
+
+    # Signup and join
+    if scan /^\s*(.+?)\s*>\s*(\S+)\s*$/i
+      return new_signup self[1].strip, self[2]
+    end
+
+    if @parse_signup_and_join && scan(/^\s*(.+?)\s*(?:join|\!)\s*(\S+)\s*$/i)
+      return new_signup self[1].strip, self[2]
+    end
 
     # Signup
     if scan /^\s*(?:#|\.)*?\s*(?:name|n)(\s+(help|\?))?\s*$/i
@@ -423,8 +433,8 @@ class Parser < StringScanner
     end
   end
 
-  def new_signup(string)
-    SignupNode.new :display_name => string, :suggested_login => string.gsub(/\s/, '')
+  def new_signup(string, group = nil)
+    SignupNode.new :display_name => string, :suggested_login => string.gsub(/\s/, ''), :group => group
   end
 
   def new_create_group(group_alias, pieces)
@@ -491,6 +501,7 @@ end
 class SignupNode < Node
   attr_accessor :display_name
   attr_accessor :suggested_login
+  attr_accessor :group
 end
 
 class LoginNode < Node

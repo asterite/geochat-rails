@@ -3,14 +3,14 @@
 require 'test_helper'
 
 class ParserTest < ActiveSupport::TestCase
-  def parse(string)
+  def parse(string, options = {})
     lookup = stub('lookup', :get_target => nil)
     lookup.stubs(:get_target).with('MyGroup').returns(GroupTarget.new('MyGroup'))
     lookup.stubs(:get_target).with('AnotherGroup').returns(GroupTarget.new('AnotherGroup'))
     lookup.stubs(:get_target).with('MyUser').returns(UserTarget.new('MyUser'))
     lookup.stubs(:get_target).with('AnotherUser').returns(UserTarget.new('AnotherUser'))
 
-    Parser.parse(string, lookup)
+    Parser.parse(string, lookup, options)
   end
 
   def self.it_parses_node(string, clazz, options = {})
@@ -27,6 +27,16 @@ class ParserTest < ActiveSupport::TestCase
   def self.it_parses_signup(string, options = {})
     test "parses signup #{string}" do
       node = parse(string)
+      assert node.is_a?(SignupNode)
+      assert_equal options[:display_name], node.display_name
+      assert_equal options[:suggested_login] || options[:display_name], node.suggested_login
+      assert_equal options[:group], node.group
+    end
+  end
+
+  def self.it_parses_signup_and_join(string, options = {})
+    test "parses signup and join #{string}" do
+      node = parse(string, :parse_signup_and_join => true)
       assert node.is_a?(SignupNode)
       assert_equal options[:display_name], node.display_name
       assert_equal options[:suggested_login] || options[:display_name], node.suggested_login
@@ -526,6 +536,13 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_message "30 31 32 33 34 35 * Yeah!", :location => location(30, 31, 32, 33, 34, 35), :body => 'Yeah!'
   it_parses_message "10.20.30.40 40.50.60.70", :location => location(10, 20, 30.40, 40, 50, 60.70)
   it_parses_message "10,20,30,40 40,50,60,70", :location => location(10, 20, 30.40, 40, 50, 60.70)
+  it_parses_message "display name ! group", :body => :unchanged
+  it_parses_message "display name !!", :body => :unchanged
+  it_parses_message "display name join group", :body => :unchanged
+
+  it_parses_signup "display name > group", :display_name => 'display name', :suggested_login => 'displayname', :group => 'group'
+  it_parses_signup_and_join "display name join group", :display_name => 'display name', :suggested_login => 'displayname', :group => 'group'
+  it_parses_signup_and_join "display name ! group", :display_name => 'display name', :suggested_login => 'displayname', :group => 'group'
 
   it_parses_help "help", :node => nil
   it_parses_help ".help", :node => nil

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110125193220) do
+ActiveRecord::Schema.define(:version => 20110126160020) do
 
   create_table "channels", :force => true do |t|
     t.string   "protocol"
@@ -21,18 +21,12 @@ ActiveRecord::Schema.define(:version => 20110125193220) do
     t.string   "status"
   end
 
-  create_table "group_users", :force => true do |t|
-    t.integer  "group_id"
-    t.integer  "user_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
   create_table "groups", :force => true do |t|
     t.string   "alias"
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "requires_aproval_to_join", :default => false
   end
 
   create_table "invites", :force => true do |t|
@@ -40,6 +34,16 @@ ActiveRecord::Schema.define(:version => 20110125193220) do
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "user_accepted",  :default => false
+    t.boolean  "admin_accepted", :default => false
+  end
+
+  create_table "memberships", :force => true do |t|
+    t.integer  "group_id"
+    t.integer  "user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "role"
   end
 
   create_table "users", :force => true do |t|
@@ -48,6 +52,8 @@ ActiveRecord::Schema.define(:version => 20110125193220) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "password"
+    t.integer  "default_group_id"
+    t.boolean  "created_from_invite", :default => false
   end
 
 end
