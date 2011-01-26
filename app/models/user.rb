@@ -11,8 +11,38 @@ class User < ActiveRecord::Base
     User.joins(:channels).where('channels.protocol = ? and channels.address = ?', 'sms', number).first
   end
 
-  def join(group)
-    Membership.create! :user => self, :group => group, :role => :member
+  def self.find_suitable_login(suggested_login)
+    login = suggested_login
+    index = 2
+    while self.find_by_login(login)
+      login = "#{suggested_login}#{index}"
+      index += 1
+    end
+    login
+  end
+
+  def create_group(options = {})
+    group = Group.create! options
+    join group, :as => :owner
+    group
+  end
+
+  def join(group, options = {})
+    Membership.create! :user => self, :group => group, :role => (options[:as] || :member)
+  end
+
+  # user can be a User or a string, in which case a new User will be created with that login
+  # options = :to => group
+  def invite(user, options = {})
+    group = options[:to]
+    if user.kind_of?(String)
+      user = User.create! :login => user, :created_from_invite => true
+    end
+    Invite.create! :group => group, :user => user, :admin_accepted => self.is_owner_of(group)
+  end
+
+  def request_join(group)
+    Invite.create! :user => self, :group => group, :user_accepted => true
   end
 
   def make_owner_of(group)

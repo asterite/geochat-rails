@@ -528,6 +528,21 @@ end
 class InviteNode < Node
   attr_accessor :group
   attr_accessor :users
+
+  def fix_group
+    if self.group
+      group = Group.find_by_alias self.group
+      if !group
+        group = Group.find_by_alias self.users.first
+        if group
+          self.users = [self.group]
+        else
+          self.users.insert 0, self.group
+        end
+      end
+    end
+    group
+  end
 end
 
 class JoinNode < Node
