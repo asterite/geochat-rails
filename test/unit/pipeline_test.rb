@@ -15,6 +15,12 @@ class PipelineTest < ActiveSupport::TestCase
     @pipeline.process address, message
   end
 
+  def disable_group(group)
+    group = Group.find_by_alias group
+    group.enabled = false
+    group.save!
+  end
+
   def assert_user_doesnt_exist(login)
     assert_nil User.find_by_login(login), "Expected user #{login} not to exist"
   end
@@ -55,14 +61,28 @@ class PipelineTest < ActiveSupport::TestCase
   end
 
   def assert_messages_sent_to(address, msgs)
+    address = address.to_a if address.is_a?(Range)
+    address = *address
+    address.each do |a|
+      a = "sms://#{a}" if a.is_a?(Integer)
+      actual = @pipeline.messages[a]
+      msgs = *msgs
+      assert_equal msgs, actual, "Mismatched messages to #{a}"
+    end
+  end
+
+  def assert_no_messages_sent_to(address)
     address = "sms://#{address}" if address.is_a?(Integer)
     actual = @pipeline.messages[address]
-    msgs = *msgs
-    assert_equal msgs, actual
+    assert actual.empty?
   end
 
   def assert_no_messages_sent
     assert @pipeline.messages.empty?, "Expected no messages sent but there are these messages: #{@pipeline.messages}"
+  end
+
+  def assert_no_messages_saved
+    # TODO
   end
 
   def assert_group_exists(group_alias, *users)
@@ -117,6 +137,10 @@ class PipelineTest < ActiveSupport::TestCase
   end
 
   def assert_message_saved_as_blast(user, group, message)
+    # TODO
+  end
+
+  def assert_message_saved_as_non_blast(user, group, message)
     # TODO
   end
 

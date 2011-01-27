@@ -75,7 +75,7 @@ class Pipeline
       return reply "The group #{node.alias} already exists. Please specify another alias."
     end
 
-    group = current_user.create_group :alias => node.alias, :name => (node.name || node.alias)
+    group = current_user.create_group :alias => node.alias, :name => (node.name || node.alias), :chatroom => !node.nochat
 
     reply "Group '#{group.alias}' created. To require users your approval to join, go to geochat.instedd.org. Invite users by sending: #{group.alias} +PHONE_NUMBER"
   end
@@ -106,7 +106,10 @@ class Pipeline
   def process_invite(node)
     return not_logged_in unless current_user
 
-    group = node.fix_group || default_group
+    group = node.fix_group || default_group({
+      :no_default_group_message => "You must specify a group to invite the users to, or set a default group.",
+      :no_groups_message => "You don't belong to any group yet. To join a group send: join groupalias"
+    })
     return if not group
 
     sent = []
@@ -189,47 +192,72 @@ class Pipeline
   def process_owner(node)
     user = User.find_by_login node.user
 
-    group = current_user.default_group
-
-    if not group
-      groups = current_user.groups
-      if groups.empty?
-        # TODO
-        # return reply "You don't belong to any group yet. To join a group send: join groupalias"
-      elsif groups.length == 1
-        group = groups.first
-      else
-        # TODO
-        # return reply "You must specify a group to invite the users to, or set a default group."
-      end
-    end
+    group = default_group
+    return unless group
 
     user.make_owner_of group
   end
 
   def process_message(node)
-    group = current_user.default_group
-
-    if not group
-      groups = current_user.groups
-      if groups.empty?
-        # TODO
-        # return reply "You don't belong to any group yet. To join a group send: join groupalias"
-      elsif groups.length == 1
-        group = groups.first
-      else
-        # TODO
-        # return reply "You must specify a group to invite the users to, or set a default group."
+    if node.target.present?
+      if node.target.is_a?(UnknownTarget)
+        group = Group.find_by_alias node.target.name
+      elsif node.target.is_a?(GroupTarget)
+        group = node.target.payload[:group]
+        invite = node.target.payload[:invite]
+      end
+      if not group
+        return reply "The group #{node.target.name} does not exist"
       end
     end
 
-    send_message_to_group group, "#{current_user.login}: #{node.body}"
+    if group && !group.enabled
+      return reply "You can't send messages to #{group.alias} because it is disabled."
+    end
+
+    group = default_group unless group
+    return unless group
+
+    if invite
+      if invite.admin_accepted || !group.requires_aproval_to_join
+        join current_user, group
+        invite.destroy
+      else
+        return reply "You can not send messages to the group #{group.alias} as your invitation has not yet been approved by an admin."
+      end
+    end
+
+    if !group.users.include?(current_user)
+      return reply "You can not send messages to the group #{group.alias} because you are not a member or the group requires approval to join. To request an invitation send: join #{group.alias}"
+    end
+
+    if node.location.present?
+      coords = Geocoder.locate(node.location)
+      reply "Your location was successfully updated to #{node.location} (lat: #{coords.first}, lon: #{coords.second})"
+    end
+
+    if node.body.blank?
+      if node.location.present?
+        node.body = "at #{node.location}"
+      end
+    end
+
+    if group.chatroom || node.blast
+      send_message_to_group group, "#{current_user.login}: #{node.body}"
+    end
   end
 
   def get_target(name)
     if current_user
       group = current_user.groups.find_by_alias(name)
-      return GroupTarget.new(name, group) if group
+      if group
+        return GroupTarget.new(name, :group => group) if group
+      end
+
+      invite = Invite.joins(:group).where('user_id = ? and groups.alias = ?', current_user.id, name).first
+      if invite
+        return GroupTarget.new(name, :group => invite.group, :invite => invite)
+      end
     end
 
     nil
@@ -239,7 +267,11 @@ class Pipeline
 
   def join(user, group)
     user.join group
-    send_message_to_user user, "Welcome #{user.display_name} to group #{group.alias}. Reply with 'at TOWN NAME' or with any message to say hi to your group!"
+    if user.memberships.count > 1
+      send_message_to_user user, "Welcome #{user.display_name} to #{group.alias}. Send '#{group.alias} Hello group!'"
+    else
+      send_message_to_user user, "Welcome #{user.display_name} to group #{group.alias}. Reply with 'at TOWN NAME' or with any message to say hi to your group!"
+    end
   end
 
   def not_logged_in
@@ -257,7 +289,11 @@ class Pipeline
 
   def send_message_to_group(group, msg)
     group.users.reject{|x| x.id == current_user.id}.each do |user|
-      send_message_to_user user, msg
+      if group.id == user.default_group_id || user.memberships.count == 1
+        send_message_to_user user, msg
+      else
+        send_message_to_user user, "[#{group.alias}] #{msg}"
+      end
     end
   end
 
@@ -297,17 +333,17 @@ class Pipeline
     current_channel.try(:user)
   end
 
-  def default_group
+  def default_group(options = {})
     group = current_user.default_group
     return group if group
 
     groups = current_user.groups
     if groups.empty?
-      reply "You don't belong to any group yet. To join a group send: join groupalias"
+      reply options[:no_groups_message]
     elsif groups.length == 1
       return groups.first
     else
-      reply "You must specify a group to invite the users to, or set a default group."
+      reply options[:no_default_group_message]
     end
 
     nil

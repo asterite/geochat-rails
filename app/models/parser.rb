@@ -417,7 +417,7 @@ class Parser < StringScanner
   end
 
   def check_blast
-    if scan /\s*!(.+?)$/i
+    if scan /\s*!\s*(.+?)$/i
       self.string = self[1]
       true
     else

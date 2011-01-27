@@ -2,7 +2,7 @@
 
 require 'unit/pipeline_test'
 
-class OnOffTest < PipelineTest
+class OffTest < PipelineTest
   test "turn off" do
     create_users 1
 

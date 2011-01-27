@@ -379,6 +379,17 @@ class InviteTest < PipelineTest
     assert_group_exists "Group1", "1234"
   end
 
+  test "send welcome message with group if joined and no default group" do
+    create_users 1, 2
+    create_group 1, "Group1"
+    create_group 1, "Group2"
+    send_message 2, "join Group1"
+    send_message 1, "invite Group2 2"
+
+    send_message 2, "join Group2"
+    assert_messages_sent_to 2, "Welcome User2 to Group2. Send 'Group2 Hello group!'"
+  end
+
   test "invite not logged in" do
     send_message 1, "invite Foo"
     assert_not_logged_in_message_sent_to 1

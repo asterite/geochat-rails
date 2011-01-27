@@ -447,6 +447,7 @@ class ParserTest < ActiveSupport::TestCase
   # TODO USNG
   it_parses_message "Hello All!", :body => :unchanged
   it_parses_message "!Hello All", :body => "Hello All", :blast => true
+  it_parses_message "! Hello All", :body => "Hello All", :blast => true
   it_parses_message "Hey, we should tell @somegroup about this!", :body => :unchanged, :mentions => ['somegroup']
   it_parses_message "Hey, we should tell @ somegroup about this!", :body => :unchanged, :mentions => ['somegroup']
   it_parses_message "Hey, we should tell @somegroup and @someothergroup about this!", :body => :unchanged, :mentions => ['somegroup', 'someothergroup']
