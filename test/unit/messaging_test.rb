@@ -216,5 +216,31 @@ class MessagingTest < PipelineTest
     end
   end
 
+  test "send message to user fails no common group" do
+    create_users 1, 2
+    create_group 1, "Group1"
+    create_group 2, "Group2"
+
+    send_message 1, "@User2 Hello!"
+    assert_messages_sent_to 1, "You can't send a message to user User2 because you don't share a common group"
+    assert_no_messages_sent_to 2
+    assert_no_messages_saved
+  end
+
+  test "send message to user user fails explicit group" do
+    create_users 1, 2, 3, 4
+    create_group 1, "Group1"
+    create_group 1, "Group2"
+
+    send_message 2, "join Group1"
+    send_message 3..4, "join Group1"
+    send_message 3..4, "join Group2"
+
+    send_message 1, "Group2 @User2 Hello!"
+    assert_messages_sent_to 1, "You can't send a message to user User2 via group Group2 because he/she does not belong to it"
+    assert_no_messages_sent_to 2, 3, 4
+    assert_no_messages_saved
+  end
+
 end
 

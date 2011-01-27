@@ -205,6 +205,7 @@ class Pipeline
         user = User.find_by_login_or_mobile_number node.target.name unless group
       elsif node.target.is_a?(GroupTarget)
         group = node.target.payload[:group]
+        explicit_group = true
         invite = node.target.payload[:invite]
       end
 
@@ -213,6 +214,7 @@ class Pipeline
           user = User.find_by_login_or_mobile_number node.second_target.name
         elsif user
           group = Group.find_by_alias node.second_target.name
+          explicit_group = true
         end
       end
 
@@ -227,6 +229,14 @@ class Pipeline
 
     group = default_group unless group
     return unless group
+
+    if user
+      if explicit_group && !user.belongs_to(group)
+        return reply "You can't send a message to user #{user.login} via group #{group.alias} because he/she does not belong to it"
+      elsif !current_user.shares_a_common_group_with(user)
+        return reply "You can't send a message to user #{user.login} because you don't share a common group"
+      end
+    end
 
     if invite
       if invite.admin_accepted || !group.requires_aproval_to_join
