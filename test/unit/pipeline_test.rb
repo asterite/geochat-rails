@@ -11,8 +11,12 @@ class PipelineTest < ActiveSupport::TestCase
   end
 
   def send_message(address, message)
-    address = "sms://#{address}" if address.is_a?(Integer)
-    @pipeline.process address, message
+    address = address.to_a if address.is_a?(Range)
+    address = *address
+    address.each do |a|
+      a = "sms://#{a}" if a.is_a?(Integer)
+      @pipeline.process a, message
+    end
   end
 
   def disable_group(group)
@@ -71,10 +75,12 @@ class PipelineTest < ActiveSupport::TestCase
     end
   end
 
-  def assert_no_messages_sent_to(address)
-    address = "sms://#{address}" if address.is_a?(Integer)
-    actual = @pipeline.messages[address]
-    assert actual.empty?
+  def assert_no_messages_sent_to(*address)
+    address.each do |a|
+      a = "sms://#{a}" if a.is_a?(Integer)
+      actual = @pipeline.messages[a]
+      assert actual.empty?
+    end
   end
 
   def assert_no_messages_sent

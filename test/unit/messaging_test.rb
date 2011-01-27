@@ -165,5 +165,56 @@ class MessagingTest < PipelineTest
     assert_no_messages_sent_to 2
   end
 
+  test "send message targeted to invisible public group" do
+    create_users 1, 2
+    create_group 1, "Group1"
+    create_group 2, "Group2"
+
+    send_message 1, "@Group2 Hello!"
+    assert_messages_sent_to 1, "Welcome User1 to Group2. Send 'Group2 Hello group!'"
+    assert_messages_sent_to 2, "User1: Hello!"
+    assert_group_exists "Group2", "User1", "User2"
+  end
+
+  test "send message not targeted to invisible public group" do
+    create_users 1, 2
+    create_group 1, "Group1"
+    create_group 2, "Group2"
+
+    send_message 1, "Group2 Hello!"
+    assert_no_messages_sent_to 1
+    assert_group_exists "Group2", "User2"
+  end
+
+  test "send message to user" do
+    create_users 1, 2, 3, 4
+    create_group 1, "Group1"
+
+    send_message 2..3, "join Group1"
+
+    send_message 1, "@User2 Hello!"
+    assert_messages_sent_to 2, "User1 only to you: Hello!"
+    assert_no_messages_sent_to 1, 3, 4
+    assert_message_saved_as_blast 1, "Group1", "Hello!"
+  end
+
+  ["group2 @User2 Hello!",
+    "@User2 @group2 Hello!",
+    "@group2 @User2 Hello!"].each do |msg|
+    test "send message to user explicit group with message #{msg}" do
+      create_users 1, 2, 3, 4
+      create_group 1, "Group1"
+      create_group 1, "Group2"
+
+      send_message 2..4, "join Group1"
+      send_message 2..4, "join Group2"
+
+      send_message 1, msg
+      assert_messages_sent_to 2, "[Group2] User1 only to you: Hello!"
+      assert_no_messages_sent_to 1, 3, 4
+      assert_message_saved_as_blast 1, "Group2", "Hello!"
+    end
+  end
+
 end
 

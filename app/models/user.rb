@@ -21,6 +21,12 @@ class User < ActiveRecord::Base
     login
   end
 
+  def self.find_by_login_or_mobile_number(search)
+    user = self.find_by_login search
+    user = self.find_by_mobile_number search unless user
+    user
+  end
+
   def create_group(options = {})
     group = Group.create! options
     join group, :as => :owner

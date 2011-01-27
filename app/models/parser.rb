@@ -576,6 +576,10 @@ class MessageNode < Node
   def target=(value)
     @targets = [value]
   end
+
+  def second_target
+    @targets.try(:second)
+  end
 end
 
 class HelpNode < Node

@@ -202,11 +202,21 @@ class Pipeline
     if node.target.present?
       if node.target.is_a?(UnknownTarget)
         group = Group.find_by_alias node.target.name
+        user = User.find_by_login_or_mobile_number node.target.name unless group
       elsif node.target.is_a?(GroupTarget)
         group = node.target.payload[:group]
         invite = node.target.payload[:invite]
       end
-      if not group
+
+      if node.second_target
+        if group
+          user = User.find_by_login_or_mobile_number node.second_target.name
+        elsif user
+          group = Group.find_by_alias node.second_target.name
+        end
+      end
+
+      if !group && !user
         return reply "The group #{node.target.name} does not exist"
       end
     end
@@ -228,7 +238,11 @@ class Pipeline
     end
 
     if !group.users.include?(current_user)
-      return reply "You can not send messages to the group #{group.alias} because you are not a member or the group requires approval to join. To request an invitation send: join #{group.alias}"
+      if group.requires_aproval_to_join
+        return reply "You can not send messages to the group #{group.alias} because you are not a member or the group requires approval to join. To request an invitation send: join #{group.alias}"
+      else
+        join current_user, group
+      end
     end
 
     if node.location.present?
@@ -242,7 +256,9 @@ class Pipeline
       end
     end
 
-    if group.chatroom || node.blast
+    if user
+      send_message_to_user_in_group user, group, "#{current_user.login} only to you: #{node.body}"
+    elsif group.chatroom || node.blast
       send_message_to_group group, "#{current_user.login}: #{node.body}"
     end
   end
@@ -289,11 +305,7 @@ class Pipeline
 
   def send_message_to_group(group, msg)
     group.users.reject{|x| x.id == current_user.id}.each do |user|
-      if group.id == user.default_group_id || user.memberships.count == 1
-        send_message_to_user user, msg
-      else
-        send_message_to_user user, "[#{group.alias}] #{msg}"
-      end
+      send_message_to_user_in_group user, group, msg
     end
   end
 
@@ -301,6 +313,14 @@ class Pipeline
     group.owners.each do |user|
       send_message_to_user user, msg
     end
+  end
+
+  def send_message_to_user_in_group(user, group, msg)
+      if group.id == user.default_group_id || user.memberships.count == 1
+        send_message_to_user user, msg
+      else
+        send_message_to_user user, "[#{group.alias}] #{msg}"
+      end
   end
 
   def send_message_to_user(user, msg)
