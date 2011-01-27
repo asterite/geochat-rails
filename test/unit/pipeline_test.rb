@@ -165,4 +165,10 @@ class PipelineTest < ActiveSupport::TestCase
     group.requires_aproval_to_join = true
     group.save!
   end
+
+  def set_forward_owners(group)
+    group = Group.find_by_alias group
+    group.forward_owners = true
+    group.save!
+  end
 end

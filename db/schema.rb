@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110127185555) do
+ActiveRecord::Schema.define(:version => 20110127221704) do
 
   create_table "channels", :force => true do |t|
     t.string   "protocol"
@@ -29,6 +29,7 @@ ActiveRecord::Schema.define(:version => 20110127185555) do
     t.boolean  "requires_aproval_to_join", :default => false
     t.boolean  "chatroom",                 :default => true
     t.boolean  "enabled",                  :default => true
+    t.boolean  "forward_owners",           :default => false
   end
 
   create_table "invites", :force => true do |t|

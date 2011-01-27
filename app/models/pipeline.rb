@@ -268,8 +268,13 @@ class Pipeline
 
     if user
       send_message_to_user_in_group user, group, "#{current_user.login} only to you: #{node.body}"
+      if group.forward_owners
+        send_message_to_group_owners group, "#{current_user.login} only to #{user.login}: #{node.body}", :except => user
+      end
     elsif group.chatroom || node.blast
       send_message_to_group group, "#{current_user.login}: #{node.body}"
+    elsif group.forward_owners
+      send_message_to_group_owners group, "#{current_user.login}: #{node.body}"
     end
   end
 
@@ -319,18 +324,20 @@ class Pipeline
     end
   end
 
-  def send_message_to_group_owners(group, msg)
-    group.owners.each do |user|
-      send_message_to_user user, msg
+  def send_message_to_group_owners(group, msg, options = {})
+    targets = group.owners
+    targets.reject!{|x| x == options[:except]} if options[:except]
+    targets.each do |user|
+      send_message_to_user_in_group user, group, msg
     end
   end
 
   def send_message_to_user_in_group(user, group, msg)
-      if group.id == user.default_group_id || user.memberships.count == 1
-        send_message_to_user user, msg
-      else
-        send_message_to_user user, "[#{group.alias}] #{msg}"
-      end
+    if group.id == user.default_group_id || user.memberships.count == 1
+      send_message_to_user user, msg
+    else
+      send_message_to_user user, "[#{group.alias}] #{msg}"
+    end
   end
 
   def send_message_to_user(user, msg)
