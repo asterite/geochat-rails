@@ -256,14 +256,25 @@ class Pipeline
     end
 
     if node.location.present?
-      coords = Geocoder.locate(node.location)
-      reply "Your location was successfully updated to #{node.location} (lat: #{coords.first}, lon: #{coords.second})"
-    end
-
-    if node.body.blank?
-      if node.location.present?
-        node.body = "at #{node.location}"
+      if node.location.is_a?(String)
+        place = node.location
+        coords = Geocoder.locate node.location
+      else
+        place = Geocoder.reverse node.location
+        coords = node.location
       end
+
+      reply "Your location was successfully updated to #{place} (lat: #{coords.first}, lon: #{coords.second})"
+
+      if node.body.blank?
+        node.body = "at #{node.location} (lat: #{coords.first}, lon: #{coords.second})"
+      else
+        node.body = "#{node.body} (at #{place}, lat: #{coords.first}, lon: #{coords.second})"
+      end
+
+      current_user.location = place
+      current_user.coords = coords
+      current_user.save!
     end
 
     if user

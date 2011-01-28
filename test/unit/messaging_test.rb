@@ -28,7 +28,7 @@ class MessagingTest < PipelineTest
     send_message 1, "@Group1 at santiago de chile"
 
     assert_messages_sent_to 1, "Your location was successfully updated to santiago de chile (lat: -33.42536, lon: -70.566466)"
-    assert_messages_sent_to 2..4, "User1: at santiago de chile"
+    assert_messages_sent_to 2..4, "User1: at santiago de chile (lat: -33.42536, lon: -70.566466)"
     assert_message_saved_as_blast 1, "Group1", "at santiago de chile"
   end
 

@@ -73,4 +73,9 @@ class User < ActiveRecord::Base
   def belongs_to(group)
     Membership.where('user_id = ? and group_id = ?', self.id, group.id).exists?
   end
+
+  def coords=(array)
+    self.lat = array.first
+    self.lon = array.second
+  end
 end

@@ -142,7 +142,18 @@ class PipelineTest < ActiveSupport::TestCase
     assert !user.created_from_invite, "Expected user #{user} not to be created from invite"
   end
 
+  def assert_user_location(user, location, lat, lon)
+    user = User.find_by_login user
+    assert_in_delta lat, user.lat.to_f, 1e-07
+    assert_in_delta lon, user.lon.to_f, 1e-07
+    assert_equal location, user.location
+  end
+
   def assert_message_saved_as_blast(user, group, message)
+    # TODO
+  end
+
+  def assert_message_saved_as_blast_with_location(user, group, message, location, lat, lon)
     # TODO
   end
 
@@ -151,6 +162,7 @@ class PipelineTest < ActiveSupport::TestCase
   end
 
   def create_users(*args)
+    args = args.first.to_a if args.first.is_a?(Range)
     args.each do |num|
       send_message "sms://#{num}", ".name User#{num}"
     end

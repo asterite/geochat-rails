@@ -1,4 +1,7 @@
 class Geocoder
-  def locate(location)
+  def self.locate(location)
+  end
+
+  def self.reverse(coords)
   end
 end
