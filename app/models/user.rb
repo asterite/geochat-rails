@@ -34,6 +34,8 @@ class User < ActiveRecord::Base
     group
   end
 
+  # options:
+  # :as => the role to join (:member by default)
   def join(group, options = {})
     Membership.create! :user => self, :group => group, :role => (options[:as] || :member)
   end
@@ -69,6 +71,10 @@ class User < ActiveRecord::Base
   def shares_a_common_group_with(user)
     result = self.class.connection.execute "select 1 from memberships m1, memberships m2 where m1.group_id = m2.group_id && m1.user_id = #{self.id} && m2.user_id = #{user.id}"
     result.count > 0
+  end
+
+  def membership_in(group)
+    Membership.where('user_id = ? and group_id = ?', self.id, group.id).first
   end
 
   def belongs_to(group)

@@ -179,6 +179,30 @@ class Pipeline
     end
   end
 
+  def process_leave(node)
+    group = Group.find_by_alias node.group
+    if !group
+      return reply_group_does_not_exist(node.group)
+    end
+
+    membership = current_user.membership_in(group)
+    if !membership
+      return reply "You can't leave group #{group.alias} because you don't belong to it."
+    end
+
+    membership.destroy
+
+    groups = current_user.groups
+    case groups.count
+    when 0
+      reply "Good bye #{current_user.login} from your only group #{group.alias}. To join another group send: join groupalias"
+    when 1
+      reply "Good bye #{current_user.login} from group #{group.alias}. Now your default group is #{groups.first.alias}."
+    else
+      reply "Good bye #{current_user.login} from group #{group.alias}."
+    end
+  end
+
   def process_my(node)
     case node.key
     when MyNode::Login
