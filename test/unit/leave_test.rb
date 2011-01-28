@@ -51,4 +51,21 @@ class LeaveTest < PipelineTest
     send_message 2, "leave Group1"
     assert_messages_sent_to 2, "You can't leave group Group1 because you don't belong to it."
   end
+
+  test "leave group only owner" do
+    create_users 1
+    send_message 1, "create Group1"
+    send_message 1, "leave Group1"
+    assert_messages_sent_to 1, "You can't leave group Group1 because you are its only owner."
+  end
+
+  test "leave group not only owner" do
+    create_users 1, 2
+    send_message 1, "create Group1"
+    send_message 2, "join Group1"
+    send_message 1, "owner User2"
+
+    send_message 1, "leave Group1"
+    assert_messages_sent_to 1, "Good bye User1 from your only group Group1. To join another group send: join groupalias"
+  end
 end

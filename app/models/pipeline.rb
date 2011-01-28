@@ -190,6 +190,10 @@ class Pipeline
       return reply "You can't leave group #{group.alias} because you don't belong to it."
     end
 
+    if group.owners == [current_user]
+      return reply "You can't leave group #{group.alias} because you are its only owner."
+    end
+
     membership.destroy
 
     groups = current_user.groups
