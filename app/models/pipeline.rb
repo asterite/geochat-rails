@@ -108,7 +108,6 @@ class Pipeline
 
     group = node.fix_group || default_group({
       :no_default_group_message => "You must specify a group to invite the users to, or set a default group.",
-      :no_groups_message => "You don't belong to any group yet. To join a group send: join groupalias"
     })
     return if not group
 
@@ -190,12 +189,43 @@ class Pipeline
   end
 
   def process_owner(node)
-    user = User.find_by_login node.user
+    user = User.find_by_login_or_mobile_number node.user
+    if node.group
+      group = Group.find_by_alias node.group
+      if !group
+        node.user, node.group = node.group, node.user
+        group = Group.find_by_alias node.group
+        user = User.find_by_login_or_mobile_number node.user
+        if !group
+          if user
+            reply "The group #{node.group} does not exist"
+          else
+            reply "The group #{node.group} or #{node.user} does not exist"
+          end
+          return
+        end
+      end
+    end
 
-    group = default_group
+    if !user
+      return reply "The user #{node.user} does not exist." unless user
+    end
+
+    if not group
+      group = default_group({
+        :no_default_group_message => "You must specify a group to set #{user.login} as an owner, or set a default group.",
+      })
+    end
     return unless group
 
+    if !user.belongs_to(group)
+      return reply "The user #{user.login} does not belong to group #{group.alias}."
+    end
+
     user.make_owner_of group
+
+    reply "The user #{user.login} was successfully set as owner of group #{group.alias}."
+    send_message_to_user user, "#{current_user.login} has made you owner of group #{group.alias}."
   end
 
   def process_message(node)
@@ -267,7 +297,7 @@ class Pipeline
       reply "Your location was successfully updated to #{place} (lat: #{coords.first}, lon: #{coords.second})"
 
       if node.body.blank?
-        node.body = "at #{node.location} (lat: #{coords.first}, lon: #{coords.second})"
+        node.body = "at #{place} (lat: #{coords.first}, lon: #{coords.second})"
       else
         node.body = "#{node.body} (at #{place}, lat: #{coords.first}, lon: #{coords.second})"
       end
@@ -387,7 +417,7 @@ class Pipeline
 
     groups = current_user.groups
     if groups.empty?
-      reply options[:no_groups_message]
+      reply "You don't belong to any group yet. To join a group send: join groupalias"
     elsif groups.length == 1
       return groups.first
     else
