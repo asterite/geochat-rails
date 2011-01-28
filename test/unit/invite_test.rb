@@ -307,7 +307,7 @@ class InviteTest < PipelineTest
 
     send_message 2, "John Doe > Group1"
     assert_group_exists "Group1", "User1"
-    assert_messages_sent_to 2, "This device already belongs to other user. To dettach it send: bye"
+    assert_messages_sent_to 2, "This device already belongs to another user. To dettach it send: bye"
   end
 
   test "invite when not owner" do

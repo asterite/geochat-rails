@@ -304,10 +304,12 @@ class Parser < StringScanner
       return MyNode.new :key => MyNode::Email, :value => self[1].strip
     elsif scan /^\s*(?:#|\.)*\s*my\s+(number|phone|phonenumber|phone\s+number|mobile|mobilenumber|mobile\s+number)\s*$/i
       return MyNode.new :key => MyNode::Number
+    elsif scan /^\s*(?:#|\.)*\s*my\s+(number|phone|phonenumber|phone\s+number|mobile|mobilenumber|mobile\s+number)\s*(.+?)\s*$/i
+      return MyNode.new :key => MyNode::Number, :value => self[1].strip
     elsif scan /^\s*(?:#|\.)*\s*my\s+location\s*$/i
       return MyNode.new :key => MyNode::Location
     elsif scan /^\s*(?:#|\.)*\s*my\s+location\s+(.+?)\s*$/i
-      return MyNode.new :key => MyNode::Location, :value => self[1].strip
+      return MyNode.new :key => MyNode::Location, :value => check_numeric_location(self[1].strip)
     elsif scan /^\s*(?:#|\.)*\s*my\s+login\s*$/i
       return MyNode.new :key => MyNode::Login
     elsif scan /^\s*(?:#|\.)*\s*my\s+login\s+(\S+)\s*$/i

@@ -358,6 +358,7 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_my ".my location", :key => MyNode::Location, :value => nil
   it_parses_my "#my location something long", :key => MyNode::Location, :value => 'something long'
   it_parses_my ".my location something long", :key => MyNode::Location, :value => 'something long'
+  it_parses_my "#my location 10.2, 30.4", :key => MyNode::Location, :value => [10.2, 30.4]
   it_parses_my "#my login", :key => MyNode::Login, :value => nil
   it_parses_my ".my login", :key => MyNode::Login, :value => nil
   it_parses_my "#my login something", :key => MyNode::Login, :value => 'something'

@@ -84,6 +84,10 @@ class User < ActiveRecord::Base
     self.lat && self.lon
   end
 
+  def sms_channel
+    self.channels.where(:protocol => 'sms').first
+  end
+
   private
 
   def update_location_reported_at

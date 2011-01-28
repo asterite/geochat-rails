@@ -35,7 +35,7 @@ class WhereIsTest < PipelineTest
     send_message 2, "at 10.2, 20.4"
 
     send_message 1, "#whereis User2"
-    assert_messages_sent_to 1, "User2 said he/she was in Paris (lat: 10.2, lon: 20.4) less than a minute ago"
+    assert_messages_sent_to 1, "User2 said he/she was in Paris (lat: 10.2, lon: 20.4) less than a minute ago."
   end
 
   test "whereis answers time ago" do
@@ -52,6 +52,6 @@ class WhereIsTest < PipelineTest
     Time.stubs :now => now
 
     send_message 1, "#whereis User2"
-    assert_messages_sent_to 1, "User2 said he/she was in Paris (lat: 10.2, lon: 20.4) about 1 hour ago"
+    assert_messages_sent_to 1, "User2 said he/she was in Paris (lat: 10.2, lon: 20.4) about 1 hour ago."
   end
 end

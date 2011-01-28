@@ -20,7 +20,7 @@ class Pipeline
   end
 
   def process_signup(node)
-    return reply "This device already belongs to other user. To dettach it send: bye" if current_channel
+    return reply "This device already belongs to another user. To dettach it send: bye" if current_channel
 
     login = User.find_suitable_login node.suggested_login
     password = PasswordGenerator.new_password
@@ -63,7 +63,7 @@ class Pipeline
   end
 
   def process_logout(node)
-    return not_logged_in unless current_channel
+    return reply_not_logged_in unless current_channel
 
     current_channel.destroy
 
@@ -71,7 +71,7 @@ class Pipeline
   end
 
   def process_create_group(node)
-    return not_logged_in unless current_user
+    return reply_not_logged_in unless current_user
 
     if Group.find_by_alias(node.alias)
       return reply "The group #{node.alias} already exists. Please specify another alias."
@@ -83,7 +83,7 @@ class Pipeline
   end
 
   def process_off(node)
-    return not_logged_in unless current_user
+    return reply_not_logged_in unless current_user
     return if current_channel.status == :off
 
     current_channel.status = :off
@@ -94,7 +94,7 @@ class Pipeline
   end
 
   def process_on(node)
-    return not_logged_in unless current_user
+    return reply_not_logged_in unless current_user
 
     if current_channel.status != :on
       current_channel.status = :on
@@ -106,7 +106,7 @@ class Pipeline
   end
 
   def process_invite(node)
-    return not_logged_in unless current_user
+    return reply_not_logged_in unless current_user
 
     group = node.fix_group || default_group({
       :no_default_group_message => "You must specify a group to invite the users to, or set a default group.",
@@ -151,7 +151,7 @@ class Pipeline
   end
 
   def process_join(node)
-    return not_logged_in unless current_user
+    return reply_not_logged_in unless current_user
 
     group = Group.find_by_alias node.group
     if group.requires_aproval_to_join
@@ -181,12 +181,85 @@ class Pipeline
 
   def process_my(node)
     case node.key
+    when MyNode::Login
+      if node.value
+        reply "Your can't change your login"
+      else
+        reply "Your login is: #{current_user.login}"
+      end
+    when MyNode::Name
+      if node.value
+        current_user.display_name = node.value
+        current_user.save!
+
+        reply "Your new display name is: #{current_user.display_name}"
+      else
+        reply "Your display name is: #{current_user.display_name}"
+      end
+    when MyNode::Password
+      if node.value
+        current_user.password = node.value
+        current_user.save!
+
+        reply "Your new password is: #{node.value}"
+      else
+        reply "Forgot your password? Set it via: #my password newpassword"
+      end
+    when MyNode::Number
+      if node.value
+        reply "You can't change your phone number."
+      else
+        sms_channel = current_user.sms_channel
+        if sms_channel
+          reply "Your phone number is: #{sms_channel.address}"
+        else
+          reply "You don't have a phone number configured to work with GeoChat."
+        end
+      end
+    when MyNode::Groups
+      groups = current_user.groups.map(&:alias).sort
+      case groups.count
+      when 0
+        return reply_dont_belong_to_any_group
+      when 1
+        reply "Your only group is: #{groups.first}"
+      else
+        reply "Your groups are: #{groups.join ', '}"
+      end
     when MyNode::Group
-      group = Group.find_by_alias node.value
-      if group
+      if node.value
+        group = Group.find_by_alias node.value
+        if !group
+          return reply_group_does_not_exist node.value
+        end
+
+        if !current_user.belongs_to(group)
+          return reply "You can't set #{group.alias} as your default group because you don't belong to it."
+        end
+
         current_user.default_group_id = group.id
         current_user.save!
+
+        return reply "Your new default group is: #{group.alias}"
       end
+
+      group = current_user.default_group || default_group({
+        :no_default_group_message => "Your don't have a default group. To choose one send: #my group groupalias"
+      })
+      return unless group
+
+      reply "Your default group is: #{group.alias}"
+    when MyNode::Location
+      if node.value
+        update_current_user_location_to node.value
+        return
+      end
+
+      if !current_user.location_known?
+        return reply "You never reported your location."
+      end
+
+      return reply "You said you was in #{current_user.location} (lat: #{current_user.lat}, lon: #{current_user.lon}) #{time_ago_in_words current_user.location_reported_at} ago."
     end
   end
 
@@ -200,16 +273,16 @@ class Pipeline
         user = User.find_by_login_or_mobile_number node.user
         if !group
           if user
-            return group_does_not_exist node.group
+            return reply_group_does_not_exist node.group
           else
-            return group_does_not_exist("#{node.group} or #{node.user}")
+            return reply_group_does_not_exist("#{node.group} or #{node.user}")
           end
         end
       end
     end
 
     if !user
-      return user_does_not_exist node.user
+      return reply_user_does_not_exist node.user
     end
 
     if not group
@@ -250,12 +323,22 @@ class Pipeline
       end
 
       if !group && !user
-        return group_does_not_exist node.target.name
+        return reply_group_does_not_exist node.target.name
       end
     end
 
     if group && !group.enabled
       return reply "You can't send messages to #{group.alias} because it is disabled."
+    end
+
+    if node.location.present?
+      place, coords = update_current_user_location_to node.location
+
+      if node.body.blank?
+        node.body = "at #{place} (lat: #{coords.first}, lon: #{coords.second})"
+      else
+        node.body = "#{node.body} (at #{place}, lat: #{coords.first}, lon: #{coords.second})"
+      end
     end
 
     group = default_group unless group
@@ -283,28 +366,6 @@ class Pipeline
         return reply "You can not send messages to the group #{group.alias} because you are not a member or the group requires approval to join. To request an invitation send: join #{group.alias}"
       else
         join current_user, group
-      end
-    end
-
-    if node.location.present?
-      if node.location.is_a?(String)
-        place = node.location
-        coords = Geocoder.locate node.location
-      else
-        place = Geocoder.reverse node.location
-        coords = node.location
-      end
-
-      current_user.location = place
-      current_user.coords = coords
-      current_user.save!
-
-      reply "Your location was successfully updated to #{place} (lat: #{coords.first}, lon: #{coords.second})"
-
-      if node.body.blank?
-        node.body = "at #{place} (lat: #{coords.first}, lon: #{coords.second})"
-      else
-        node.body = "#{node.body} (at #{place}, lat: #{coords.first}, lon: #{coords.second})"
       end
     end
 
@@ -339,7 +400,7 @@ class Pipeline
   def process_where_is(node)
     user = User.find_by_login_or_mobile_number node.user
     if !user
-      return user_does_not_exist node.user
+      return reply_user_does_not_exist node.user
     end
 
     if !current_user.shares_a_common_group_with(user)
@@ -350,7 +411,7 @@ class Pipeline
       return reply "#{user.login} never reported his/her location."
     end
 
-    reply "User2 said he/she was in #{user.location} (lat: #{user.lat}, lon: #{user.lon}) #{time_ago_in_words user.location_reported_at} ago"
+    reply "User2 said he/she was in #{user.location} (lat: #{user.lat}, lon: #{user.lon}) #{time_ago_in_words user.location_reported_at} ago."
   end
 
   private
@@ -364,16 +425,20 @@ class Pipeline
     end
   end
 
-  def not_logged_in
+  def reply_not_logged_in
     reply 'You are not signed in GeoChat. Send "login USERNAME PASSWORD" to login, or "name YOUR_NAME" or "YOUR_NAME join GROUP_NAME" to register.'
   end
 
-  def user_does_not_exist(user)
+  def reply_user_does_not_exist(user)
     reply "The user #{user} does not exist."
   end
 
-  def group_does_not_exist(group)
+  def reply_group_does_not_exist(group)
     reply "The group #{group} does not exist."
+  end
+
+  def reply_dont_belong_to_any_group
+    reply "You don't belong to any group yet. To join a group send: join groupalias"
   end
 
   def reply(msg)
@@ -425,6 +490,22 @@ class Pipeline
     @messages[address] << msg
   end
 
+  def update_current_user_location_to(location)
+    if location.is_a?(String)
+      place, coords = location, Geocoder.locate(location)
+    else
+      place, coords = Geocoder.reverse(location), location
+    end
+
+    current_user.location = place
+    current_user.coords = coords
+    current_user.save!
+
+    reply "Your location was successfully updated to #{place} (lat: #{coords.first}, lon: #{coords.second})"
+
+    [place, coords]
+  end
+
   def create_channel_for(user)
     Channel.create! :protocol => @protocol, :address => @address2, :user => user, :status => :on
   end
@@ -443,7 +524,7 @@ class Pipeline
 
     groups = current_user.groups
     if groups.empty?
-      reply "You don't belong to any group yet. To join a group send: join groupalias"
+      reply_dont_belong_to_any_group
     elsif groups.length == 1
       return groups.first
     else
