@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110127231116) do
+ActiveRecord::Schema.define(:version => 20110128155908) do
 
   create_table "channels", :force => true do |t|
     t.string   "protocol"
@@ -56,10 +56,11 @@ ActiveRecord::Schema.define(:version => 20110127231116) do
     t.datetime "updated_at"
     t.string   "password"
     t.integer  "default_group_id"
-    t.boolean  "created_from_invite",                                :default => false
-    t.decimal  "lat",                 :precision => 10, :scale => 6
-    t.decimal  "lon",                 :precision => 10, :scale => 6
+    t.boolean  "created_from_invite",                                 :default => false
+    t.decimal  "lat",                  :precision => 10, :scale => 6
+    t.decimal  "lon",                  :precision => 10, :scale => 6
     t.string   "location"
+    t.datetime "location_reported_at"
   end
 
 end

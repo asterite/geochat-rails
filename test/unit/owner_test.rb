@@ -62,7 +62,7 @@ class OwnerTest < PipelineTest
 
     send_message 1, "create Group1"
     send_message 1, "owner Group2 User2"
-    assert_messages_sent_to 1, "The group Group2 or User2 does not exist"
+    assert_messages_sent_to 1, "The group Group2 or User2 does not exist."
     assert_group_owners "Group1", "User1"
   end
 
@@ -71,7 +71,7 @@ class OwnerTest < PipelineTest
 
     send_message 1, "create Group1"
     send_message 1, "owner Group2 User2"
-    assert_messages_sent_to 1, "The group Group2 does not exist"
+    assert_messages_sent_to 1, "The group Group2 does not exist."
     assert_group_owners "Group1", "User1"
   end
 

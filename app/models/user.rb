@@ -6,6 +6,7 @@ class User < ActiveRecord::Base
   validates :login, :presence => true, :uniqueness => true
 
   belongs_to :default_group, :class_name => 'Group'
+  before_save :update_location_reported_at
 
   def self.find_by_mobile_number(number)
     User.joins(:channels).where('channels.protocol = ? and channels.address = ?', 'sms', number).first
@@ -77,5 +78,17 @@ class User < ActiveRecord::Base
   def coords=(array)
     self.lat = array.first
     self.lon = array.second
+  end
+
+  def location_known?
+    self.lat && self.lon
+  end
+
+  private
+
+  def update_location_reported_at
+    if self.lat_changed? || self.lon_changed? || self.location_changed?
+      self.location_reported_at = Time.now.utc
+    end
   end
 end

@@ -1,4 +1,6 @@
 class Pipeline
+  include ActionView::Helpers::DateHelper
+
   attr_accessor :messages
   attr_accessor :saved_messages
 
@@ -13,7 +15,7 @@ class Pipeline
     node = Parser.parse(message, self, :parse_signup_and_join => !current_user)
 
     # Remove Node part and put first letter in downcase
-    node_name = node.class.name[0 ... -4].tableize.singularize
+    node_name = node.class.name[0 ... -4].underscore
     send "process_#{node_name}", node
   end
 
@@ -198,17 +200,16 @@ class Pipeline
         user = User.find_by_login_or_mobile_number node.user
         if !group
           if user
-            reply "The group #{node.group} does not exist"
+            return group_does_not_exist node.group
           else
-            reply "The group #{node.group} or #{node.user} does not exist"
+            return group_does_not_exist("#{node.group} or #{node.user}")
           end
-          return
         end
       end
     end
 
     if !user
-      return reply "The user #{node.user} does not exist." unless user
+      return user_does_not_exist node.user
     end
 
     if not group
@@ -249,7 +250,7 @@ class Pipeline
       end
 
       if !group && !user
-        return reply "The group #{node.target.name} does not exist"
+        return group_does_not_exist node.target.name
       end
     end
 
@@ -294,6 +295,10 @@ class Pipeline
         coords = node.location
       end
 
+      current_user.location = place
+      current_user.coords = coords
+      current_user.save!
+
       reply "Your location was successfully updated to #{place} (lat: #{coords.first}, lon: #{coords.second})"
 
       if node.body.blank?
@@ -301,10 +306,6 @@ class Pipeline
       else
         node.body = "#{node.body} (at #{place}, lat: #{coords.first}, lon: #{coords.second})"
       end
-
-      current_user.location = place
-      current_user.coords = coords
-      current_user.save!
     end
 
     if user
@@ -335,6 +336,23 @@ class Pipeline
     nil
   end
 
+  def process_where_is(node)
+    user = User.find_by_login_or_mobile_number node.user
+    if !user
+      return user_does_not_exist node.user
+    end
+
+    if !current_user.shares_a_common_group_with(user)
+      return reply "You can't see the location of #{user.login} because you don't share a common group."
+    end
+
+    if !user.location_known?
+      return reply "#{user.login} never reported his/her location."
+    end
+
+    reply "User2 said he/she was in #{user.location} (lat: #{user.lat}, lon: #{user.lon}) #{time_ago_in_words user.location_reported_at} ago"
+  end
+
   private
 
   def join(user, group)
@@ -348,6 +366,14 @@ class Pipeline
 
   def not_logged_in
     reply 'You are not signed in GeoChat. Send "login USERNAME PASSWORD" to login, or "name YOUR_NAME" or "YOUR_NAME join GROUP_NAME" to register.'
+  end
+
+  def user_does_not_exist(user)
+    reply "The user #{user} does not exist."
+  end
+
+  def group_does_not_exist(group)
+    reply "The group #{group} does not exist."
   end
 
   def reply(msg)

@@ -36,7 +36,7 @@ class MessagingTest < PipelineTest
     create_users 1
 
     send_message 1, "@GroupTwo Hello!"
-    assert_messages_sent_to 1, "The group GroupTwo does not exist"
+    assert_messages_sent_to 1, "The group GroupTwo does not exist."
     assert_no_messages_saved
   end
 
