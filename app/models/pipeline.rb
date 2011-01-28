@@ -341,7 +341,11 @@ class Pipeline
       end
     end
 
-    group = default_group unless group
+    if not group
+      group = default_group({
+        :no_default_group_message => "You don't have a default group so prefix messages with a group (for example: groupalias Hello!) or set your default group with: #my group groupalias"
+      })
+    end
     return unless group
 
     if user

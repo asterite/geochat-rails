@@ -302,5 +302,20 @@ class MessagingTest < PipelineTest
     assert_message_saved_as_blast 1, "Group1", "Hello!"
   end
 
+  test "send message does not belong to group" do
+    create_users 1
+    send_message 1, "Hello!"
+    assert_messages_sent_to 1, "You don't belong to any group yet. To join a group send: join groupalias"
+  end
+
+  test "send message no default group" do
+    create_users 1
+    send_message 1, "create Group1"
+    send_message 1, "create Group2"
+
+    send_message 1, "Hello!"
+    assert_messages_sent_to 1, "You don't have a default group so prefix messages with a group (for example: groupalias Hello!) or set your default group with: #my group groupalias"
+  end
+
 end
 
