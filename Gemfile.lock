@@ -30,8 +30,11 @@ GEM
     activesupport (3.0.3)
     arel (2.0.7)
     builder (2.1.2)
+    crack (0.1.8)
     erubis (2.6.6)
       abstract (>= 1.0.0)
+    httparty (0.7.3)
+      crack (= 0.1.8)
     i18n (0.5.0)
     mail (2.2.14)
       activesupport (>= 2.3.6)
@@ -42,6 +45,8 @@ GEM
     mocha (0.9.10)
       rake
     mysql2 (0.2.6)
+    nuntium_api (0.7)
+      httparty
     polyglot (0.3.1)
     rack (1.2.1)
     rack-mount (0.6.13)
@@ -74,5 +79,6 @@ PLATFORMS
 DEPENDENCIES
   mocha
   mysql2
+  nuntium_api
   rails (= 3.0.3)
   sqlite3-ruby
