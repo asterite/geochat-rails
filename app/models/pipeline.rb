@@ -25,12 +25,7 @@ class Pipeline
 
     node = Parser.parse(message[:body], self, :parse_signup_and_join => !current_user)
 
-    if !node.is_a?(OnNode) && !node.is_a?(OffNode) && current_channel && current_channel.status == :off
-      current_channel.status = :on
-      current_channel.save!
-
-      reply "We have turned on SMS mobile updates to this phone. Reply with STOP to turn off. Questions email support@instedd.org."
-    end
+    turn_on_current_channel_if_needed(node)
 
     # Remove Node part and put first letter in downcase
     node_name = node.class.name[0 ... -4].underscore
@@ -599,6 +594,15 @@ class Pipeline
 
   def send_message_to_address(address, msg)
     @messages[address] << msg
+  end
+
+  def turn_on_current_channel_if_needed(node)
+    if !node.is_a?(OnNode) && !node.is_a?(OffNode) && current_channel && current_channel.status == :off
+      current_channel.status = :on
+      current_channel.save!
+
+      reply "We have turned on SMS mobile updates to this phone. Reply with STOP to turn off. Questions email support@instedd.org."
+    end
   end
 
   def update_current_user_location_to(location)
