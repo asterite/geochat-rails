@@ -199,6 +199,14 @@ class Pipeline
     return reply_not_logged_in unless current_user
 
     group = Group.find_by_alias node.group
+    if !group
+      return reply_group_does_not_exist node.group
+    end
+
+    if current_user.belongs_to group
+      return reply "You already belong to group #{group.alias}."
+    end
+
     if group.requires_aproval_to_join
       invite = Invite.find_by_group_and_user group, current_user
       if invite

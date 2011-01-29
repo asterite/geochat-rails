@@ -399,4 +399,17 @@ class InviteTest < PipelineTest
     send_message 1, "join Foo"
     assert_not_logged_in_message_sent_to 1
   end
+
+  test "join already member" do
+    create_users 1
+    send_message 1, "create Group1"
+    send_message 1, "join Group1"
+    assert_messages_sent_to 1, "You already belong to group Group1."
+  end
+
+  test "join group does not exist" do
+    create_users 1
+    send_message 1, "join Group1"
+    assert_messages_sent_to 1, "The group Group1 does not exist."
+  end
 end
