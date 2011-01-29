@@ -49,6 +49,14 @@ class Pipeline
 
   private
 
+  def process_ping(node)
+    if node.text.present?
+      reply "pong: #{node.text} (received at #{Time.now.utc})"
+    else
+      reply "pong received at #{Time.now.utc}"
+    end
+  end
+
   def process_signup(node)
     return reply "This device already belongs to another user. To dettach it send: bye" if current_channel
 

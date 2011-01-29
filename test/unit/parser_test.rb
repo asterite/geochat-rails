@@ -83,6 +83,10 @@ class ParserTest < ActiveSupport::TestCase
     it_parses_node string, OwnerNode, options
   end
 
+  def self.it_parses_ping(string, options = {})
+    it_parses_node string, PingNode, options
+  end
+
   def self.it_parses_message(string, options = {})
     test "parses message #{string}" do
       node = parse(string)
@@ -135,6 +139,11 @@ class ParserTest < ActiveSupport::TestCase
       args[0] + args[1] / 60.0 + args[2] / 3600.0
     end
   end
+
+  it_parses_ping 'ping'
+  it_parses_ping 'ping foo bar', :text => 'foo bar'
+  it_parses_ping '#ping foo bar', :text => 'foo bar'
+  it_parses_ping '.ping foo bar', :text => 'foo bar'
 
   it_parses_signup 'name DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAYNAME'
   it_parses_signup 'name @loginname', :display_name => 'loginname'

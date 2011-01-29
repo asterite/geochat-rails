@@ -48,6 +48,13 @@ class Parser < StringScanner
   end
 
   def parse_node
+    # Ping
+    if scan /^\s*(?:#|\.)*?\s*ping\s*$/i
+      return PingNode.new :text => nil
+    elsif scan /^\s*(?:#|\.)*?\s*ping\s+(.+?)\s*$/i
+      return PingNode.new :text => self[1].strip
+    end
+
     options = {}
     options[:blast] = check_blast
 
@@ -622,6 +629,10 @@ end
 
 class LanguageNode < Node
   attr_accessor :name
+end
+
+class PingNode < Node
+  attr_accessor :text
 end
 
 class Target
