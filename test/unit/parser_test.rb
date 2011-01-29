@@ -187,6 +187,8 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_logout "logout"
   it_parses_logout "lOgOuT"
   it_parses_logout "log out"
+  it_parses_logout "logoff"
+  it_parses_logout "log Off"
   it_parses_logout "bye"
   it_parses_logout ".logout"
   it_parses_logout ".log out"
@@ -645,6 +647,8 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "logout ?", :node => LogoutNode
   it_parses_help ") ?", :node => LogoutNode
   it_parses_help "help )", :node => LogoutNode
+  it_parses_help "help logoff", :node => LogoutNode
+  it_parses_help "logoff help", :node => LogoutNode
   it_parses_help "help stop", :node => OffNode
   it_parses_help "? stop", :node => OffNode
   it_parses_help "stop help", :node => OffNode

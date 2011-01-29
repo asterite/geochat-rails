@@ -124,15 +124,15 @@ class Parser < StringScanner
       return HelpNode.new :node => BlockNode
     elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(lang|_)\s*$/i
       return HelpNode.new :node => LanguageNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:create\s+group|create|creategroup|cg|\*)\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:create\s*group|create|cg|\*)\s*$/i
       return HelpNode.new :node => CreateGroupNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:join\s+group|join|joingroup|j|>)\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:join\s*group|join|j|>)\s*$/i
       return HelpNode.new :node => JoinNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:leave\s+group|leave|leavegroup|l|<)\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:leave\s*group|leave|l|<)\s*$/i
       return HelpNode.new :node => LeaveNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:login|log\s+in|li|iam|i\s+am|i'm|im|\()\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:log\s*in|li|iam|i\s+am|i'm|im|\()\s*$/i
       return HelpNode.new :node => LoginNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(logout|log\s*out|lo|bye|\))\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(log\s*out|log\s*off|lo|bye|\))\s*$/i
       return HelpNode.new :node => LogoutNode
     elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(stop|off)\s*$/i
       return HelpNode.new :node => OffNode
@@ -176,18 +176,18 @@ class Parser < StringScanner
     end
 
     # Login
-    if scan /^\s*(?:#|\.)*?\s*(?:login|log\s+in|li|iam|i\s+am|i'm|im|\()(\s+(help|\?))?\s*$/i
+    if scan /^\s*(?:#|\.)*?\s*(?:log\s*in|li|iam|i\s+am|i'm|im|\()(\s+(help|\?))?\s*$/i
       return HelpNode.new :node => LoginNode
-    elsif scan /^\s*(?:#|\.)*?\s*(?:login|log\s+in|li|iam|i\s+am|i'm|im|\()\s*(?:@\s*)?(.+?)\s+(.+?)\s*$/i
+    elsif scan /^\s*(?:#|\.)*?\s*(?:log\s*in|li|iam|i\s+am|i'm|im|\()\s*(?:@\s*)?(.+?)\s+(.+?)\s*$/i
       return LoginNode.new :login => self[1], :password => self[2]
     elsif scan /^\s*(?:#|\.)*?\s*(.im)(\s+\S+)?\s*$/i
       return HelpNode.new :node => LoginNode
     end
 
     # Logout
-    if scan /^\s*(?:#|\.)*?\s*(logout|log\s*out|lo|bye|\))\s+(help|\?)\s*$/i
+    if scan /^\s*(?:#|\.)*?\s*(log\s*out|log\s*off|lo|bye|\))\s+(help|\?)\s*$/i
       return HelpNode.new :node => LogoutNode
-    elsif scan /^\s*(?:#|\.)*?\s*(logout|log\s*out|lo|bye)\s*$/i
+    elsif scan /^\s*(?:#|\.)*?\s*(log\s*out|log\s*off|log\s*out|lo|bye)\s*$/i
       return LogoutNode.new
     elsif scan /^\s*\)\s*$/i
       return LogoutNode.new
@@ -212,9 +212,9 @@ class Parser < StringScanner
     end
 
     # Create group
-    if scan /^\s*(?:#|\.)*?\s*(?:create\s+group|create|creategroup|cg|\*)(\s+(help|\?))?\s*$/i
+    if scan /^\s*(?:#|\.)*?\s*(?:create\s*group|create|cg|\*)(\s+(help|\?))?\s*$/i
       return HelpNode.new :node => CreateGroupNode
-    elsif scan /^\s*(?:#|\.)*?\s*(?:create\s+group|create|creategroup|cg)\s+(?:@\s*)?(.+?)(\s+.+?)?$/i
+    elsif scan /^\s*(?:#|\.)*?\s*(?:create\s*group|create|cg)\s+(?:@\s*)?(.+?)(\s+.+?)?$/i
       return new_create_group self[1], self[2]
     elsif scan /^\s*\*\s*(?:@\s*)?(.+?)(\s+.+?)?$/i
       return new_create_group self[1], self[2]
@@ -251,18 +251,18 @@ class Parser < StringScanner
     end
 
     # Join
-    if scan /^\s*(?:join|join\s+group|\.\s*j|\.\s*join|\#\s*j|\#\s*join|>)(\s+(help|\?))?\s*$/i
+    if scan /^\s*(?:join|join\s*group|\.\s*j|\.\s*join|\#\s*j|\#\s*join|>)(\s+(help|\?))?\s*$/i
       return HelpNode.new :node => JoinNode
-    elsif scan /^\s*(?:join|join\s+group|\.\s*j|\.\s*join|\#\s*j|\#\s*join)\s+(?:@\s*)?(\S+)$/i
+    elsif scan /^\s*(?:join|join\s*group|\.\s*j|\.\s*join|\#\s*j|\#\s*join)\s+(?:@\s*)?(\S+)$/i
       return JoinNode.new :group => self[1]
     elsif scan /^\s*>\s*(?:@\s*)?(\S+)$/i
       return JoinNode.new :group => self[1]
     end
 
     # Leave
-    if scan /^\s*(?:leave|leave\s+group|\.\s*l|\.\s*leave|\#\s*l|\#\s*leave|<)(\s+(help|\?))?\s*$/i
+    if scan /^\s*(?:leave|leave\s*group|\.\s*l|\.\s*leave|\#\s*l|\#\s*leave|<)(\s+(help|\?))?\s*$/i
       return HelpNode.new :node => LeaveNode
-    elsif scan /^\s*(?:leave|leave\s+group|\.\s*l|\.\s*leave|\#\s*l|\#\s*leave)\s+(?:@\s*)?(\S+)$/i
+    elsif scan /^\s*(?:leave|leave\s*group|\.\s*l|\.\s*leave|\#\s*l|\#\s*leave)\s+(?:@\s*)?(\S+)$/i
       return LeaveNode.new :group => self[1]
     elsif scan /^\s*<\s*(?:@\s*)?(\S+)$/i
       return LeaveNode.new :group => self[1]

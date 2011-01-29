@@ -18,9 +18,11 @@ class HelpTest < PipelineTest
     assert_messages_sent_to 1, "To login to GeoChat from this channel send: login YOUR_LOGIN YOUR_PASSWORD"
   end
 
-  test "help logout" do
-    send_message 1, "help logout"
-    assert_messages_sent_to 1, "To logout from GeoChat send: logout"
+  ["logout", "logoff"].each do |keyword|
+    test "help #{keyword}" do
+      send_message 1, "help #{keyword}"
+      assert_messages_sent_to 1, "To logout from GeoChat send: logout"
+    end
   end
 
   test "help create" do
