@@ -14,7 +14,7 @@ class MessagingTest < PipelineTest
     send_message 1, "Hello!"
 
     assert_messages_sent_to 2..4, "User1: Hello!"
-    assert_message_saved_as_blast 1, "Group1", "Hello!"
+    assert_message_saved "User1", "Group1", "Hello!"
   end
 
   test "send message to group explicitly with location update" do
@@ -29,7 +29,7 @@ class MessagingTest < PipelineTest
 
     assert_messages_sent_to 1, "Your location was successfully updated to santiago de chile (lat: -33.42536, lon: -70.566466)"
     assert_messages_sent_to 2..4, "User1: at santiago de chile (lat: -33.42536, lon: -70.566466)"
-    assert_message_saved_as_blast 1, "Group1", "at santiago de chile"
+    assert_message_saved "User1", "Group1", "at santiago de chile (lat: -33.42536, lon: -70.566466)"
   end
 
   test "send message to group that does not exist" do
@@ -48,7 +48,7 @@ class MessagingTest < PipelineTest
 
     send_message 1, "Hello!"
     assert_no_messages_sent
-    assert_message_saved_as_non_blast 1, "Group1", "Hello!"
+    assert_message_saved "User1", "Group1", "Hello!"
   end
 
   test "send blast message to nochat group" do
@@ -59,7 +59,7 @@ class MessagingTest < PipelineTest
 
     send_message 1, "! Hello"
     assert_messages_sent_to 2, "User1: Hello"
-    assert_message_saved_as_blast 1, "Group1", "Hello"
+    assert_message_saved "User1", "Group1", "Hello"
   end
 
   test "send message to other group" do
@@ -73,7 +73,7 @@ class MessagingTest < PipelineTest
 
     send_message 1, "Group2 Hello!"
     assert_messages_sent_to 2, "[Group2] User1: Hello!"
-    assert_message_saved_as_blast 1, "Group2", "Hello!"
+    assert_message_saved "User1", "Group2", "Hello!"
   end
 
   test "send message prefixed with invisible group" do
@@ -206,7 +206,7 @@ class MessagingTest < PipelineTest
     send_message 1, "@User2 Hello!"
     assert_messages_sent_to 2, "User1 only to you: Hello!"
     assert_no_messages_sent_to 1, 3, 4
-    assert_message_saved_as_blast 1, "Group1", "Hello!"
+    assert_message_saved "User1", "Group1", "Hello!"
   end
 
   ["group2 @User2 Hello!",
@@ -223,7 +223,7 @@ class MessagingTest < PipelineTest
       send_message 1, msg
       assert_messages_sent_to 2, "[Group2] User1 only to you: Hello!"
       assert_no_messages_sent_to 1, 3, 4
-      assert_message_saved_as_blast 1, "Group2", "Hello!"
+      assert_message_saved "User1", "Group2", "Hello!"
     end
   end
 
@@ -264,7 +264,7 @@ class MessagingTest < PipelineTest
     send_message 2, "Hello!"
     assert_messages_sent_to 1, "User2: Hello!"
     assert_no_messages_sent_to 3
-    assert_message_saved_as_blast 1, "Group1", "Hello!"
+    assert_message_saved "User2", "Group1", "Hello!"
   end
 
   test "forward owners many groups" do
@@ -279,7 +279,7 @@ class MessagingTest < PipelineTest
     send_message 2, "Hello!"
     assert_messages_sent_to 1, "[Group1] User2: Hello!"
     assert_no_messages_sent_to 3
-    assert_message_saved_as_blast 1, "Group1", "Hello!"
+    assert_message_saved "User2", "Group1", "Hello!"
   end
 
   test "forward owners direct message" do
@@ -293,7 +293,7 @@ class MessagingTest < PipelineTest
     send_message 2, "@User3 Hello!"
     assert_messages_sent_to 1, "User2 only to User3: Hello!"
     assert_messages_sent_to 3, "User2 only to you: Hello!"
-    assert_message_saved_as_blast 1, "Group1", "Hello!"
+    assert_message_saved "User2", "Group1", "Hello!"
   end
 
   test "forward owners direct message to owner" do
@@ -310,7 +310,7 @@ class MessagingTest < PipelineTest
     send_message 2, "@User4 Hello!"
     assert_messages_sent_to 1, "User2 only to User4: Hello!"
     assert_messages_sent_to 4, "User2 only to you: Hello!"
-    assert_message_saved_as_blast 1, "Group1", "Hello!"
+    assert_message_saved "User2", "Group1", "Hello!"
   end
 
   test "send message does not belong to group" do

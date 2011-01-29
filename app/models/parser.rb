@@ -262,7 +262,7 @@ class Parser < StringScanner
     # Leave
     if scan /^\s*(?:leave|leave\s*group|\.\s*l|\.\s*leave|\#\s*l|\#\s*leave|<)(\s+(help|\?))?\s*$/i
       return HelpNode.new :node => LeaveNode
-    elsif scan /^\s*(?:leave|leave\s*group|\.\s*l|\.\s*leave|\#\s*l|\#\s*leave)\s+(?:@\s*)?(\S+)$/i
+    elsif scan /^\s*(?:leave|leave\s+group|\.\s*l|\.\s*leave|\#\s*l|\#\s*leave)\s+(?:@\s*)?(\S+)$/i
       return LeaveNode.new :group => self[1]
     elsif scan /^\s*<\s*(?:@\s*)?(\S+)$/i
       return LeaveNode.new :group => self[1]

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110129164253) do
+ActiveRecord::Schema.define(:version => 20110129203228) do
 
   create_table "channels", :force => true do |t|
     t.string   "protocol"
@@ -59,6 +59,18 @@ ActiveRecord::Schema.define(:version => 20110129164253) do
 
   add_index "memberships", ["group_id", "user_id"], :name => "index_memberships_on_group_id_and_user_id"
   add_index "memberships", ["group_id"], :name => "index_memberships_on_group_id"
+
+  create_table "messages", :force => true do |t|
+    t.integer  "sender_id"
+    t.integer  "group_id"
+    t.integer  "receiver_id"
+    t.string   "text"
+    t.decimal  "lat",         :precision => 10, :scale => 6
+    t.decimal  "lon",         :precision => 10, :scale => 6
+    t.string   "location"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "users", :force => true do |t|
     t.string   "login"

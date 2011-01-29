@@ -2,7 +2,7 @@ class Pipeline
   include ActionView::Helpers::DateHelper
 
   attr_accessor :messages
-  attr_accessor :saved_messages
+  attr_accessor :saved_message
 
   # Processes a message, which is a hash.
   #
@@ -13,6 +13,9 @@ class Pipeline
   # accessing Pipeline#messages, which is a hash whose
   # key is an address and value is the content of the message
   # to be sent as a result of processing the input message.
+  #
+  # Pipeline#saved_message will be a hash containing the description
+  # of the message just sent (if it wasn't a command).
   def process(message = {})
     message = message.with_indifferent_access
 
@@ -21,7 +24,7 @@ class Pipeline
     @channel = nil
     @message = message
     @messages = Hash.new{|h, k| h[k] = []}
-    @saved_messages = Hash.new{|h, k| h[k] = []}
+    @saved_message = nil
 
     node = Parser.parse(message[:body], self, :parse_signup_and_join => !current_user)
 
@@ -493,6 +496,20 @@ class Pipeline
       send_message_to_group group, "#{current_user.login}: #{node.body}"
     elsif group.forward_owners
       send_message_to_group_owners group, "#{current_user.login}: #{node.body}"
+    end
+
+    @saved_message = {
+      :sender => current_user,
+      :group => group,
+      :receiver => user,
+      :text => node.body,
+    }
+    if coords
+      @saved_message[:lat] = coords.first
+      @saved_message[:lon] = coords.second
+    end
+    if place
+      @saved_message[:location] = place
     end
   end
 

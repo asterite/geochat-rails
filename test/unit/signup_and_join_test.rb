@@ -58,6 +58,6 @@ class SignupAndJoinTest < PipelineTest
 
     send_message 1, "Hello ! World"
     assert_messages_sent_to 2, "User1: Hello ! World"
-    assert_message_saved_as_blast 1, "Group1", "Hello ! World"
+    assert_message_saved "User1", "Group1", "Hello ! World"
   end
 end

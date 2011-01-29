@@ -88,7 +88,7 @@ class PipelineTest < ActiveSupport::TestCase
   end
 
   def assert_no_messages_saved
-    # TODO
+    assert_nil @pipeline.saved_message
   end
 
   def assert_is_not_group_owner(group, user)
@@ -155,16 +155,20 @@ class PipelineTest < ActiveSupport::TestCase
     assert_equal location, user.location
   end
 
-  def assert_message_saved_as_blast(user, group, message)
-    # TODO
+  def assert_message_saved(user, group, text)
+    message = @pipeline.saved_message
+    assert_not_nil message
+    assert_equal user, message[:sender].login
+    assert_equal group, message[:group].alias
+    assert_equal text, message[:text]
+    message
   end
 
-  def assert_message_saved_as_blast_with_location(user, group, message, location, lat, lon)
-    # TODO
-  end
-
-  def assert_message_saved_as_non_blast(user, group, message)
-    # TODO
+  def assert_message_saved_with_location(user, group, text, location, lat, lon)
+    message = assert_message_saved(user, group, text)
+    assert_equal location, message[:location]
+    assert_in_delta lat, message[:lat], 1e-07
+    assert_in_delta lon, message[:lon], 1e-07
   end
 
   def create_users(*args)
