@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110128155908) do
+ActiveRecord::Schema.define(:version => 20110129145731) do
 
   create_table "channels", :force => true do |t|
     t.string   "protocol"
@@ -39,6 +39,7 @@ ActiveRecord::Schema.define(:version => 20110128155908) do
     t.datetime "updated_at"
     t.boolean  "user_accepted",  :default => false
     t.boolean  "admin_accepted", :default => false
+    t.integer  "requestor_id"
   end
 
   create_table "memberships", :force => true do |t|

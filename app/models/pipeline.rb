@@ -159,6 +159,7 @@ class Pipeline
     return if not group
 
     sent = []
+    joined = []
 
     node.users.each do |name|
       user = User.find_by_login name
@@ -168,19 +169,26 @@ class Pipeline
         invite = Invite.find_by_group_and_user group, user
         if invite
           if invite.user_accepted
-            join user, group
-            invite.destroy
+            if current_user.is_owner_of(group)
+              join user, group
+              invite.destroy
+
+              joined << user.login
+            else
+              sent << name
+            end
           elsif current_user.is_owner_of(group)
             invite.admin_accepted = true
             invite.save!
+            sent << name
           else
             # Invite was already sent... should we resend it?
           end
         else
           current_user.invite user, :to => group
           send_message_to_user user, "#{current_user.login} has invited you to group #{group.alias}. You can join by sending: join #{group.alias}"
+          sent << name
         end
-        sent << name
       else
         if name.integer?
           current_user.invite name, :to => group
@@ -192,6 +200,13 @@ class Pipeline
       end
     end
 
+    if joined.present?
+      if joined.length == 1
+        reply "#{joined.first} is now a member of group #{group.alias}."
+      else
+        reply "#{joined.join ','} are all now memberb of group #{group.alias}."
+      end
+    end
     reply "Invitation/s sent to #{sent.join(', ')}" if sent.present?
   end
 
@@ -226,7 +241,12 @@ class Pipeline
       end
     else
       invite = Invite.find_by_group_and_user group, current_user
-      invite.destroy if invite
+      if invite
+        if invite.requestor
+          send_message_to_user invite.requestor, "#{current_user.login} has just accepted your invitation to join #{group.alias}."
+        end
+        invite.destroy
+      end
 
       join current_user, group
     end

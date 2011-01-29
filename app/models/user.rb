@@ -47,7 +47,7 @@ class User < ActiveRecord::Base
     if user.kind_of?(String)
       user = User.create! :login => user, :created_from_invite => true
     end
-    Invite.create! :group => group, :user => user, :admin_accepted => self.is_owner_of(group)
+    Invite.create! :group => group, :user => user, :admin_accepted => self.is_owner_of(group), :requestor => self
   end
 
   def request_join(group)
