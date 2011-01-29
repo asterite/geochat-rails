@@ -13,6 +13,15 @@ class NuntiumController < ApplicationController
       end
     end
 
+    saved_message = pipeline.saved_message
+    if saved_message
+      msg = Message.new
+      [:group, :sender, :receiver, :text, :lat, :lon, :location].each do |method|
+        msg.send "#{method}=", saved_message.delete(method)
+      end
+      msg.save!
+    end
+
     head :ok
   end
 
