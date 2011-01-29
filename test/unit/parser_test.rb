@@ -141,7 +141,9 @@ class ParserTest < ActiveSupport::TestCase
   end
 
   it_parses_ping 'ping'
+  it_parses_ping 'Ping'
   it_parses_ping 'ping foo bar', :text => 'foo bar'
+  it_parses_ping 'Ping foo bar', :text => 'foo bar'
   it_parses_ping '#ping foo bar', :text => 'foo bar'
   it_parses_ping '.ping foo bar', :text => 'foo bar'
 
