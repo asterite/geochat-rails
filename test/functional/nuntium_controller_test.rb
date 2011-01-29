@@ -2,10 +2,9 @@ require 'test_helper'
 
 class NuntiumControllerTest < ActionController::TestCase
   test "receive at" do
-    sender = User.create! :login => 'foo'
-    group = Group.create! :alias => 'group'
-    receiver = User.create! :login => 'bar'
-
+    sender = User.make
+    group = Group.make
+    receiver = User.make
     message = {'from' => 'sms://1', 'body' => "Hello!"}
     saved_message = {
       :sender => sender,

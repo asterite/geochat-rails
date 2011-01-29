@@ -10,6 +10,8 @@ gem 'mysql2'
 gem 'nuntium_api', :require => 'nuntium'
 
 group :test do
+  gem 'machinist'
+  gem 'ffaker'
   gem 'mocha', :require => false
 end
 
