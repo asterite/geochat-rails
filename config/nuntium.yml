@@ -6,6 +6,14 @@ development:
   incoming_username: geochat_rails_dev
   incoming_password: geochat_rails_dev
 
+production:
+  url: http://nuntium.instedd.org
+  account: geochat_rails_dev
+  application: geochat_rails_dev
+  password: geochat_rails_dev
+  incoming_username: geochat_rails_dev
+  incoming_password: geochat_rails_dev
+
 test:
   url: http://nuntium.instedd.org
   account: geochat_rails_dev
