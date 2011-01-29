@@ -54,4 +54,11 @@ class WhereIsTest < PipelineTest
     send_message 1, "#whereis User2"
     assert_messages_sent_to 1, "User2 said he/she was in Paris (lat: 10.2, lon: 20.4) about 1 hour ago."
   end
+
+  test "whereis self" do
+    create_users 1
+
+    send_message 1, "#whereis User1"
+    assert_messages_sent_to 1, "User1 never reported his/her location."
+  end
 end

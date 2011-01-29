@@ -464,7 +464,7 @@ class Pipeline
       return reply_user_does_not_exist node.user
     end
 
-    if !current_user.shares_a_common_group_with(user)
+    if user != current_user && !current_user.shares_a_common_group_with(user)
       return reply "You can't see the location of #{user.login} because you don't share a common group."
     end
 
