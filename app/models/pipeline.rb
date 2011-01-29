@@ -480,7 +480,7 @@ class Pipeline
       return reply "#{user.login} never reported his/her location."
     end
 
-    reply "User2 said he/she was in #{user.location} (lat: #{user.lat}, lon: #{user.lon}) #{time_ago_in_words user.location_reported_at} ago."
+    reply "#{user.login} said he/she was in #{user.location} (lat: #{user.lat}, lon: #{user.lon}) #{time_ago_in_words user.location_reported_at} ago."
   end
 
   def join(user, group)
