@@ -90,6 +90,10 @@ class User < ActiveRecord::Base
     self.lat && self.lon
   end
 
+  def active_channels
+    self.channels.where('status = ?', :on)
+  end
+
   def sms_channel
     self.channels.where(:protocol => 'sms').first
   end

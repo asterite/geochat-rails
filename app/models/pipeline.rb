@@ -25,6 +25,13 @@ class Pipeline
 
     node = Parser.parse(message[:body], self, :parse_signup_and_join => !current_user)
 
+    if !node.is_a?(OnNode) && !node.is_a?(OffNode) && current_channel && current_channel.status == :off
+      current_channel.status = :on
+      current_channel.save!
+
+      reply "We have turned on SMS mobile updates to this phone. Reply with STOP to turn off. Questions email support@instedd.org."
+    end
+
     # Remove Node part and put first letter in downcase
     node_name = node.class.name[0 ... -4].underscore
     send "process_#{node_name}", node
@@ -543,7 +550,7 @@ class Pipeline
     if user == current_user
       reply msg
     else
-      user.channels.each do |channel|
+      user.active_channels.each do |channel|
         send_message_to_channel channel, msg
       end
     end
