@@ -138,12 +138,16 @@ class Parser < StringScanner
       return HelpNode.new :node => OffNode
     elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(start|on)\s*$/i
       return HelpNode.new :node => OnNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(name|n)\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(name|n|signup)\s*$/i
       return HelpNode.new :node => SignupNode
     elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(whois|wh)\s*$/i
       return HelpNode.new :node => WhoIsNode
     elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(whereis|wi|w)\s*$/i
       return HelpNode.new :node => WhereIsNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(my)\s*$/i
+      return HelpNode.new :node => MyNode
+    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(i|invite)\s*$/i
+      return HelpNode.new :node => InviteNode
     end
 
     node = parse_message_with_location options
@@ -159,7 +163,7 @@ class Parser < StringScanner
     end
 
     # Signup
-    if scan /^\s*(?:#|\.)*?\s*(?:name|n)(\s+(help|\?))?\s*$/i
+    if scan /^\s*(?:#|\.)*?\s*(?:name|n|signup)(\s+(help|\?))?\s*$/i
       return HelpNode.new :node => SignupNode
     elsif scan /^\s*(?:#|\.)*?\s*name\s*@?(.+?)\s*$/i
       return new_signup self[1].strip
@@ -294,6 +298,8 @@ class Parser < StringScanner
 
     # My
     if scan /^\s*(?:#|\.)*\s*my\s*$/i
+      return HelpNode.new :node => MyNode
+    elsif scan /^\s*(?:#|\.)*\s*my\s+(help|\?)\s*$/i
       return HelpNode.new :node => MyNode
     elsif scan /^\s*(?:#|\.)*\s*my\s+groups\s*$/i
       return MyNode.new :key => MyNode::Groups

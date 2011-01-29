@@ -577,6 +577,7 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "#i help", :node => InviteNode
   it_parses_help "#i ?", :node => InviteNode
   it_parses_help "#i", :node => InviteNode
+  it_parses_help "help invite", :node => InviteNode
   it_parses_help "#my", :node => MyNode
   it_parses_help ".my", :node => MyNode
   it_parses_help "owner help", :node => OwnerNode
@@ -654,6 +655,8 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "on ?", :node => OnNode
   it_parses_help "name help", :node => SignupNode
   it_parses_help "help name", :node => SignupNode
+  it_parses_help "signup help", :node => SignupNode
+  it_parses_help "help signup", :node => SignupNode
   it_parses_help "name ?", :node => SignupNode
   it_parses_help "? name", :node => SignupNode
   it_parses_help "whois ?", :node => WhoIsNode
@@ -664,5 +667,7 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "help whereis", :node => WhereIsNode
   it_parses_help "whereis help", :node => WhereIsNode
   it_parses_help "? whereis", :node => WhereIsNode
+  it_parses_help "my help", :node => MyNode
+  it_parses_help "help my", :node => MyNode
 
 end

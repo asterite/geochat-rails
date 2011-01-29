@@ -522,6 +522,39 @@ class Pipeline
     reply "#{user.login}'s display name is: #{user.display_name}."
   end
 
+  def process_help(node)
+    case node.node.try(:new)
+    when nil
+      reply "GeoChat help center. Send help followed by a topic. Topics: signup, login, logout, create, join, leave, invite, on, off, my, whereis, whois, owner."
+    when SignupNode
+      reply "To signup in GeoChat send: name YOUR_NAME"
+    when LoginNode
+      reply "To login to GeoChat from this channel send: login YOUR_LOGIN YOUR_PASSWORD"
+    when LogoutNode
+      reply "To logout from GeoChat send: logout"
+    when CreateGroupNode
+      reply "To create a group send: create GROUP_ALIAS"
+    when JoinNode
+      reply "To join a group send: join GROUP_ALIAS"
+    when LeaveNode
+      reply "To leave a group send: leave GROUP_ALIAS"
+    when InviteNode
+      reply "To invite someone to a group send: GROUP_ALIAS +PHONE_NUMBER_OR_LOGIN"
+    when OnNode
+      reply "To start receiving messages from this channel send: on"
+    when OffNode
+      reply "To stop receiving messages from this channel send: off"
+    when MyNode
+      reply "To change your settings send: #my OPTION or #my OPTION VALUE. Options: login, password, name, email, phone, location, group, groups"
+    when WhereIsNode
+      reply "To find out the location of a user send: #whereis USER_LOGIN"
+    when WhoIsNode
+      reply "To find out the display name of a user send: #whois USER_LOGIN"
+    when OwnerNode
+      reply "To make a user owner of a group send: owner GROUP_ALIAS USER_LOGIN"
+    end
+  end
+
   def join(user, group)
     user.join group
     if user.memberships.count > 1
