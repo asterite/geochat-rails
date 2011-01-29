@@ -448,7 +448,7 @@ class Pipeline
         else
           node.body = "#{node.body} (at #{place}, lat: #{coords.first}, lon: #{coords.second})"
         end
-      elsif node.body.blank?
+      else
         node.body = @message[:body]
       end
     end
