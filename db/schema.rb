@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110129203228) do
+ActiveRecord::Schema.define(:version => 20110129213946) do
 
   create_table "channels", :force => true do |t|
     t.string   "protocol"
@@ -71,6 +71,10 @@ ActiveRecord::Schema.define(:version => 20110129203228) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "messages", ["group_id"], :name => "index_messages_on_group_id"
+  add_index "messages", ["receiver_id"], :name => "index_messages_on_receiver_id"
+  add_index "messages", ["sender_id"], :name => "index_messages_on_sender_id"
 
   create_table "users", :force => true do |t|
     t.string   "login"
