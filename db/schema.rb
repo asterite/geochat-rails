@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110129145731) do
+ActiveRecord::Schema.define(:version => 20110129154924) do
 
   create_table "channels", :force => true do |t|
     t.string   "protocol"
@@ -20,6 +20,9 @@ ActiveRecord::Schema.define(:version => 20110129145731) do
     t.datetime "updated_at"
     t.string   "status"
   end
+
+  add_index "channels", ["protocol", "address"], :name => "index_channels_on_protocol_and_address"
+  add_index "channels", ["user_id", "status"], :name => "index_channels_on_user_id_and_status"
 
   create_table "groups", :force => true do |t|
     t.string   "alias"
@@ -32,6 +35,8 @@ ActiveRecord::Schema.define(:version => 20110129145731) do
     t.boolean  "forward_owners",           :default => false
   end
 
+  add_index "groups", ["alias"], :name => "index_groups_on_alias"
+
   create_table "invites", :force => true do |t|
     t.integer  "group_id"
     t.integer  "user_id"
@@ -42,6 +47,8 @@ ActiveRecord::Schema.define(:version => 20110129145731) do
     t.integer  "requestor_id"
   end
 
+  add_index "invites", ["group_id", "user_id"], :name => "index_invites_on_group_id_and_user_id"
+
   create_table "memberships", :force => true do |t|
     t.integer  "group_id"
     t.integer  "user_id"
@@ -49,6 +56,9 @@ ActiveRecord::Schema.define(:version => 20110129145731) do
     t.datetime "updated_at"
     t.string   "role"
   end
+
+  add_index "memberships", ["group_id", "user_id"], :name => "index_memberships_on_group_id_and_user_id"
+  add_index "memberships", ["group_id"], :name => "index_memberships_on_group_id"
 
   create_table "users", :force => true do |t|
     t.string   "login"
@@ -63,5 +73,7 @@ ActiveRecord::Schema.define(:version => 20110129145731) do
     t.string   "location"
     t.datetime "location_reported_at"
   end
+
+  add_index "users", ["login", "created_from_invite"], :name => "index_users_on_login_and_created_from_invite"
 
 end
