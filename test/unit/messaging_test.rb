@@ -97,6 +97,17 @@ class MessagingTest < PipelineTest
     assert_no_messages_sent_to 2
   end
 
+  test "send message to disabled group" do
+    create_users 1, 2
+    create_group 1, "Group1"
+    send_message 2, "join Group1"
+
+    disable_group "Group1"
+    send_message 1, "hello"
+    assert_messages_sent_to 1, "You can't send messages to Group1 because it is disabled."
+    assert_no_messages_sent_to 2
+  end
+
   test "send message prefixed with admin invited group" do
     create_users 1, 2
     create_group 1, "Group1"
@@ -315,6 +326,11 @@ class MessagingTest < PipelineTest
 
     send_message 1, "Hello!"
     assert_messages_sent_to 1, "You don't have a default group so prefix messages with a group (for example: groupalias Hello!) or set your default group with: #my group groupalias"
+  end
+
+  test "send message not logged in" do
+    send_message 1, "Hello"
+    assert_messages_sent_to 1, 'You are not signed in GeoChat. Send "login USERNAME PASSWORD" to login, or "name YOUR_NAME" or "YOUR_NAME join GROUP_NAME" to register.'
   end
 
 end

@@ -361,6 +361,10 @@ class Pipeline
   end
 
   def process_message(node)
+    if !current_user
+      return reply 'You are not signed in GeoChat. Send "login USERNAME PASSWORD" to login, or "name YOUR_NAME" or "YOUR_NAME join GROUP_NAME" to register.'
+    end
+
     if node.target.present?
       if node.target.is_a?(UnknownTarget)
         group = Group.find_by_alias node.target.name
@@ -385,6 +389,10 @@ class Pipeline
       end
     end
 
+    # This is needed here and also bellow. Here because if there is an explicit
+    # target group we don't want to allow sending even location updates.
+    # Below because if an explicit group is not found then it is the default group
+    # and it might be disabled.
     if group && !group.enabled
       return reply "You can't send messages to #{group.alias} because it is disabled."
     end
@@ -405,6 +413,10 @@ class Pipeline
       })
     end
     return unless group
+
+    if group && !group.enabled
+      return reply "You can't send messages to #{group.alias} because it is disabled."
+    end
 
     if user
       if explicit_group && !user.belongs_to(group)
