@@ -518,6 +518,15 @@ class Pipeline
     reply "#{user.login} said he/she was in #{user.location} (lat: #{user.lat}, lon: #{user.lon}) #{time_ago_in_words user.location_reported_at} ago."
   end
 
+  def process_who_is(node)
+    user = User.find_by_login_or_mobile_number node.user
+    if !user
+      return reply_user_does_not_exist node.user
+    end
+
+    reply "#{user.login}'s display name is: #{user.display_name}."
+  end
+
   def join(user, group)
     user.join group
     if user.memberships.count > 1

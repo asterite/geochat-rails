@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110129154924) do
+ActiveRecord::Schema.define(:version => 20110129164253) do
 
   create_table "channels", :force => true do |t|
     t.string   "protocol"
@@ -72,6 +72,7 @@ ActiveRecord::Schema.define(:version => 20110129154924) do
     t.decimal  "lon",                  :precision => 10, :scale => 6
     t.string   "location"
     t.datetime "location_reported_at"
+    t.string   "language"
   end
 
   add_index "users", ["login", "created_from_invite"], :name => "index_users_on_login_and_created_from_invite"
