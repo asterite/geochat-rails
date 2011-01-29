@@ -4,20 +4,50 @@ class Pipeline
   attr_accessor :messages
   attr_accessor :saved_messages
 
-  def process(address, message)
-    @address = address
+  # Processes a message, which is a hash.
+  #
+  # :from => who send the message (i.e.: sms://1234)
+  # :body => the content of the message
+  #
+  # After processing a message you can see the results by
+  # accessing Pipeline#messages, which is a hash whose
+  # key is an address and value is the content of the message
+  # to be sent as a result of processing the input message.
+  def process(message = {})
+    message = message.with_indifferent_access
+
+    @address = message[:from]
     @protocol, @address2 = @address.split "://"
     @channel = nil
     @message = message
-    @messages = Hash.new{|k, v| k[v] = []}
-    @saved_messages = Hash.new{|k, v| k[v] = []}
+    @messages = Hash.new{|h, k| h[k] = []}
+    @saved_messages = Hash.new{|h, k| h[k] = []}
 
-    node = Parser.parse(message, self, :parse_signup_and_join => !current_user)
+    node = Parser.parse(message[:body], self, :parse_signup_and_join => !current_user)
 
     # Remove Node part and put first letter in downcase
     node_name = node.class.name[0 ... -4].underscore
     send "process_#{node_name}", node
   end
+
+  def get_target(name)
+    if current_user
+      group = current_user.groups.find_by_alias(name)
+      if group
+        return GroupTarget.new(name, :group => group) if group
+      end
+
+      invite = Invite.joins(:group).where('user_id = ? and groups.alias = ?', current_user.id, name).first
+      if invite
+        return GroupTarget.new(name, :group => invite.group, :invite => invite)
+      end
+    end
+
+    nil
+  end
+
+
+  private
 
   def process_signup(node)
     return reply "This device already belongs to another user. To dettach it send: bye" if current_channel
@@ -90,7 +120,7 @@ class Pipeline
     current_channel.save!
 
     # TODO fix this message to be the original message
-    reply "GeoChat Alerts. You sent '#{@message.strip}' and we have turned off SMS updates to this phone. Reply with START to turn back on. Questions email support@instedd.org."
+    reply "GeoChat Alerts. You sent '#{@message[:body].strip}' and we have turned off SMS updates to this phone. Reply with START to turn back on. Questions email support@instedd.org."
   end
 
   def process_on(node)
@@ -102,7 +132,7 @@ class Pipeline
     end
 
     # TODO fix this message to be the original message
-    reply "You sent '#{@message.strip}' and we have turned on SMS mobile updates to this phone. Reply with STOP to turn off. Questions email support@instedd.org."
+    reply "You sent '#{@message[:body].strip}' and we have turned on SMS mobile updates to this phone. Reply with STOP to turn off. Questions email support@instedd.org."
   end
 
   def process_invite(node)
@@ -413,22 +443,6 @@ class Pipeline
     end
   end
 
-  def get_target(name)
-    if current_user
-      group = current_user.groups.find_by_alias(name)
-      if group
-        return GroupTarget.new(name, :group => group) if group
-      end
-
-      invite = Invite.joins(:group).where('user_id = ? and groups.alias = ?', current_user.id, name).first
-      if invite
-        return GroupTarget.new(name, :group => invite.group, :invite => invite)
-      end
-    end
-
-    nil
-  end
-
   def process_where_is(node)
     user = User.find_by_login_or_mobile_number node.user
     if !user
@@ -445,8 +459,6 @@ class Pipeline
 
     reply "User2 said he/she was in #{user.location} (lat: #{user.lat}, lon: #{user.lon}) #{time_ago_in_words user.location_reported_at} ago."
   end
-
-  private
 
   def join(user, group)
     user.join group

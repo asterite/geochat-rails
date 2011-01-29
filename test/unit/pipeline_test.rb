@@ -15,7 +15,7 @@ class PipelineTest < ActiveSupport::TestCase
     address = *address
     address.each do |a|
       a = "sms://#{a}" if a.is_a?(Integer)
-      @pipeline.process a, message
+      @pipeline.process :from => a, :body => message
     end
   end
 

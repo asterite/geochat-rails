@@ -1,3 +1,11 @@
 development:
+  url: http://nuntium.instedd.org
   account: geochat_rails_dev
   application: geochat_rails_dev
+  password: geochat_rails_dev
+
+test:
+  url: http://nuntium.instedd.org
+  account: geochat_rails_dev
+  application: geochat_rails_dev
+  password: geochat_rails_dev
