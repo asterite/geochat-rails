@@ -399,11 +399,14 @@ class Pipeline
 
     if node.location.present?
       place, coords = update_current_user_location_to node.location
-
-      if node.body.blank?
-        node.body = "at #{place} (lat: #{coords.first}, lon: #{coords.second})"
-      else
-        node.body = "#{node.body} (at #{place}, lat: #{coords.first}, lon: #{coords.second})"
+      if place && coords
+        if node.body.blank?
+          node.body = "at #{place} (lat: #{coords.first}, lon: #{coords.second})"
+        else
+          node.body = "#{node.body} (at #{place}, lat: #{coords.first}, lon: #{coords.second})"
+        end
+      elsif node.body.blank?
+        node.body = @message[:body]
       end
     end
 
@@ -549,6 +552,10 @@ class Pipeline
   def update_current_user_location_to(location)
     if location.is_a?(String)
       place, coords = location, Geocoder.locate(location)
+      if !coords
+        reply "The location '#{location}' could not be found on the map."
+        return nil
+      end
     else
       place, coords = Geocoder.reverse(location), location
     end

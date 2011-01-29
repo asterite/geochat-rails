@@ -89,6 +89,19 @@ class LocationTest < PipelineTest
     end
   end
 
+  test "place not found" do
+    create_users 1..4
+
+    send_message 1, "create Group1"
+    send_message 2..4, "join Group1"
+
+    Geocoder.expects(:locate).with('Paris').returns(nil)
+    send_message 1, "at Paris"
+    assert_messages_sent_to 1, "The location 'Paris' could not be found on the map."
+    assert_messages_sent_to 2..4, "User1: at Paris"
+    assert_user_location "User1", nil, 0, 0
+  end
+
   # TODO USNG
 
   # TODO custom locations

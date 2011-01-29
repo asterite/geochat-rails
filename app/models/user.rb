@@ -69,7 +69,7 @@ class User < ActiveRecord::Base
   end
 
   def shares_a_common_group_with(user)
-    result = self.class.connection.execute "select 1 from memberships m1, memberships m2 where m1.group_id = m2.group_id && m1.user_id = #{self.id} && m2.user_id = #{user.id}"
+    result = self.class.connection.execute "select 1 from memberships m1, memberships m2 where m1.group_id = m2.group_id and m1.user_id = #{self.id} and m2.user_id = #{user.id}"
     result.count > 0
   end
 
