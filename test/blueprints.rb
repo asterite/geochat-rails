@@ -31,3 +31,12 @@ Channel.blueprint do
   protocol { 'sms' }
   address { Sham.number }
 end
+
+Message.blueprint do
+  text { Sham.title }
+  group
+  sender
+  lat
+  lon
+  location { Sham.title }
+end
