@@ -9,6 +9,8 @@ GeochatRails::Application.routes.draw do
   match "/api/users/:login/verify" => "api#verify_user_credentials"
   match "/api/users/:login/groups" => "api#user_groups"
 
+  match "/api/groups/:alias/members" => "api#group_members"
+
   # Sample of regular route:
   #   match 'products/:id' => 'catalog#view'
   # Keep in mind you can assign values other than :controller and :action
