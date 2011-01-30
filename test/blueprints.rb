@@ -12,6 +12,7 @@ Sham.number { rand(8888) + 1111 }
 
 User.blueprint do
   login { Sham.short_name }
+  password { Sham.short_name }
   display_name { Sham.name }
 end
 

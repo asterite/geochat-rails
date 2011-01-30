@@ -92,7 +92,7 @@ class Pipeline
   end
 
   def process_login(node)
-    user = User.find_by_login_and_password node.login, node.password
+    user = User.authenticate node.login, node.password
     return reply "Invalid login" unless user
 
     if current_channel

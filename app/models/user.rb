@@ -5,6 +5,7 @@ class User < ActiveRecord::Base
 
   validates :login, :presence => true
   validates :login_downcase, :presence => true, :uniqueness => true
+  validates :password, :presence => true
 
   belongs_to :default_group, :class_name => 'Group'
   before_validation :update_login_downcase
@@ -32,6 +33,10 @@ class User < ActiveRecord::Base
     user = self.find_by_login search
     user = self.find_by_mobile_number search unless user
     user
+  end
+
+  def self.authenticate(login, password)
+    User.where('login = ? and password = ?', login, password).first
   end
 
   def create_group(options = {})
@@ -102,6 +107,17 @@ class User < ActiveRecord::Base
 
   def sms_channel
     self.channels.where(:protocol => 'sms').first
+  end
+
+  def to_json(options = {})
+    hash = {:login => self.login}
+    hash[:displayName] = self.display_name if self.display_name.present?
+    hash[:lat] = self.lat if self.lat.present?
+    hash[:long] = self.lon if self.lon.present?
+    hash[:location] = self.location if self.location.present?
+    hash[:created] = self.created_at
+    hash[:updated] = self.updated_at
+    hash.to_json
   end
 
   private

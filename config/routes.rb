@@ -4,6 +4,8 @@ GeochatRails::Application.routes.draw do
 
   match "nuntium/receive_at" => "nuntium#receive_at"
 
+  match "/api/users/create/:login" => "api#create_user"
+
   # Sample of regular route:
   #   match 'products/:id' => 'catalog#view'
   # Keep in mind you can assign values other than :controller and :action

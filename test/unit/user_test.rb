@@ -29,4 +29,39 @@ class UserTest < ActiveSupport::TestCase
 
     assert_equal 0, Membership.count
   end
+
+  test "authenticate" do
+    user = User.make :password => 'bar'
+    assert_equal user, User.authenticate(user.login, 'bar')
+  end
+
+  test "authenticate fails" do
+    user = User.make :password => 'bar'
+    assert_nil User.authenticate(user.login, 'baz')
+  end
+
+  test "to json without location" do
+    user = User.make
+
+    assert_equal({
+      :login => user.login,
+      :displayName => user.display_name,
+      :created => user.created_at,
+      :updated => user.updated_at
+      }.to_json, user.to_json)
+  end
+
+  test "to json with location" do
+    user = User.make :lat => 10.2, :lon => 10.3, :location => 'Paris'
+
+    assert_equal({
+      :login => user.login,
+      :displayName => user.display_name,
+      :lat => user.lat,
+      :long => user.lon,
+      :location => user.location,
+      :created => user.created_at,
+      :updated => user.updated_at
+      }.to_json, user.to_json)
+  end
 end
