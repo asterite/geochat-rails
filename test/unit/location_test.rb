@@ -115,6 +115,16 @@ class LocationTest < PipelineTest
     assert_user_location "User1", nil, 0, 0
   end
 
+  test "presever location in subsequent messages" do
+    create_users 1
+    send_message 1, "create Group1"
+
+    Geocoder.expects(:locate).with('Paris').returns([48.856667, 2.350987])
+    send_message 1, "at Paris"
+    send_message 1, "Hello"
+    assert_message_saved_with_location "User1", "Group1", "Hello", "Paris", 48.856667, 2.350987
+  end
+
   # TODO USNG
 
   # TODO custom locations

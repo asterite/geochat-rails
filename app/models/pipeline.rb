@@ -503,14 +503,10 @@ class Pipeline
       :group => group,
       :receiver => user,
       :text => node.body,
+      :lat => current_user.lat,
+      :lon => current_user.lon,
+      :location => current_user.location
     }
-    if coords
-      @saved_message[:lat] = coords.first
-      @saved_message[:lon] = coords.second
-    end
-    if place
-      @saved_message[:location] = place
-    end
   end
 
   def process_where_is(node)
