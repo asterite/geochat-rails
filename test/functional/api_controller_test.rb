@@ -130,4 +130,35 @@ class ApiControllerTest < ActionController::TestCase
 
     assert_equal(group.users.to_json, @response.body)
   end
+
+  test "group messages not found" do
+    user = User.make :password => 'foo'
+
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(user.login, 'foo')
+    get :group_messages, :alias => 'bar'
+    assert_response :not_found
+  end
+
+  test "group messages not a member" do
+    user = User.make :password => 'foo'
+    group = user.create_group :alias => 'one'
+
+    user2 = User.make :password => 'bar'
+
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(user2.login, 'bar')
+    get :group_messages, :alias => group.alias
+    assert_response :unauthorized
+  end
+
+  test "group messages" do
+    user = User.make :password => 'foo'
+    group = user.create_group :alias => 'one'
+    10.times { Message.make :group => group, :sender => user }
+
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(user.login, 'foo')
+    get :group_messages, :alias => group.alias, :page => 2, :per_page => 3
+    assert_response :ok
+
+    assert_equal({:items => group.messages.order('created_at DESC')[3 ... 6]}.to_json, @response.body)
+  end
 end

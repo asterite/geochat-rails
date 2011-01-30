@@ -1,6 +1,6 @@
 class ApiController < ApplicationController
   before_filter :authenticate, :except => [:create_user, :user, :verify_user_credentials]
-  before_filter :check_group, :only => [:group, :group_members]
+  before_filter :check_group, :only => [:group, :group_members, :group_messages]
 
   def create_user
     user = User.create! :login => params[:login], :password => params[:password], :display_name => params[:displayname]
@@ -29,6 +29,13 @@ class ApiController < ApplicationController
 
   def group_members
     render :json => @group.users
+  end
+
+  def group_messages
+    page = params[:page] || 1
+    per_page = params[:per_page] || 50
+    offset = (page - 1) * per_page
+    render :json => {:items => @group.messages.order('created_at DESC').offset(offset).limit(per_page)}
   end
 
   private

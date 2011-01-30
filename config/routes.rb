@@ -11,6 +11,7 @@ GeochatRails::Application.routes.draw do
 
   match "/api/groups/:alias" => "api#group"
   match "/api/groups/:alias/members" => "api#group_members"
+  match "/api/groups/:alias/messages" => "api#group_messages"
 
   # Sample of regular route:
   #   match 'products/:id' => 'catalog#view'

@@ -1,6 +1,7 @@
 class Group < ActiveRecord::Base
   has_many :memberships, :dependent => :destroy
   has_many :users, :through => :memberships
+  has_many :messages
 
   validates :alias, :presence => true
   validates :alias_downcase, :presence => true, :uniqueness => true
