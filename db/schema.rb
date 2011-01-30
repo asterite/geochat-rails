@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110130174707) do
+ActiveRecord::Schema.define(:version => 20110130191246) do
 
   create_table "channels", :force => true do |t|
     t.string   "protocol"
@@ -36,7 +36,7 @@ ActiveRecord::Schema.define(:version => 20110130174707) do
     t.string   "alias_downcase"
   end
 
-  add_index "groups", ["alias"], :name => "index_groups_on_alias"
+  add_index "groups", ["alias_downcase"], :name => "index_groups_on_alias_downcase"
 
   create_table "invites", :force => true do |t|
     t.integer  "group_id"
@@ -93,6 +93,6 @@ ActiveRecord::Schema.define(:version => 20110130174707) do
     t.string   "login_downcase"
   end
 
-  add_index "users", ["login", "created_from_invite"], :name => "index_users_on_login_and_created_from_invite"
+  add_index "users", ["login_downcase", "created_from_invite"], :name => "index_users_on_login_downcase_and_created_from_invite"
 
 end

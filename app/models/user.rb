@@ -5,7 +5,7 @@ class User < ActiveRecord::Base
 
   validates :login, :presence => true
   validates :login_downcase, :presence => true, :uniqueness => true
-  validates :password, :presence => true
+  validates :password, :presence => true, :if => proc {|u| !u.created_from_invite? }
 
   belongs_to :default_group, :class_name => 'Group'
   before_validation :update_login_downcase
