@@ -32,4 +32,13 @@ class ApiControllerTest < ActionController::TestCase
     get :user, :login => 'foo'
     assert_response :not_found
   end
+
+  [['true', 'bar'], ['false', 'baz']].each do |value, pass|
+    test "verify user credentials #{value}" do
+      user = User.make :password => 'bar'
+      get :verify_user_credentials, :login => user.login, :password => pass
+      assert_response :ok
+      assert_equal value, @response.body
+    end
+  end
 end

@@ -12,4 +12,8 @@ class RoutesTest < ActionController::TestCase
   test "api user" do
     assert_routing({:path => '/api/users/foo', :method => :get}, {:controller => 'api', :action => 'user', :login => 'foo'})
   end
+
+  test "api verify user credentials" do
+    assert_routing({:path => '/api/users/foo/verify', :method => :get}, {:controller => 'api', :action => 'verify_user_credentials', :login => 'foo'})
+  end
 end

@@ -11,4 +11,8 @@ class ApiController < ApplicationController
     return head :not_found unless user
     render :json => user
   end
+
+  def verify_user_credentials
+    render :text => (!!User.authenticate(params[:login], params[:password])).to_s
+  end
 end
