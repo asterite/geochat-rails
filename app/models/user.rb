@@ -1,6 +1,6 @@
 class User < ActiveRecord::Base
-  has_many :channels
-  has_many :memberships
+  has_many :channels, :dependent => :destroy
+  has_many :memberships, :dependent => :destroy
   has_many :groups, :through => :memberships
 
   validates :login, :presence => true

@@ -8,6 +8,7 @@ Sham.title { Faker::Lorem.words.join }
 Sham.description { Faker::Lorem.paragraph }
 Sham.email { Faker::Internet.email }
 Sham.url { "http://#{Faker::Internet.domain_name}" }
+Sham.number { rand(8888) + 1111 }
 
 User.blueprint do
   login { Sham.short_name }
@@ -16,4 +17,10 @@ end
 
 Group.blueprint do
   send("alias") { Sham.short_name }
+end
+
+Channel.blueprint do
+  user
+  protocol { 'sms' }
+  address { Sham.number }
 end

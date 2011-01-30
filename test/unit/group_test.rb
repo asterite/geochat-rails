@@ -10,4 +10,14 @@ class GroupTest < ActiveSupport::TestCase
     group = Group.make :alias => 'HELLO'
     assert_equal group, Group.find_by_alias("Hello")
   end
+
+  test "destroys dependent memberships" do
+    user = User.make
+    group = Group.make
+    user.join group
+
+    group.destroy
+
+    assert_equal 0, Membership.count
+  end
 end
