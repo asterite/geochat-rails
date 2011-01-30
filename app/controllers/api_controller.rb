@@ -32,8 +32,8 @@ class ApiController < ApplicationController
   end
 
   def group_messages
-    page = params[:page] || 1
-    per_page = params[:per_page] || 50
+    page = (params[:page] || 1).to_i
+    per_page = (params[:per_page] || 50).to_i
     offset = (page - 1) * per_page
     render :json => {:items => @group.messages.order('created_at DESC').offset(offset).limit(per_page)}
   end

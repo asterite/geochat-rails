@@ -156,7 +156,7 @@ class ApiControllerTest < ActionController::TestCase
     10.times { Message.make :group => group, :sender => user }
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth(user.login, 'foo')
-    get :group_messages, :alias => group.alias, :page => 2, :per_page => 3
+    get :group_messages, :alias => group.alias, :page => '2', :per_page => '3'
     assert_response :ok
 
     assert_equal({:items => group.messages.order('created_at DESC')[3 ... 6]}.to_json, @response.body)
