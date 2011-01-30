@@ -15,4 +15,21 @@ class ApiControllerTest < ActionController::TestCase
 
     assert_equal user.to_json, @response.body
   end
+
+  test "create user already exists" do
+    user = User.make
+    get :create_user, :login => user.login, :password => 'bar', :displayname => 'Foo Bar'
+    assert_response :bad_request
+  end
+
+  test "user" do
+    user = User.make
+    get :user, :login => user.login
+    assert_equal user.to_json, @response.body
+  end
+
+  test "user not found" do
+    get :user, :login => 'foo'
+    assert_response :not_found
+  end
 end

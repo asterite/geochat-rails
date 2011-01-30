@@ -8,4 +8,8 @@ class RoutesTest < ActionController::TestCase
   test "api create user" do
     assert_routing({:path => '/api/users/create/foo', :method => :post}, {:controller => 'api', :action => 'create_user', :login => 'foo'})
   end
+
+  test "api user" do
+    assert_routing({:path => '/api/users/foo', :method => :get}, {:controller => 'api', :action => 'user', :login => 'foo'})
+  end
 end

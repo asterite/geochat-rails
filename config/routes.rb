@@ -5,6 +5,7 @@ GeochatRails::Application.routes.draw do
   match "nuntium/receive_at" => "nuntium#receive_at"
 
   match "/api/users/create/:login" => "api#create_user"
+  match "/api/users/:login" => "api#user"
 
   # Sample of regular route:
   #   match 'products/:id' => 'catalog#view'
