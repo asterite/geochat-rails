@@ -57,8 +57,8 @@ class UserTest < ActiveSupport::TestCase
     assert_equal({
       :login => user.login,
       :displayName => user.display_name,
-      :lat => user.lat,
-      :long => user.lon,
+      :lat => user.lat.to_f,
+      :long => user.lon.to_f,
       :location => user.location,
       :created => user.created_at,
       :updated => user.updated_at

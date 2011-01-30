@@ -112,8 +112,8 @@ class User < ActiveRecord::Base
   def to_json(options = {})
     hash = {:login => self.login}
     hash[:displayName] = self.display_name if self.display_name.present?
-    hash[:lat] = self.lat if self.lat.present?
-    hash[:long] = self.lon if self.lon.present?
+    hash[:lat] = self.lat.to_f if self.lat.present?
+    hash[:long] = self.lon.to_f if self.lon.present?
     hash[:location] = self.location if self.location.present?
     hash[:created] = self.created_at
     hash[:updated] = self.updated_at
