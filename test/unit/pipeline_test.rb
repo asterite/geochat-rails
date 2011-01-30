@@ -3,8 +3,6 @@
 require 'test_helper'
 
 class PipelineTest < ActiveSupport::TestCase
-  include Mocha::API
-
   setup do
     @pipeline = Pipeline.new
     PasswordGenerator.stubs(:new_password => 'MockPassword')
