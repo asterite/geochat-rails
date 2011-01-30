@@ -7,6 +7,7 @@ GeochatRails::Application.routes.draw do
   match "/api/users/create/:login" => "api#create_user"
   match "/api/users/:login" => "api#user"
   match "/api/users/:login/verify" => "api#verify_user_credentials"
+  match "/api/users/:login/groups" => "api#user_groups"
 
   # Sample of regular route:
   #   match 'products/:id' => 'catalog#view'

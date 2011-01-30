@@ -41,4 +41,22 @@ class ApiControllerTest < ActionController::TestCase
       assert_equal value, @response.body
     end
   end
+
+  test "user groups not authorized" do
+    user = User.make
+    get :user_groups, :login => user.login
+    assert_response :unauthorized
+  end
+
+  test "user groups" do
+    user = User.make :password => 'foo'
+    user.create_group :alias => 'one'
+    user.create_group :alias => 'two'
+
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(user.login, 'foo')
+    get :user_groups, :login => user.login
+    assert_response :ok
+
+    assert_equal({:items => user.groups}.to_json, @response.body)
+  end
 end
