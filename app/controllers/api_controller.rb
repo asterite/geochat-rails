@@ -1,5 +1,6 @@
 class ApiController < ApplicationController
   before_filter :authenticate, :except => [:create_user, :user, :verify_user_credentials]
+  before_filter :check_group, :only => [:group, :group_members]
 
   def create_user
     user = User.create! :login => params[:login], :password => params[:password], :display_name => params[:displayname]
@@ -22,11 +23,12 @@ class ApiController < ApplicationController
     render :json => @user.groups
   end
 
+  def group
+    render :json => @group
+  end
+
   def group_members
-    group = Group.find_by_alias params[:alias]
-    return head :not_found unless group
-    return head :unauthorized unless @user.belongs_to(group)
-    render :json => group.users
+    render :json => @group.users
   end
 
   private
@@ -35,5 +37,11 @@ class ApiController < ApplicationController
     authenticate_or_request_with_http_basic do |username, password|
       @user = User.authenticate username, password
     end
+  end
+
+  def check_group
+    @group = Group.find_by_alias params[:alias]
+    return head :not_found unless @group
+    return head :unauthorized unless @user.belongs_to(@group)
   end
 end

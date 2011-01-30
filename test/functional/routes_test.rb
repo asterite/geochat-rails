@@ -21,6 +21,10 @@ class RoutesTest < ActionController::TestCase
     assert_routing({:path => '/api/users/foo/groups', :method => :get}, {:controller => 'api', :action => 'user_groups', :login => 'foo'})
   end
 
+  test "api group" do
+    assert_routing({:path => '/api/groups/foo', :method => :get}, {:controller => 'api', :action => 'group', :alias => 'foo'})
+  end
+
   test "api group members" do
     assert_routing({:path => '/api/groups/foo/members', :method => :get}, {:controller => 'api', :action => 'group_members', :alias => 'foo'})
   end

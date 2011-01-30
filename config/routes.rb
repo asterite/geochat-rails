@@ -9,6 +9,7 @@ GeochatRails::Application.routes.draw do
   match "/api/users/:login/verify" => "api#verify_user_credentials"
   match "/api/users/:login/groups" => "api#user_groups"
 
+  match "/api/groups/:alias" => "api#group"
   match "/api/groups/:alias/members" => "api#group_members"
 
   # Sample of regular route:
