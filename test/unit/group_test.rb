@@ -20,4 +20,16 @@ class GroupTest < ActiveSupport::TestCase
 
     assert_equal 0, Membership.count
   end
+
+  test "to json" do
+    group = Group.make
+    assert_equal({
+      :alias => group.alias,
+      :name => group.name,
+      :requireApprovalToJoin => group.requires_aproval_to_join,
+      :isChatRoom => group.chatroom?,
+      :created => group.created_at,
+      :updated => group.updated_at,
+    }.to_json, group.to_json)
+  end
 end

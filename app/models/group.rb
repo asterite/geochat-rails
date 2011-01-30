@@ -15,6 +15,16 @@ class Group < ActiveRecord::Base
     User.joins(:memberships).where('memberships.group_id = ? AND (role = ? OR role = ?)', self.id, :admin, :owner)
   end
 
+  def to_json(options = {})
+    hash = {:alias => self.alias}
+    hash[:name] = self.name if self.name.present?
+    hash[:requireApprovalToJoin] = self.requires_aproval_to_join?
+    hash[:isChatRoom] = self.chatroom?
+    hash[:created] = self.created_at
+    hash[:updated] = self.updated_at
+    hash.to_json
+  end
+
   private
 
   def update_alias_downcase

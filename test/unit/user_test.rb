@@ -40,20 +40,8 @@ class UserTest < ActiveSupport::TestCase
     assert_nil User.authenticate(user.login, 'baz')
   end
 
-  test "to json without location" do
+  test "to json" do
     user = User.make
-
-    assert_equal({
-      :login => user.login,
-      :displayName => user.display_name,
-      :created => user.created_at,
-      :updated => user.updated_at
-      }.to_json, user.to_json)
-  end
-
-  test "to json with location" do
-    user = User.make :lat => 10.2, :lon => 10.3, :location => 'Paris'
-
     assert_equal({
       :login => user.login,
       :displayName => user.display_name,
