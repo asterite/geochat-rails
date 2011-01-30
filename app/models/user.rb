@@ -109,7 +109,7 @@ class User < ActiveRecord::Base
     self.channels.where(:protocol => 'sms').first
   end
 
-  def to_json(options = {})
+  def as_json(options = {})
     hash = {:login => self.login}
     hash[:displayName] = self.display_name if self.display_name.present?
     hash[:lat] = self.lat.to_f if self.lat.present?
@@ -117,7 +117,7 @@ class User < ActiveRecord::Base
     hash[:location] = self.location if self.location.present?
     hash[:created] = self.created_at
     hash[:updated] = self.updated_at
-    hash.to_json
+    hash
   end
 
   private
