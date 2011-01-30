@@ -11,7 +11,7 @@ class User < ActiveRecord::Base
   before_save :update_location_reported_at
 
   def self.find_by_login(login)
-    self.find_by_login_downcase login
+    self.find_by_login_downcase login.downcase
   end
 
   def self.find_by_mobile_number(number)

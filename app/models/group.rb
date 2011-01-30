@@ -8,7 +8,7 @@ class Group < ActiveRecord::Base
   before_validation :update_alias_downcase
 
   def self.find_by_alias(talias)
-    self.find_by_alias_downcase(talias)
+    self.find_by_alias_downcase talias.downcase
   end
 
   def owners
