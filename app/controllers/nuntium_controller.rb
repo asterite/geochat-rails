@@ -5,7 +5,7 @@ class NuntiumController < ApplicationController
     pipeline = Pipeline.new
     pipeline.process params.reject{|k, v| k == 'action' || k == 'controller'}
 
-    nuntium = Nuntium.new NuntiumConfig['url'], NuntiumConfig['account'], NuntiumConfig['application'], NuntiumConfig['password']
+    nuntium = Nuntium.new_api_from_config
 
     pipeline.messages.each do |target, messages|
       messages.each do |message|
