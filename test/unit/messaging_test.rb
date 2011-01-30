@@ -4,12 +4,10 @@ require 'unit/pipeline_test'
 
 class MessagingTest < PipelineTest
   test "send message to group" do
-    create_users 1, 2, 3, 4
+    create_users 1..4
 
     send_message 1, "create group Group1"
-    send_message 2, "join Group1"
-    send_message 3, "join Group1"
-    send_message 4, "join Group1"
+    send_message 2..4, "join Group1"
 
     send_message 1, "Hello!"
 
@@ -18,18 +16,17 @@ class MessagingTest < PipelineTest
   end
 
   test "send message to group explicitly with location update" do
-    create_users 1, 2, 3, 4
+    create_users 1..4
     send_message 1, "create group Group1"
-    send_message 2, "join Group1"
-    send_message 3, "join Group1"
-    send_message 4, "join Group1"
+    send_message 2..4, "join Group1"
 
     Geocoder.expects(:locate).with('santiago de chile').returns([-33.42536, -70.566466])
+    Geocoder.expects(:reverse).with([-33.42536, -70.566466]).returns('Santiago, Chile')
     send_message 1, "@Group1 at santiago de chile"
 
-    assert_messages_sent_to 1, "Your location was successfully updated to santiago de chile (lat: -33.42536, lon: -70.566466)"
-    assert_messages_sent_to 2..4, "User1: at santiago de chile (lat: -33.42536, lon: -70.566466)"
-    assert_message_saved "User1", "Group1", "at santiago de chile (lat: -33.42536, lon: -70.566466)"
+    assert_messages_sent_to 1, "Your location was successfully updated to Santiago, Chile (lat: -33.42536, lon: -70.566466)"
+    assert_messages_sent_to 2..4, "User1: at Santiago, Chile (lat: -33.42536, lon: -70.566466)"
+    assert_message_saved "User1", "Group1", "at Santiago, Chile (lat: -33.42536, lon: -70.566466)"
   end
 
   test "send message to group that does not exist" do
@@ -198,7 +195,7 @@ class MessagingTest < PipelineTest
   end
 
   test "send message to user" do
-    create_users 1, 2, 3, 4
+    create_users 1..4
     create_group 1, "Group1"
 
     send_message 2..3, "join Group1"
@@ -213,7 +210,7 @@ class MessagingTest < PipelineTest
     "@User2 @group2 Hello!",
     "@group2 @User2 Hello!"].each do |msg|
     test "send message to user explicit group with message #{msg}" do
-      create_users 1, 2, 3, 4
+      create_users 1..4
       create_group 1, "Group1"
       create_group 1, "Group2"
 
@@ -239,7 +236,7 @@ class MessagingTest < PipelineTest
   end
 
   test "send message to user user fails explicit group" do
-    create_users 1, 2, 3, 4
+    create_users 1..4
     create_group 1, "Group1"
     create_group 1, "Group2"
 
@@ -297,7 +294,7 @@ class MessagingTest < PipelineTest
   end
 
   test "forward owners direct message to owner" do
-    create_users 1, 2, 3, 4
+    create_users 1..4
 
     send_message 1, "create group Group1 nochat"
     send_message 4, "join Group1"
