@@ -8,6 +8,7 @@ gem 'rails', '3.0.3'
 gem 'sqlite3-ruby', :require => 'sqlite3'
 gem 'mysql2'
 gem 'nuntium_api', :require => 'nuntium'
+gem 'json'
 
 group :test do
   gem 'machinist'
