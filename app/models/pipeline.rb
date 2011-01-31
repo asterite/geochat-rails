@@ -665,9 +665,7 @@ class Pipeline
   def update_current_user_location_to(location)
     if location.is_a?(String)
       place, coords = location, Geocoder.locate(location)
-      if coords
-        place = Geocoder.reverse(coords)
-      else
+      if !coords
         reply "The location '#{location}' could not be found on the map."
         return nil
       end

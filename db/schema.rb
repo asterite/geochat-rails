@@ -89,7 +89,6 @@ ActiveRecord::Schema.define(:version => 20110130202928) do
     t.decimal  "lon",                  :precision => 10, :scale => 6
     t.string   "location"
     t.datetime "location_reported_at"
-    t.string   "language"
     t.string   "login_downcase"
   end
 
