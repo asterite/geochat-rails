@@ -315,6 +315,17 @@ class Pipeline
           reply "You don't have a phone number configured to work with GeoChat."
         end
       end
+    when MyNode::Email
+      if node.value
+        reply "You can't change your email."
+      else
+        email_channel = current_user.email_channel
+        if email_channel
+          reply "Your email is: #{email_channel.address}"
+        else
+          reply "You don't have an email configured to work with GeoChat."
+        end
+      end
     when MyNode::Groups
       groups = current_user.groups.map(&:alias).sort
       case groups.count

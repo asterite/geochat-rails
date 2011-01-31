@@ -147,6 +147,20 @@ class MyTest < PipelineTest
     assert_messages_sent_to 1, "You can't change your phone number."
   end
 
+  test "get my email" do
+    send_message "mailto://foo", ".name foo"
+
+    send_message "mailto://foo", "#my email"
+    assert_messages_sent_to "mailto://foo", "Your email is: foo"
+  end
+
+  test "set my email" do
+    send_message "mailto://foo", ".name foo"
+
+    send_message "mailto://foo", "#my email 1234"
+    assert_messages_sent_to "mailto://foo", "You can't change your email."
+  end
+
   test "get my location never reported" do
     create_users 1
 

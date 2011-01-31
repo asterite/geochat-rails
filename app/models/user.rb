@@ -109,6 +109,10 @@ class User < ActiveRecord::Base
     self.channels.where(:protocol => 'sms').first
   end
 
+  def email_channel
+    self.channels.where(:protocol => 'mailto').first
+  end
+
   def as_json(options = {})
     hash = {:login => self.login}
     hash[:displayName] = self.display_name if self.display_name.present?
