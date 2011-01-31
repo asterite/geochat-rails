@@ -68,4 +68,11 @@ class LeaveTest < PipelineTest
     send_message 1, "leave Group1"
     assert_messages_sent_to 1, "Good bye User1 from your only group Group1. To join another group send: join groupalias"
   end
+
+  test "leave not logged in" do
+    create_users 1
+    send_message 1, "create Group1"
+    send_message 2, "leave Group1"
+    assert_not_logged_in_message_sent_to 2
+  end
 end

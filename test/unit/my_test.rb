@@ -194,4 +194,9 @@ class MyTest < PipelineTest
     assert_messages_sent_to 1, "Your location was successfully updated to Paris (lat: 10.2, lon: 30.4)"
     assert_user_location "User1", "Paris", 10.2, 30.4
   end
+
+  test "my not logged in" do
+    send_message 1, "#my login"
+    assert_not_logged_in_message_sent_to 1
+  end
 end

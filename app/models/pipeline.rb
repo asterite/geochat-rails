@@ -51,7 +51,6 @@ class Pipeline
     nil
   end
 
-
   private
 
   def process_ping(node)
@@ -251,6 +250,8 @@ class Pipeline
   end
 
   def process_leave(node)
+    return reply_not_logged_in unless current_user
+
     group = Group.find_by_alias node.group
     if !group
       return reply_group_does_not_exist(node.group)
@@ -279,6 +280,8 @@ class Pipeline
   end
 
   def process_my(node)
+    return reply_not_logged_in unless current_user
+
     case node.key
     when MyNode::Login
       if node.value
@@ -374,6 +377,8 @@ class Pipeline
   end
 
   def process_owner(node)
+    return reply_not_logged_in unless current_user
+
     user = User.find_by_login_or_mobile_number node.user
     if node.group
       group = Group.find_by_alias node.group

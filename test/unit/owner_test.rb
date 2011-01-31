@@ -101,4 +101,10 @@ class OwnerTest < PipelineTest
     assert_messages_sent_to 2, "You can't set User1 as an owner of Group1 because you are not an owner."
     assert_group_owners "Group1", "User1"
   end
+
+  test "add group owner not logged in" do
+    create_users 2
+    send_message 1, "owner User2"
+    assert_not_logged_in_message_sent_to 1
+  end
 end
