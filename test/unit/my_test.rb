@@ -171,8 +171,7 @@ class MyTest < PipelineTest
   test "get my location" do
     create_users 1
 
-    Geocoder.expects(:locate).with('Paris').returns([10.2, 30.4])
-    Geocoder.expects(:reverse).with([10.2, 30.4]).returns("Paris, France")
+    Geocoder.expects(:locate).with('Paris').returns({:lat => 10.2, :lon => 30.4, :location => 'Paris, France'})
     send_message 1, "at Paris"
     send_message 1, "#my location"
     assert_messages_sent_to 1, "You said you was in Paris, France (lat: 10.2, lon: 30.4) less than a minute ago."
@@ -181,8 +180,7 @@ class MyTest < PipelineTest
   test "set my location with place" do
     create_users 1
 
-    Geocoder.expects(:locate).with('Paris').returns([10.2, 30.4])
-    Geocoder.expects(:reverse).with([10.2, 30.4]).returns("Paris, France")
+    Geocoder.expects(:locate).with('Paris').returns({:lat => 10.2, :lon => 30.4, :location => 'Paris, France'})
     send_message 1, "#my location Paris"
     assert_messages_sent_to 1, "Your location was successfully updated to Paris, France (lat: 10.2, lon: 30.4)"
     assert_user_location "User1", "Paris, France", 10.2, 30.4

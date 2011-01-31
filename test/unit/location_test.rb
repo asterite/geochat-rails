@@ -9,8 +9,7 @@ class LocationTest < PipelineTest
     send_message 1, "create Group1"
     send_message 2..4, "join Group1"
 
-    Geocoder.expects(:locate).with('Paris').returns([48.856667, 2.350987])
-    Geocoder.expects(:reverse).with([48.856667, 2.350987]).returns('Paris, France')
+    Geocoder.expects(:locate).with('Paris').returns({:lat => 48.856667, :lon => 2.350987, :location => 'Paris, France'})
     send_message 1, "at Paris"
     assert_messages_sent_to 1, "Your location was successfully updated to Paris, France (lat: 48.856667, lon: 2.350987)"
     assert_messages_sent_to 2..4, "User1: at Paris, France (lat: 48.856667, lon: 2.350987)"
@@ -24,8 +23,7 @@ class LocationTest < PipelineTest
     send_message 1, "create Group1"
     send_message 2..4, "join Group1"
 
-    Geocoder.expects(:locate).with('Paris').returns([48.856667, 2.350987])
-    Geocoder.expects(:reverse).with([48.856667, 2.350987]).returns('Paris, France')
+    Geocoder.expects(:locate).with('Paris').returns({:lat => 48.856667, :lon => 2.350987, :location => 'Paris, France'})
     send_message 1, "/Paris/ Hello!"
     assert_messages_sent_to 1, "Your location was successfully updated to Paris, France (lat: 48.856667, lon: 2.350987)"
     assert_messages_sent_to 2..4, "User1: Hello! (at Paris, France, lat: 48.856667, lon: 2.350987)"
@@ -121,8 +119,7 @@ class LocationTest < PipelineTest
     create_users 1
     send_message 1, "create Group1"
 
-    Geocoder.expects(:locate).with('Paris').returns([48.856667, 2.350987])
-    Geocoder.expects(:reverse).with([48.856667, 2.350987]).returns('Paris, France')
+    Geocoder.expects(:locate).with('Paris').returns({:lat => 48.856667, :lon => 2.350987, :location => 'Paris, France'})
     send_message 1, "at Paris"
     send_message 1, "Hello"
     assert_message_saved_with_location "User1", "Group1", "Hello", "Paris, France", 48.856667, 2.350987
