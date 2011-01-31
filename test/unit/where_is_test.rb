@@ -61,4 +61,10 @@ class WhereIsTest < PipelineTest
     send_message 1, "#whereis User1"
     assert_messages_sent_to 1, "User1 never reported his/her location."
   end
+
+  test "whereis not signed in" do
+    create_users 2
+    send_message 1, "#whereis User2"
+    assert_not_logged_in_message_sent_to 1
+  end
 end

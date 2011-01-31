@@ -525,6 +525,8 @@ class Pipeline
   end
 
   def process_where_is(node)
+    return reply_not_logged_in unless current_user
+
     user = User.find_by_login_or_mobile_number node.user
     if !user
       return reply_user_does_not_exist node.user
