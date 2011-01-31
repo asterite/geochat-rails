@@ -406,6 +406,10 @@ class Pipeline
       return reply "The user #{user.login} does not belong to group #{group.alias}."
     end
 
+    if !current_user.is_owner_of(group)
+      return reply "You can't set #{user.login} as an owner of #{group.alias} because you are not an owner."
+    end
+
     user.make_owner_of group
 
     reply "The user #{user.login} was successfully set as owner of group #{group.alias}."
@@ -544,6 +548,10 @@ class Pipeline
     end
 
     reply "#{user.login}'s display name is: #{user.display_name}."
+  end
+
+  def process_block(node)
+    reply 'Block is not yet implemented.'
   end
 
   def process_help(node)

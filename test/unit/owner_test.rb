@@ -91,4 +91,14 @@ class OwnerTest < PipelineTest
     send_message 1, "owner User2"
     assert_messages_sent_to 1,  "You don't belong to any group yet. To join a group send: join groupalias"
   end
+
+  test "add group owner not owner" do
+    create_users 1, 2
+
+    send_message 1, "create Group1"
+    send_message 2, "join Group1"
+    send_message 2, "owner User1"
+    assert_messages_sent_to 2, "You can't set User1 as an owner of Group1 because you are not an owner."
+    assert_group_owners "Group1", "User1"
+  end
 end
