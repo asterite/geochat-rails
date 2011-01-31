@@ -3,19 +3,25 @@ class NuntiumController < ApplicationController
 
   def receive_at
     pipeline = Pipeline.new
-    pipeline.process params.reject{|k, v| k == 'action' || k == 'controller'}
-
     nuntium = Nuntium.new_api_from_config
 
-    pipeline.messages.each do |target, messages|
-      messages.each do |message|
-        nuntium.send_ao :from => 'geochat://system', :to => target, :body => message
+    begin
+      pipeline.process params.reject{|k, v| k == 'action' || k == 'controller'}
+
+      pipeline.messages.each do |target, messages|
+        messages.each do |message|
+          nuntium.send_ao :from => 'geochat://system', :to => target, :body => message
+        end
       end
+
+      Message.create_from_hash pipeline.saved_message
+
+      head :ok
+    rescue Exception => e
+      nuntium.send_ao :from => 'geochat://system', :to => params[:from], :body => "You've just spotted a bug: #{e.message}"
+
+      head :ok
     end
-
-    Message.create_from_hash pipeline.saved_message
-
-    head :ok
   end
 
   private
