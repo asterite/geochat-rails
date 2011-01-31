@@ -18,7 +18,7 @@ class WhereIsTest < PipelineTest
     assert_messages_sent_to 1, "User2's display name is: Foo Bar."
   end
 
-  test "whereis not signed in" do
+  test "whois not signed in" do
     create_users 2
     send_message 1, "#whois User2"
     assert_messages_sent_to 1, "User2's display name is: User2."

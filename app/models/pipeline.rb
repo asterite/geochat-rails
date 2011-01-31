@@ -285,7 +285,15 @@ class Pipeline
     case node.key
     when MyNode::Login
       if node.value
-        reply "Your can't change your login"
+        new_login = node.value.gsub(' ', '')
+        if User.find_by_login(new_login)
+          return reply "The login #{new_login} is already taken."
+        end
+
+        current_user.login = node.value.gsub(' ', '')
+        current_user.save!
+
+        reply "Your new login is: #{current_user.login}."
       else
         reply "Your login is: #{current_user.login}"
       end

@@ -14,7 +14,18 @@ class MyTest < PipelineTest
     send_message 1, ".name John Doe"
     send_message 1, "#my login FooBar"
 
-    assert_messages_sent_to 1, "Your can't change your login"
+    assert_messages_sent_to 1, "Your new login is: FooBar."
+    assert_user_is_logged_in 1, "FooBar", "John Doe"
+    assert_user_doesnt_exist "JohnDoe"
+  end
+
+  test "set my login already exists" do
+    create_users 2
+    send_message 1, ".name John Doe"
+    send_message 1, "#my login User2"
+
+    assert_messages_sent_to 1, "The login User2 is already taken."
+    assert_user_is_logged_in 1, "JohnDoe", "John Doe"
   end
 
   test "get my name" do
