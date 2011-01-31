@@ -554,6 +554,7 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_message "display name ! group", :body => :unchanged
   it_parses_message "display name !!", :body => :unchanged
   it_parses_message "display name join group", :body => :unchanged
+  it_parses_message "Listo, ya soy waj otra vez :-)", :body => :unchanged
 
   it_parses_signup "display name > group", :display_name => 'display name', :suggested_login => 'displayname', :group => 'group'
   it_parses_signup_and_join "display name join group", :display_name => 'display name', :suggested_login => 'displayname', :group => 'group'

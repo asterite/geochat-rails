@@ -40,4 +40,5 @@ class LoginTest < PipelineTest
     assert_user_is_logged_in "sms://1", "User1"
     assert_messages_sent_to "sms://1", "Hello User1. When you want to remove this device send: bye"
   end
+
 end

@@ -178,7 +178,9 @@ class Parser < StringScanner
     # Login
     if scan /^\s*(?:#|\.)*?\s*(?:log\s*in|li|iam|i\s+am|i'm|im|\()(\s+(help|\?))?\s*$/i
       return HelpNode.new :node => LoginNode
-    elsif scan /^\s*(?:#|\.)*?\s*(?:log\s*in|li|iam|i\s+am|i'm|im|\()\s*(?:@\s*)?(.+?)\s+(.+?)\s*$/i
+    elsif scan /^\s*(?:#|\.)*?\s*(?:log\s*in|iam|i\s+am|i'm|im|\()\s*(?:@\s*)?(.+?)\s+(.+?)\s*$/i
+      return LoginNode.new :login => self[1], :password => self[2]
+    elsif scan /^\s*(?:#|\.)+\s*li\s*(?:@\s*)?(.+?)\s+(.+?)\s*$/i
       return LoginNode.new :login => self[1], :password => self[2]
     elsif scan /^\s*(?:#|\.)*?\s*(.im)(\s+\S+)?\s*$/i
       return HelpNode.new :node => LoginNode
