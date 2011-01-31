@@ -24,6 +24,10 @@ class NuntiumController < ApplicationController
     end
   end
 
+  def test
+    render :json => [{:from => 'sms://1', :to => 'sms://2', :body => 'Hello!'}]
+  end
+
   private
 
   def authenticate
