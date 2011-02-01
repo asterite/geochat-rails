@@ -57,7 +57,7 @@ class Pipeline
     if node.text.present?
       reply "pong: #{node.text} (received at #{Time.now.utc})"
     else
-      reply "pong received at #{Time.now.utc}"
+      reply "pong (received at #{Time.now.utc})"
     end
   end
 

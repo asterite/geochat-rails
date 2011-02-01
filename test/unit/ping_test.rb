@@ -5,7 +5,7 @@ require 'unit/pipeline_test'
 class PingTest < PipelineTest
   test "ping" do
     send_message 1, 'ping'
-    assert_messages_sent_to 1, "pong received at #{Time.now.utc}"
+    assert_messages_sent_to 1, "pong (received at #{Time.now.utc})"
   end
 
   test "ping with message" do
