@@ -65,12 +65,6 @@ class User < ActiveRecord::Base
     Invite.create! :user => self, :group => group, :user_accepted => true
   end
 
-  def make_owner_of(group)
-    membership = Membership.find_by_group_id_and_user_id(group.id, self.id)
-    membership.role = :owner
-    membership.save!
-  end
-
   def role_in(group)
     Membership.find_by_group_id_and_user_id(group.id, self.id).try(:role).try(:to_sym)
   end

@@ -415,7 +415,8 @@ class Pipeline
     end
     return unless group
 
-    if !user.belongs_to(group)
+    membership = user.membership_in group
+    if !membership
       return reply "The user #{user.login} does not belong to group #{group.alias}."
     end
 
@@ -423,7 +424,12 @@ class Pipeline
       return reply "You can't set #{user.login} as an owner of #{group.alias} because you are not an owner."
     end
 
-    user.make_owner_of group
+    if membership.role == :owner
+      return reply "#{user.login} is already an owner in group Group1."
+    end
+
+    membership.role = :owner
+    membership.save!
 
     reply "The user #{user.login} was successfully set as owner of group #{group.alias}."
     send_message_to_user user, "#{current_user.login} has made you owner of group #{group.alias}."
