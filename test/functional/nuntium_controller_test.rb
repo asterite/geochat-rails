@@ -23,14 +23,12 @@ class NuntiumControllerTest < ActionController::TestCase
     pipeline.expects(:messages).returns('sms://2' => ['Bye'])
     pipeline.expects(:saved_message).returns(saved_message)
 
-    nuntium = mock('nuntium')
-    Nuntium.expects(:new).with(NuntiumConfig['url'], NuntiumConfig['account'], NuntiumConfig['application'], NuntiumConfig['password']).returns(nuntium)
-    nuntium.expects(:send_ao).with({:from => 'geochat://system', :to => 'sms://2', :body => 'Bye'})
-
     @request.env['HTTP_AUTHORIZATION'] = http_auth(NuntiumConfig['incoming_username'], NuntiumConfig['incoming_password'])
     get :receive_at, message
 
     assert_response :ok
+
+    assert_equal [{:from => 'geochat://system', :to => 'sms://2', :body => 'Bye'}].to_json, @response.body
 
     messages = Message.all
     assert_equal 1, messages.count
@@ -57,13 +55,10 @@ class NuntiumControllerTest < ActionController::TestCase
     Pipeline.expects(:new).returns(pipeline)
     pipeline.expects(:process).with(message).raises(Exception.new 'the bug description')
 
-    nuntium = mock('nuntium')
-    Nuntium.expects(:new).with(NuntiumConfig['url'], NuntiumConfig['account'], NuntiumConfig['application'], NuntiumConfig['password']).returns(nuntium)
-    nuntium.expects(:send_ao).with({:from => 'geochat://system', :to => 'sms://1', :body => "You've just spotted a bug: the bug description"})
-
     @request.env['HTTP_AUTHORIZATION'] = http_auth(NuntiumConfig['incoming_username'], NuntiumConfig['incoming_password'])
     get :receive_at, message
 
     assert_response :ok
+    assert_equal "You've just spotted a bug: the bug description", @response.body
   end
 end
