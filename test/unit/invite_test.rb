@@ -39,7 +39,7 @@ class InviteTest < PipelineTest
   test "invite many" do
     create_users 1, 2, 3
 
-    send_message 1, "create group Group1"
+    send_message 1, "create Group1"
 
     send_message 1, "invite User2 User3"
     assert_invite_exists "Group1", "User2", "User3"
@@ -108,6 +108,16 @@ class InviteTest < PipelineTest
     send_message 1, "invite User3"
     assert_no_invite_exists
     assert_messages_sent_to 1, "Could not find a registered user 'User3' for your invitation."
+  end
+
+  test "invite non existing users" do
+    create_users 1, 2
+
+    send_message 1, "create group Group1"
+
+    send_message 1, "invite User3 User4"
+    assert_no_invite_exists
+    assert_messages_sent_to 1, "Could not find registered users 'User3', 'User4' for your invitation."
   end
 
   test "invite without groups" do
@@ -203,5 +213,25 @@ class InviteTest < PipelineTest
   test "invite not logged in" do
     send_message 1, "invite Foo"
     assert_not_logged_in_message_sent_to 1
+  end
+
+  test "invite self" do
+    create_users 1
+
+    send_message 1, "create group Group1"
+    send_message 1, "invite User1"
+
+    assert_no_invite_exists
+    assert_messages_sent_to 1, "You can't invite yourself."
+  end
+
+  test "invite self many times" do
+    create_users 1
+
+    send_message 1, "create group Group1"
+    send_message 1, "invite User1 User1"
+
+    assert_no_invite_exists
+    assert_messages_sent_to 1, "You can't invite yourself."
   end
 end

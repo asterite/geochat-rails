@@ -157,12 +157,18 @@ class Pipeline
 
     sent = []
     joined = []
+    not_found = []
+    invited_self = false
 
     node.users.each do |name|
-      user = User.find_by_login name
-      user = User.find_by_mobile_number(name) if !user && name.integer?
+      user = User.find_by_login_or_mobile_number name
 
       if user
+        if user == current_user
+          invited_self = true
+          next
+        end
+
         invite = Invite.find_by_group_and_user group, user
         if invite
           if invite.user_accepted
@@ -192,19 +198,32 @@ class Pipeline
           send_message_to_address "sms://#{name}", "Welcome to GeoChat's group #{group.alias}. Tell us your name and join the group by sending: YOUR_NAME join #{group.alias}"
           sent << name
         else
-          reply "Could not find a registered user '#{name}' for your invitation."
+          not_found << name unless not_found.include? name
         end
       end
     end
 
     if joined.present?
-      if joined.length == 1
+      if joined.one?
         reply "#{joined.first} is now a member of group #{group.alias}."
       else
-        reply "#{joined.join ','} are all now memberb of group #{group.alias}."
+        reply "#{joined.join ','} are all now members of group #{group.alias}."
       end
     end
-    reply "Invitation/s sent to #{sent.join(', ')}" if sent.present?
+    if not_found.present?
+      if not_found.one?
+        reply "Could not find a registered user '#{not_found.first}' for your invitation."
+      else
+        users = not_found.map{|x| "'#{x}'"}.join ', '
+        reply "Could not find registered users #{users} for your invitation."
+      end
+    end
+    if invited_self
+      reply "You can't invite yourself."
+    end
+    if sent.present?
+      reply "Invitation/s sent to #{sent.join(', ')}"
+    end
   end
 
   def process_join(node)
