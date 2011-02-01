@@ -118,4 +118,21 @@ class OwnerTest < PipelineTest
     send_message 1, "owner User2"
     assert_messages_sent_to 1, "User2 is already an owner in group Group1."
   end
+
+  test "add group self owner" do
+    create_users 1
+
+    send_message 1, "create Group1"
+    send_message 1, "owner User1"
+    assert_messages_sent_to 1, "You are already an owner of group Group1."
+  end
+
+  test "add group self not owner" do
+    create_users 1, 2
+
+    send_message 1, "create Group1"
+    send_message 2, "join Group1"
+    send_message 2, "owner User2"
+    assert_messages_sent_to 2, "Nice try :-P"
+  end
 end

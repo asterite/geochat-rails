@@ -420,8 +420,16 @@ class Pipeline
       return reply "The user #{user.login} does not belong to group #{group.alias}."
     end
 
-    if !current_user.is_owner_of(group)
-      return reply "You can't set #{user.login} as an owner of #{group.alias} because you are not an owner."
+    if current_user.is_owner_of(group)
+      if user == current_user
+        return reply "You are already an owner of group #{group.alias}."
+      end
+    else
+      if user == current_user
+        return reply "Nice try :-P"
+      else
+        return reply "You can't set #{user.login} as an owner of #{group.alias} because you are not an owner."
+      end
     end
 
     if membership.role == :owner
