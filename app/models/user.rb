@@ -1,3 +1,5 @@
+require 'digest/sha1'
+
 class User < ActiveRecord::Base
   has_many :channels, :dependent => :destroy
   has_many :memberships, :dependent => :destroy
@@ -5,11 +7,12 @@ class User < ActiveRecord::Base
 
   validates :login, :presence => true
   validates :login_downcase, :presence => true, :uniqueness => true
-  validates :password, :presence => true, :if => proc {|u| !u.created_from_invite? }
+  validates :password, :presence => true, :if => proc {|u| !u.created_from_invite?}
 
   belongs_to :default_group, :class_name => 'Group'
   before_validation :update_login_downcase
   before_save :update_location_reported_at
+  before_save :encode_password, :if => proc{|u| u.password_changed?}
 
   def self.find_by_login(login)
     self.find_by_login_downcase login.downcase
@@ -36,7 +39,12 @@ class User < ActiveRecord::Base
   end
 
   def self.authenticate(login, password)
-    User.where('login = ? and password = ?', login, password).first
+    user = User.find_by_login login
+    return nil unless user
+
+    salt = user.password[0 .. 24]
+    encoded_password = self.hash salt, password
+    encoded_password == user.password[24 .. -1] ? user : nil
   end
 
   def create_group(options = {})
@@ -128,5 +136,16 @@ class User < ActiveRecord::Base
 
   def update_login_downcase
     self.login_downcase = self.login.downcase
+  end
+
+  def encode_password
+    salt = ActiveSupport::SecureRandom.base64(16)
+    encoded_password = self.class.hash salt, self.password
+    self.password = "#{salt}#{encoded_password}"
+  end
+
+  def self.hash(salt, password)
+    decoded_salt = ActiveSupport::Base64.decode64 salt
+    ActiveSupport::Base64.encode64(Digest::SHA1.digest(decoded_salt + Iconv.conv('ucs-2le', 'utf-8', password))).strip
   end
 end

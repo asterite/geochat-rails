@@ -40,6 +40,11 @@ class UserTest < ActiveSupport::TestCase
     assert_nil User.authenticate(user.login, 'baz')
   end
 
+  test "authenticate is backwards compatible" do
+    User.connection.execute "INSERT INTO users (login, login_downcase, password) VALUES ('foo', 'foo', 'pStSHcCz+3lC2VIxqxS7jw==9ygzFIg1bJ4MxEMZkyYqTijrVWk=')"
+    assert_not_nil User.authenticate 'foo', 'manzana'
+  end
+
   test "to json" do
     user = User.make
     assert_equal({
