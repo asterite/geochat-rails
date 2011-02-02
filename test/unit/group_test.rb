@@ -21,6 +21,15 @@ class GroupTest < ActiveSupport::TestCase
     assert_equal 0, Membership.count
   end
 
+  test "destroys dependent messages" do
+    group = Group.make
+    Message.make :group => group
+
+    group.destroy
+
+    assert_equal 0, Message.count
+  end
+
   test "to json" do
     group = Group.make
     assert_equal({

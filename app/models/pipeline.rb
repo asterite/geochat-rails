@@ -147,7 +147,7 @@ class Pipeline
     group = node.fix_group || default_group({
       :no_default_group_message => "You must specify a group to invite the users to, or set a default group.",
     })
-    return if not group
+    return unless group
 
     sent = []
     joined = []
@@ -722,12 +722,12 @@ class Pipeline
   end
 
   def turn_on_current_channel_if_needed(node)
-    if !node.is_a?(OnNode) && !node.is_a?(OffNode) && current_channel && current_channel.status == :off
-      current_channel.status = :on
-      current_channel.save!
+    return if node.is_a?(OnNode) || node.is_a?(OffNode) || current_channel.try(:status) != :off
 
-      reply "We have turned on updates on this #{current_channel.protocol_name}. Reply with STOP to turn off. Questions email support@instedd.org."
-    end
+    current_channel.status = :on
+    current_channel.save!
+
+    reply "We have turned on updates on this #{current_channel.protocol_name}. Reply with STOP to turn off. Questions email support@instedd.org."
   end
 
   def update_current_user_location_to(location)
