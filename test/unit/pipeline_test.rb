@@ -67,16 +67,17 @@ class PipelineTest < ActiveSupport::TestCase
     address = *address
     address.each do |a|
       a = "sms://#{a}" if a.is_a?(Integer)
-      actual = @pipeline.messages[a]
+      actual = @pipeline.messages.select{|x| x[:to] == a}
       msgs = *msgs
-      assert_equal msgs, actual, "Mismatched messages to #{a}"
+      expected = msgs.map{|x| {:to => a, :body => x}}
+      assert_equal expected, actual, "Mismatched messages to #{a}"
     end
   end
 
   def assert_no_messages_sent_to(*address)
     address.each do |a|
       a = "sms://#{a}" if a.is_a?(Integer)
-      actual = @pipeline.messages[a]
+      actual = @pipeline.messages.select{|x| x[:to] == a}
       assert actual.empty?
     end
   end

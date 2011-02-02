@@ -10,9 +10,9 @@ class Pipeline
   # :body => the content of the message
   #
   # After processing a message you can see the results by
-  # accessing Pipeline#messages, which is a hash whose
-  # key is an address and value is the content of the message
-  # to be sent as a result of processing the input message.
+  # accessing Pipeline#messages, which is an array of hashes
+  # with keys :to, :body and so on, which are messages
+  # that were generated from the input message.
   #
   # Pipeline#saved_message will be a hash containing the description
   # of the message just sent (if it wasn't a command).
@@ -23,7 +23,7 @@ class Pipeline
     @protocol, @address2 = @address.split "://"
     @channel = nil
     @message = message
-    @messages = Hash.new{|h, k| h[k] = []}
+    @messages = []
     @saved_message = nil
 
     node = Parser.parse(message[:body], self, :parse_signup_and_join => !current_user)
@@ -38,14 +38,10 @@ class Pipeline
   def get_target(name)
     if current_user
       group = current_user.groups.find_by_alias(name)
-      if group
-        return GroupTarget.new(name, :group => group) if group
-      end
+      return GroupTarget.new(name, :group => group) if group
 
       invite = Invite.joins(:group).where('user_id = ? and groups.alias = ?', current_user.id, name).first
-      if invite
-        return GroupTarget.new(name, :group => invite.group, :invite => invite)
-      end
+      return GroupTarget.new(name, :group => invite.group, :invite => invite) if invite
     end
 
     nil
@@ -195,7 +191,7 @@ class Pipeline
       else
         if name.integer?
           current_user.invite name, :to => group
-          send_message_to_address "sms://#{name}", "Welcome to GeoChat's group #{group.alias}. Tell us your name and join the group by sending: YOUR_NAME join #{group.alias}"
+          send_message :to => "sms://#{name}", :body => "Welcome to GeoChat's group #{group.alias}. Tell us your name and join the group by sending: YOUR_NAME join #{group.alias}"
           sent << name
         else
           not_found << name unless not_found.include? name
@@ -679,7 +675,7 @@ class Pipeline
   end
 
   def reply(msg)
-    @messages[@address] << msg
+    send_message :to => @address, :body => msg
   end
 
   def notify_join_request(group)
@@ -720,11 +716,11 @@ class Pipeline
   end
 
   def send_message_to_channel(channel, msg)
-    send_message_to_address channel.full_address, msg
+    send_message :to => channel.full_address, :body => msg
   end
 
-  def send_message_to_address(address, msg)
-    @messages[address] << msg
+  def send_message(options = {})
+    @messages << options
   end
 
   def turn_on_current_channel_if_needed(node)
