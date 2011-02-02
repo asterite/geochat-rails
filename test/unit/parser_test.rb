@@ -183,6 +183,7 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_login "(username password", :login => 'username', :password => 'password'
   it_parses_login "( username password", :login => 'username', :password => 'password'
   it_parses_login "( @username password", :login => 'username', :password => 'password'
+  it_parses_message "(username password hello", :body => :unchanged
 
   it_parses_logout "logout"
   it_parses_logout "lOgOuT"
@@ -199,6 +200,7 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_logout "#bye"
   it_parses_logout "#lo"
   it_parses_logout ")"
+  it_parses_message ") hello", :body => :unchanged
 
   it_parses_on "on"
   it_parses_on "start"
