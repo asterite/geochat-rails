@@ -127,8 +127,7 @@ class Pipeline
     current_channel.status = :off
     current_channel.save!
 
-    # TODO fix this message to be the original message
-    reply "GeoChat Alerts. You sent '#{@message[:body].strip}' and we have turned off SMS updates to this phone. Reply with START to turn back on. Questions email support@instedd.org."
+    reply "GeoChat Alerts. You sent '#{@message[:body].strip}' and we have turned off updates on this #{current_channel.protocol_name}. Reply with START to turn back on. Questions email support@instedd.org."
   end
 
   def process_on(node)
@@ -139,8 +138,7 @@ class Pipeline
       current_channel.save!
     end
 
-    # TODO fix this message to be the original message
-    reply "You sent '#{@message[:body].strip}' and we have turned on SMS mobile updates to this phone. Reply with STOP to turn off. Questions email support@instedd.org."
+    reply "You sent '#{@message[:body].strip}' and we have turned on updates on this #{current_channel.protocol_name}. Reply with STOP to turn off. Questions email support@instedd.org."
   end
 
   def process_invite(node)
@@ -728,7 +726,7 @@ class Pipeline
       current_channel.status = :on
       current_channel.save!
 
-      reply "We have turned on SMS mobile updates to this phone. Reply with STOP to turn off. Questions email support@instedd.org."
+      reply "We have turned on updates on this #{current_channel.protocol_name}. Reply with STOP to turn off. Questions email support@instedd.org."
     end
   end
 

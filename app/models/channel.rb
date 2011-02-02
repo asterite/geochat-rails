@@ -1,4 +1,11 @@
 class Channel < ActiveRecord::Base
+  ProtocolNames = {
+    'mailto' => 'email',
+    'sms' => 'phone',
+    'twitter' => 'twitter',
+    'xmpp' => 'instant messenger'
+  }
+
   belongs_to :user
 
   def status
@@ -7,5 +14,9 @@ class Channel < ActiveRecord::Base
 
   def full_address
     "#{protocol}://#{address}"
+  end
+
+  def protocol_name
+    Channel::ProtocolNames[self.protocol]
   end
 end
