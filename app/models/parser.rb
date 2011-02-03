@@ -358,6 +358,13 @@ class Parser < StringScanner
       return LanguageNode.new :name => self[1].strip
     end
 
+    # Unknown command
+    if scan /^\s*(#|\.)+\s*(\S+)\s*(?:.+?)?$/i
+      trigger = self[1][0]
+      command = self[2]
+      return UnknownCommandNode.new :trigger => trigger, :command => command
+    end
+
     MessageNode.new options.merge(:body => string)
   end
 
@@ -641,6 +648,12 @@ end
 
 class PingNode < Node
   attr_accessor :text
+end
+
+class UnknownCommandNode < Node
+  attr_accessor :trigger
+  attr_accessor :command
+  attr_accessor :suggestion
 end
 
 class Target

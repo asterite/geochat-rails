@@ -87,6 +87,10 @@ class ParserTest < ActiveSupport::TestCase
     it_parses_node string, PingNode, options
   end
 
+  def self.it_parses_unknown_command(string, options = {})
+    it_parses_node string, UnknownCommandNode, options
+  end
+
   def self.it_parses_message(string, options = {})
     test "parses message #{string}" do
       node = parse(string)
@@ -676,5 +680,8 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "? whereis", :node => WhereIsNode
   it_parses_help "my help", :node => MyNode
   it_parses_help "help my", :node => MyNode
+
+  it_parses_unknown_command "#my_password", :trigger => '#', :command => 'my_password'
+  it_parses_unknown_command ".my_password", :trigger => '.', :command => 'my_password'
 
 end

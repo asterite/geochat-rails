@@ -647,6 +647,12 @@ class Pipeline
     end
   end
 
+  KnownCommands = ['ping', 'name', 'login', 'iam', 'logout', 'logoff', 'bye', 'on', 'start', 'off', 'stop', 'create', 'creategroup', 'cg', 'invite', 'join', 'leave', 'block', 'owner', 'my groups', 'my group', 'my name', 'my email', 'my number', 'my phone', 'my phonenumber', 'my mobile', 'my mobilenumber', 'my location', 'my login', 'my password', 'whois', 'whereis', 'lang', 'at', 'help']
+  def process_unknown_command(node)
+    candidate = KnownCommands.min_by {|x| x.levenshtein node.command}
+    reply "Unknown command #{node.trigger}#{node.command}. Maybe you meant to send: #{node.trigger}#{candidate}"
+  end
+
   def join(user, group)
     user.join group
     if user.memberships.count > 1

@@ -2,7 +2,7 @@ GeochatRails::Application.routes.draw do
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
-  match "nuntium/receive_at" => "nuntium#receive_at"
+  match "/nuntium/receive_at" => "nuntium#receive_at"
 
   match "/api/users/create/:login" => "api#create_user"
   match "/api/users/:login" => "api#user"
