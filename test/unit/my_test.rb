@@ -182,27 +182,33 @@ class MyTest < PipelineTest
   test "get my location" do
     create_users 1
 
-    Geocoder.expects(:locate).with('Paris').returns({:lat => 10.2, :lon => 30.4, :location => 'Paris, France'})
+    expect_locate 'Paris', 10.2, 30.4, 'Paris, France'
+    expect_bitly_google_maps 10.2, 30.4, 'http://short.url'
+
     send_message 1, "at Paris"
     send_message 1, "#my location"
-    assert_messages_sent_to 1, "You said you was in Paris, France (lat: 10.2, lon: 30.4) less than a minute ago."
+    assert_messages_sent_to 1, "You said you was in Paris, France (lat: 10.2, lon: 30.4, url: http://short.url) less than a minute ago."
   end
 
   test "set my location with place" do
     create_users 1
 
-    Geocoder.expects(:locate).with('Paris').returns({:lat => 10.2, :lon => 30.4, :location => 'Paris, France'})
+    expect_locate 'Paris', 10.2, 30.4, 'Paris, France'
+    expect_bitly_google_maps 10.2, 30.4, 'http://short.url'
+
     send_message 1, "#my location Paris"
-    assert_messages_sent_to 1, "Your location was successfully updated to Paris, France (lat: 10.2, lon: 30.4)"
+    assert_messages_sent_to 1, "Your location was successfully updated to Paris, France (lat: 10.2, lon: 30.4, url: http://short.url)"
     assert_user_location "User1", "Paris, France", 10.2, 30.4
   end
 
   test "set my location with coords" do
     create_users 1
 
-    Geocoder.expects(:reverse).with([10.2, 30.4]).returns('Paris')
+    expect_reverse 10.2, 30.4, 'Paris'
+    expect_bitly_google_maps 10.2, 30.4, 'http://short.url'
+
     send_message 1, "#my location 10.2, 30.4"
-    assert_messages_sent_to 1, "Your location was successfully updated to Paris (lat: 10.2, lon: 30.4)"
+    assert_messages_sent_to 1, "Your location was successfully updated to Paris (lat: 10.2, lon: 30.4, url: http://short.url)"
     assert_user_location "User1", "Paris", 10.2, 30.4
   end
 

@@ -9,12 +9,14 @@ class LocationTest < PipelineTest
     send_message 1, "create Group1"
     send_message 2..4, "join Group1"
 
-    Geocoder.expects(:locate).with('Paris').returns({:lat => 48.856667, :lon => 2.350987, :location => 'Paris, France'})
+    expect_locate 'Paris', 48.856667, 2.350987, 'Paris, France'
+    expect_bitly_google_maps 48.856667, 2.350987, 'http://short.url'
+
     send_message 1, "at Paris"
-    assert_messages_sent_to 1, "Your location was successfully updated to Paris, France (lat: 48.856667, lon: 2.350987)"
-    assert_messages_sent_to 2..4, "User1: at Paris, France (lat: 48.856667, lon: 2.350987)"
+    assert_messages_sent_to 1, "Your location was successfully updated to Paris, France (lat: 48.856667, lon: 2.350987, url: http://short.url)"
+    assert_messages_sent_to 2..4, "User1: at Paris, France (lat: 48.856667, lon: 2.350987, url: http://short.url)"
     assert_user_location "User1", "Paris, France", 48.856667, 2.350987
-    assert_message_saved_with_location "User1", "Group1", "at Paris, France (lat: 48.856667, lon: 2.350987)", "Paris, France", 48.856667, 2.350987
+    assert_message_saved_with_location "User1", "Group1", "at Paris", "Paris, France", 48.856667, 2.350987
   end
 
   test "place with message" do
@@ -23,12 +25,14 @@ class LocationTest < PipelineTest
     send_message 1, "create Group1"
     send_message 2..4, "join Group1"
 
-    Geocoder.expects(:locate).with('Paris').returns({:lat => 48.856667, :lon => 2.350987, :location => 'Paris, France'})
+    expect_locate 'Paris', 48.856667, 2.350987, 'Paris, France'
+    expect_bitly_google_maps 48.856667, 2.350987, 'http://short.url'
+
     send_message 1, "/Paris/ Hello!"
-    assert_messages_sent_to 1, "Your location was successfully updated to Paris, France (lat: 48.856667, lon: 2.350987)"
-    assert_messages_sent_to 2..4, "User1: Hello! (at Paris, France, lat: 48.856667, lon: 2.350987)"
+    assert_messages_sent_to 1, "Your location was successfully updated to Paris, France (lat: 48.856667, lon: 2.350987, url: http://short.url)"
+    assert_messages_sent_to 2..4, "User1: Hello! (at Paris, France, lat: 48.856667, lon: 2.350987, url: http://short.url)"
     assert_user_location "User1", "Paris, France", 48.856667, 2.350987
-    assert_message_saved_with_location "User1", "Group1", "Hello! (at Paris, France, lat: 48.856667, lon: 2.350987)", "Paris, France", 48.856667, 2.350987
+    assert_message_saved_with_location "User1", "Group1", "Hello!", "Paris, France", 48.856667, 2.350987
   end
 
   ['at 48.856667 2.350987', 'at 48.856667, 2.350987'].each do |msg|
@@ -38,12 +42,14 @@ class LocationTest < PipelineTest
       send_message 1, "create Group1"
       send_message 2..4, "join Group1"
 
-      Geocoder.expects(:reverse).with([48.856667, 2.350987]).returns("Paris")
+      expect_reverse 48.856667, 2.350987, 'Paris'
+      expect_bitly_google_maps 48.856667, 2.350987, 'http://short.url'
+
       send_message 1, msg
-      assert_messages_sent_to 1, "Your location was successfully updated to Paris (lat: 48.856667, lon: 2.350987)"
-      assert_messages_sent_to 2..4, "User1: at Paris (lat: 48.856667, lon: 2.350987)"
+      assert_messages_sent_to 1, "Your location was successfully updated to Paris (lat: 48.856667, lon: 2.350987, url: http://short.url)"
+      assert_messages_sent_to 2..4, "User1: at Paris (lat: 48.856667, lon: 2.350987, url: http://short.url)"
       assert_user_location "User1", "Paris", 48.856667, 2.350987
-      assert_message_saved_with_location "User1", "Group1", "at Paris (lat: 48.856667, lon: 2.350987)", "Paris", 48.856667, 2.350987
+      assert_message_saved_with_location "User1", "Group1", 'at 48.856667, 2.350987', "Paris", 48.856667, 2.350987
     end
 
     test "lat/lon with message #{msg}" do
@@ -52,12 +58,14 @@ class LocationTest < PipelineTest
       send_message 1, "create Group1"
       send_message 2..4, "join Group1"
 
-      Geocoder.expects(:reverse).with([48.856667, 2.350987]).returns("Paris")
+      expect_reverse 48.856667, 2.350987, 'Paris'
+      expect_bitly_google_maps 48.856667, 2.350987, 'http://short.url'
+
       send_message 1, "#{msg} Hello!"
-      assert_messages_sent_to 1, "Your location was successfully updated to Paris (lat: 48.856667, lon: 2.350987)"
-      assert_messages_sent_to 2..4, "User1: Hello! (at Paris, lat: 48.856667, lon: 2.350987)"
+      assert_messages_sent_to 1, "Your location was successfully updated to Paris (lat: 48.856667, lon: 2.350987, url: http://short.url)"
+      assert_messages_sent_to 2..4, "User1: Hello! (at Paris, lat: 48.856667, lon: 2.350987, url: http://short.url)"
       assert_user_location "User1", "Paris", 48.856667, 2.350987
-      assert_message_saved_with_location "User1", "Group1", "Hello! (at Paris, lat: 48.856667, lon: 2.350987)", "Paris", 48.856667, 2.350987
+      assert_message_saved_with_location "User1", "Group1", "Hello!", "Paris", 48.856667, 2.350987
     end
 
     test "lat/lon to group #{msg}" do
@@ -66,12 +74,14 @@ class LocationTest < PipelineTest
       send_message 1, "create Group1"
       send_message 2..4, "join Group1"
 
-      Geocoder.expects(:reverse).with([48.856667, 2.350987]).returns("Paris")
+      expect_reverse 48.856667, 2.350987, 'Paris'
+      expect_bitly_google_maps 48.856667, 2.350987, 'http://short.url'
+
       send_message 1, "Group1 #{msg}"
-      assert_messages_sent_to 1, "Your location was successfully updated to Paris (lat: 48.856667, lon: 2.350987)"
-      assert_messages_sent_to 2..4, "User1: at Paris (lat: 48.856667, lon: 2.350987)"
+      assert_messages_sent_to 1, "Your location was successfully updated to Paris (lat: 48.856667, lon: 2.350987, url: http://short.url)"
+      assert_messages_sent_to 2..4, "User1: at Paris (lat: 48.856667, lon: 2.350987, url: http://short.url)"
       assert_user_location "User1", "Paris", 48.856667, 2.350987
-      assert_message_saved_with_location "User1", "Group1", "at Paris (lat: 48.856667, lon: 2.350987)", "Paris", 48.856667, 2.350987
+      assert_message_saved_with_location "User1", "Group1", 'at 48.856667, 2.350987', "Paris", 48.856667, 2.350987
     end
 
     test "lat/lon to group with message #{msg}" do
@@ -80,12 +90,14 @@ class LocationTest < PipelineTest
       send_message 1, "create Group1"
       send_message 2..4, "join Group1"
 
-      Geocoder.expects(:reverse).with([48.856667, 2.350987]).returns("Paris")
+      expect_reverse 48.856667, 2.350987, 'Paris'
+      expect_bitly_google_maps 48.856667, 2.350987, 'http://short.url'
+
       send_message 1, "Group1 #{msg} Hello!"
-      assert_messages_sent_to 1, "Your location was successfully updated to Paris (lat: 48.856667, lon: 2.350987)"
-      assert_messages_sent_to 2..4, "User1: Hello! (at Paris, lat: 48.856667, lon: 2.350987)"
+      assert_messages_sent_to 1, "Your location was successfully updated to Paris (lat: 48.856667, lon: 2.350987, url: http://short.url)"
+      assert_messages_sent_to 2..4, "User1: Hello! (at Paris, lat: 48.856667, lon: 2.350987, url: http://short.url)"
       assert_user_location "User1", "Paris", 48.856667, 2.350987
-      assert_message_saved_with_location "User1", "Group1", "Hello! (at Paris, lat: 48.856667, lon: 2.350987)", "Paris", 48.856667, 2.350987
+      assert_message_saved_with_location "User1", "Group1", "Hello!", "Paris", 48.856667, 2.350987
     end
   end
 
@@ -96,6 +108,7 @@ class LocationTest < PipelineTest
     send_message 2..4, "join Group1"
 
     Geocoder.expects(:locate).with('Paris').returns(nil)
+
     send_message 1, "at Paris"
     assert_messages_sent_to 1, "The location 'Paris' could not be found on the map."
     assert_messages_sent_to 2..4, "User1: at Paris"
@@ -109,6 +122,7 @@ class LocationTest < PipelineTest
     send_message 2..4, "join Group1"
 
     Geocoder.expects(:locate).with('Paris').returns(nil)
+
     send_message 1, "at Paris * Hello"
     assert_messages_sent_to 1, "The location 'Paris' could not be found on the map."
     assert_messages_sent_to 2..4, "User1: at Paris * Hello"
@@ -119,7 +133,9 @@ class LocationTest < PipelineTest
     create_users 1
     send_message 1, "create Group1"
 
-    Geocoder.expects(:locate).with('Paris').returns({:lat => 48.856667, :lon => 2.350987, :location => 'Paris, France'})
+    expect_locate 'Paris', 48.856667, 2.350987, 'Paris, France'
+    expect_bitly "http://maps.google.com/?q=48.856667,2.350987", 'http://short.url'
+
     send_message 1, "at Paris"
     send_message 1, "Hello"
     assert_message_saved_with_location "User1", "Group1", "Hello", "Paris, France", 48.856667, 2.350987

@@ -408,7 +408,7 @@ class Pipeline
       return reply "You never reported your location."
     end
 
-    return reply "You said you was in #{current_user.location} (lat: #{current_user.lat}, lon: #{current_user.lon}) #{time_ago_in_words current_user.location_reported_at} ago."
+    return reply "You said you was in #{current_user.location} (#{current_user_location_info}) #{time_ago_in_words current_user.location_reported_at} ago."
   end
 
   def process_my_location=(value)
@@ -511,16 +511,26 @@ class Pipeline
       return reply "You can't send messages to #{group.alias} because it is disabled."
     end
 
+    text_to_send = node.body
+    text_to_save = node.body
+
     if node.location.present?
-      place, coords = update_current_user_location_to node.location
-      if place && coords
-        if node.body.blank?
-          node.body = "at #{place} (lat: #{coords.first}, lon: #{coords.second})"
+      if update_current_user_location_to node.location
+        if text_to_send.blank?
+          text_to_send = "at #{current_user.location} (#{current_user_location_info})"
         else
-          node.body = "#{node.body} (at #{place}, lat: #{coords.first}, lon: #{coords.second})"
+          text_to_send = "#{text_to_send} (at #{current_user.location}, #{current_user_location_info})"
         end
       else
-        node.body = @message[:body]
+        text_to_send = @message[:body]
+      end
+
+      if text_to_save.blank?
+        if node.location.is_a?(String)
+          text_to_save = "at #{node.location}"
+        else
+          text_to_save = "at #{node.location.join ', '}"
+        end
       end
     end
 
@@ -561,21 +571,21 @@ class Pipeline
     end
 
     if user
-      send_message_to_user_in_group user, group, "#{current_user.login} only to you: #{node.body}"
+      send_message_to_user_in_group user, group, "#{current_user.login} only to you: #{text_to_send}"
       if group.forward_owners
-        send_message_to_group_owners group, "#{current_user.login} only to #{user.login}: #{node.body}", :except => user
+        send_message_to_group_owners group, "#{current_user.login} only to #{user.login}: #{text_to_send}", :except => user
       end
     elsif group.chatroom || node.blast
-      send_message_to_group group, "#{current_user.login}: #{node.body}"
+      send_message_to_group group, "#{current_user.login}: #{text_to_send}"
     elsif group.forward_owners
-      send_message_to_group_owners group, "#{current_user.login}: #{node.body}"
+      send_message_to_group_owners group, "#{current_user.login}: #{text_to_send}"
     end
 
     @saved_message = {
       :sender => current_user,
       :group => group,
       :receiver => user,
-      :text => node.body,
+      :text => text_to_save,
       :lat => current_user.lat,
       :lon => current_user.lon,
       :location => current_user.location
@@ -598,7 +608,7 @@ class Pipeline
       return reply "#{user.login} never reported his/her location."
     end
 
-    reply "#{user.login} said he/she was in #{user.location} (lat: #{user.lat}, lon: #{user.lon}) #{time_ago_in_words user.location_reported_at} ago."
+    reply "#{user.login} said he/she was in #{user.location} (#{user_location_info user}) #{time_ago_in_words user.location_reported_at} ago."
   end
 
   def process_who_is(node)
@@ -748,19 +758,22 @@ class Pipeline
         place = result[:location]
       else
         reply "The location '#{location}' could not be found on the map."
-        return nil
+        return false
       end
     else
       place, coords = Geocoder.reverse(location), location
     end
 
+    short_url = Bitly.new_from_config.shorten_url "http://maps.google.com/?q=#{coords.join ','}"
+
     current_user.location = place
     current_user.coords = coords
+    current_user.location_short_url = short_url
     current_user.save!
 
-    reply "Your location was successfully updated to #{place} (lat: #{coords.first}, lon: #{coords.second})"
+    reply "Your location was successfully updated to #{place} (#{current_user_location_info})"
 
-    [place, coords]
+    true
   end
 
   def create_channel_for(user)
@@ -773,6 +786,14 @@ class Pipeline
 
   def current_user
     current_channel.try(:user)
+  end
+
+  def current_user_location_info
+    user_location_info current_user
+  end
+
+  def user_location_info(user)
+    "lat: #{user.lat}, lon: #{user.lon}, url: #{user.location_short_url}"
   end
 
   def default_group(options = {})

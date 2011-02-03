@@ -192,4 +192,22 @@ class PipelineTest < ActiveSupport::TestCase
     group.forward_owners = true
     group.save!
   end
+
+  def expect_locate(name, lat, lon, location)
+    Geocoder.expects(:locate).with(name).returns({:lat => lat, :lon => lon, :location => location})
+  end
+
+  def expect_reverse(lat, lon, location)
+    Geocoder.expects(:reverse).with([lat, lon]).returns(location)
+  end
+
+  def expect_bitly(long_url, short_url)
+    bitly = mock('bitly')
+    bitly.expects(:shorten_url).with(long_url).returns(short_url)
+    Bitly.expects(:new).returns(bitly)
+  end
+
+  def expect_bitly_google_maps(lat, lon, short_url)
+    expect_bitly "http://maps.google.com/?q=#{lat},#{lon}", short_url
+  end
 end

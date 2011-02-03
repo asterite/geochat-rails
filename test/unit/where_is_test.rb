@@ -31,11 +31,13 @@ class WhereIsTest < PipelineTest
     send_message 1, "create Group1"
     send_message 2, "join Group1"
 
-    Geocoder.expects(:reverse).with([10.2, 20.4]).returns("Paris")
+    expect_reverse 10.2, 20.4, 'Paris'
+    expect_bitly_google_maps 10.2, 20.4, 'http://short.url'
+
     send_message 2, "at 10.2, 20.4"
 
     send_message 1, "#whereis User2"
-    assert_messages_sent_to 1, "User2 said he/she was in Paris (lat: 10.2, lon: 20.4) less than a minute ago."
+    assert_messages_sent_to 1, "User2 said he/she was in Paris (lat: 10.2, lon: 20.4, url: http://short.url) less than a minute ago."
   end
 
   test "whereis answers time ago" do
@@ -46,13 +48,15 @@ class WhereIsTest < PipelineTest
     now = Time.now
     Time.stubs :now => (now - 1.hour)
 
-    Geocoder.expects(:reverse).with([10.2, 20.4]).returns("Paris")
+    expect_reverse 10.2, 20.4, 'Paris'
+    expect_bitly_google_maps 10.2, 20.4, 'http://short.url'
+
     send_message 2, "at 10.2, 20.4"
 
     Time.stubs :now => now
 
     send_message 1, "#whereis User2"
-    assert_messages_sent_to 1, "User2 said he/she was in Paris (lat: 10.2, lon: 20.4) about 1 hour ago."
+    assert_messages_sent_to 1, "User2 said he/she was in Paris (lat: 10.2, lon: 20.4, url: http://short.url) about 1 hour ago."
   end
 
   test "whereis self" do

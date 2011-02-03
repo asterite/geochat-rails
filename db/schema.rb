@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110202183124) do
+ActiveRecord::Schema.define(:version => 20110203155258) do
 
   create_table "channels", :force => true do |t|
     t.string   "protocol"
@@ -66,11 +66,12 @@ ActiveRecord::Schema.define(:version => 20110202183124) do
     t.integer  "group_id"
     t.integer  "receiver_id"
     t.string   "text"
-    t.decimal  "lat",         :precision => 10, :scale => 6
-    t.decimal  "lon",         :precision => 10, :scale => 6
+    t.decimal  "lat",                :precision => 10, :scale => 6
+    t.decimal  "lon",                :precision => 10, :scale => 6
     t.string   "location"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "location_short_url"
   end
 
   add_index "messages", ["group_id", "created_at"], :name => "index_messages_on_group_id_and_created_at"
@@ -90,6 +91,7 @@ ActiveRecord::Schema.define(:version => 20110202183124) do
     t.string   "location"
     t.datetime "location_reported_at"
     t.string   "login_downcase"
+    t.string   "location_short_url"
   end
 
   add_index "users", ["login_downcase", "created_from_invite"], :name => "index_users_on_login_downcase_and_created_from_invite"
