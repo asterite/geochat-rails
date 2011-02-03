@@ -198,7 +198,7 @@ class MyTest < PipelineTest
 
     send_message 1, "#my location Paris"
     assert_messages_sent_to 1, "Your location was successfully updated to Paris, France (lat: 10.2, lon: 30.4, url: http://short.url)"
-    assert_user_location "User1", "Paris, France", 10.2, 30.4
+    assert_user_location "User1", "Paris, France", 10.2, 30.4, "http://short.url"
   end
 
   test "set my location with coords" do
@@ -209,7 +209,7 @@ class MyTest < PipelineTest
 
     send_message 1, "#my location 10.2, 30.4"
     assert_messages_sent_to 1, "Your location was successfully updated to Paris (lat: 10.2, lon: 30.4, url: http://short.url)"
-    assert_user_location "User1", "Paris", 10.2, 30.4
+    assert_user_location "User1", "Paris", 10.2, 30.4, "http://short.url"
   end
 
   test "my not logged in" do

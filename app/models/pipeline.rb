@@ -588,7 +588,8 @@ class Pipeline
       :text => text_to_save,
       :lat => current_user.lat,
       :lon => current_user.lon,
-      :location => current_user.location
+      :location => current_user.location,
+      :location_short_url => current_user.location_short_url
     }
   end
 

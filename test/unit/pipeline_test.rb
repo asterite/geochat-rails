@@ -147,11 +147,12 @@ class PipelineTest < ActiveSupport::TestCase
     assert !user.created_from_invite, "Expected user #{user} not to be created from invite"
   end
 
-  def assert_user_location(user, location, lat, lon)
+  def assert_user_location(user, location, lat, lon, short_url)
     user = User.find_by_login user
     assert_in_delta lat, user.lat.to_f, 1e-07
     assert_in_delta lon, user.lon.to_f, 1e-07
     assert_equal location, user.location
+    assert_equal short_url, user.location_short_url
   end
 
   def assert_message_saved(user, group, text)
@@ -163,11 +164,12 @@ class PipelineTest < ActiveSupport::TestCase
     message
   end
 
-  def assert_message_saved_with_location(user, group, text, location, lat, lon)
+  def assert_message_saved_with_location(user, group, text, location, lat, lon, short_url)
     message = assert_message_saved(user, group, text)
     assert_equal location, message[:location]
     assert_in_delta lat, message[:lat], 1e-07
     assert_in_delta lon, message[:lon], 1e-07
+    assert_equal short_url, message[:location_short_url]
   end
 
   def create_users(*args)
