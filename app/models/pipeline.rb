@@ -562,7 +562,7 @@ class Pipeline
       end
     end
 
-    if !group.users.include?(current_user)
+    if !current_user.belongs_to(group)
       if group.requires_aproval_to_join
         return reply "You can not send messages to the group #{group.alias} because you are not a member or the group requires approval to join. To request an invitation send: join #{group.alias}"
       else
