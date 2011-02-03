@@ -761,11 +761,13 @@ class Pipeline
         reply "The location '#{location}' could not be found on the map."
         return false
       end
+
+      short_url = Bitly.new_from_config.shorten_url "http://maps.google.com/?q=#{CGI.escape place}"
     else
       place, coords = Geocoder.reverse(location), location
+      short_url = Bitly.new_from_config.shorten_url "http://maps.google.com/?q=#{coords.join ','}"
     end
 
-    short_url = Bitly.new_from_config.shorten_url "http://maps.google.com/?q=#{coords.join ','}"
 
     current_user.location = place
     current_user.coords = coords

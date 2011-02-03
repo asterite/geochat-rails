@@ -209,7 +209,13 @@ class PipelineTest < ActiveSupport::TestCase
     Bitly.expects(:new).returns(bitly)
   end
 
-  def expect_bitly_google_maps(lat, lon, short_url)
-    expect_bitly "http://maps.google.com/?q=#{lat},#{lon}", short_url
+  def expect_bitly_google_maps(*params)
+    if params.length == 3
+      expect_bitly "http://maps.google.com/?q=#{params[0]},#{params[1]}", params[2]
+    elsif params.length == 2
+      expect_bitly "http://maps.google.com/?q=#{CGI.escape params[0]}", params[1]
+    else
+      raise "Expected 2 or 3 params for expect_bitly_google_maps"
+    end
   end
 end

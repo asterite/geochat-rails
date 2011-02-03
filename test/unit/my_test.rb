@@ -183,7 +183,7 @@ class MyTest < PipelineTest
     create_users 1
 
     expect_locate 'Paris', 10.2, 30.4, 'Paris, France'
-    expect_bitly_google_maps 10.2, 30.4, 'http://short.url'
+    expect_bitly_google_maps 'Paris, France', 'http://short.url'
 
     send_message 1, "at Paris"
     send_message 1, "#my location"
@@ -194,7 +194,7 @@ class MyTest < PipelineTest
     create_users 1
 
     expect_locate 'Paris', 10.2, 30.4, 'Paris, France'
-    expect_bitly_google_maps 10.2, 30.4, 'http://short.url'
+    expect_bitly_google_maps 'Paris, France', 'http://short.url'
 
     send_message 1, "#my location Paris"
     assert_messages_sent_to 1, "Your location was successfully updated to Paris, France (lat: 10.2, lon: 30.4, url: http://short.url)"
