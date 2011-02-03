@@ -360,7 +360,7 @@ class Parser < StringScanner
 
     # Unknown command
     if scan /^\s*(#|\.)+\s*(\S+)\s*(?:.+?)?$/i
-      trigger = self[1][0]
+      trigger = self[1][0 ... 1]
       command = self[2]
       return UnknownCommandNode.new :trigger => trigger, :command => command
     end
