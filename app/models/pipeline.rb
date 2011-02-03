@@ -794,7 +794,11 @@ class Pipeline
   end
 
   def user_location_info(user)
-    "lat: #{user.lat}, lon: #{user.lon}, url: #{user.location_short_url}"
+    str = "lat: #{user.lat}, lon: #{user.lon}"
+    if user.location_short_url.present?
+      str << ", url: #{user.location_short_url}"
+    end
+    str
   end
 
   def default_group(options = {})
