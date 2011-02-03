@@ -12,6 +12,10 @@ class Channel < ActiveRecord::Base
     self.attributes['status'].try(:to_sym)
   end
 
+  def active?
+    self.status == :on
+  end
+
   def full_address
     "#{protocol}://#{address}"
   end

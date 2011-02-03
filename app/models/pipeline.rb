@@ -22,6 +22,7 @@ class Pipeline
     @address = message[:from]
     @protocol, @address2 = @address.split "://"
     @channel = nil
+    @channel_initialized = false
     @message = message
     @messages = []
     @saved_message = nil
@@ -75,7 +76,8 @@ class Pipeline
       user = User.create! :login => login, :password => password, :display_name => node.display_name
     end
 
-    channel = create_channel_for user
+    @channel = create_channel_for user
+    @channel_initialized = true
     reply "Welcome #{user.display_name} to GeoChat! Send HELP for instructions. http://geochat.instedd.org"
     reply "Remember you can log in to http://geochat.instedd.org by entering your login (#{login}) and the following password: #{password}"
 
@@ -703,7 +705,7 @@ class Pipeline
   end
 
   def send_message_to_group(group, msg)
-    group.users.reject{|x| x.id == current_user.id}.each do |user|
+    group.users.includes(:channels).reject{|x| x.id == current_user.id}.each do |user|
       send_message_to_user_in_group user, group, msg
     end
   end
@@ -784,7 +786,11 @@ class Pipeline
   end
 
   def current_channel
-    @channel ||= Channel.find_by_protocol_and_address @protocol, @address2
+    if !@channel_initialized
+      @channel = Channel.find_by_protocol_and_address @protocol, @address2
+      @channel_initialized = true
+    end
+    @channel
   end
 
   def current_user
@@ -807,7 +813,7 @@ class Pipeline
     group = current_user.default_group
     return group if group
 
-    groups = current_user.groups
+    groups = current_user.groups.to_a
     if groups.empty?
       reply_dont_belong_to_any_group
     elsif groups.length == 1

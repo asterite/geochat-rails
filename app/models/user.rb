@@ -38,12 +38,16 @@ class User < ActiveRecord::Base
     user
   end
 
+  def self.find_by_login_and_created_from_invite(login, created_from_invite)
+    self.find_by_login_downcase_and_created_from_invite login, created_from_invite
+  end
+
   def self.authenticate(login, password)
     user = User.find_by_login login
     return nil unless user
 
     salt = user.password[0 .. 24]
-    encoded_password = self.hash salt, password
+    encoded_password = self.hash_password salt, password
     encoded_password == user.password[24 .. -1] ? user : nil
   end
 
@@ -103,16 +107,20 @@ class User < ActiveRecord::Base
     self.lat && self.lon
   end
 
-  def active_channels
-    self.channels.where('status = ?', :on)
-  end
-
   def sms_channel
     self.channels.where(:protocol => 'sms').first
   end
 
   def email_channel
     self.channels.where(:protocol => 'mailto').first
+  end
+
+  def active_channels
+    if self.channels.loaded?
+      self.channels.select &:active?
+    else
+      self.channels.where('status = ?', :on)
+    end
   end
 
   def as_json(options = {})
@@ -140,11 +148,11 @@ class User < ActiveRecord::Base
 
   def encode_password
     salt = ActiveSupport::SecureRandom.base64(16)
-    encoded_password = self.class.hash salt, self.password
+    encoded_password = self.class.hash_password salt, self.password
     self.password = "#{salt}#{encoded_password}"
   end
 
-  def self.hash(salt, password)
+  def self.hash_password(salt, password)
     decoded_salt = ActiveSupport::Base64.decode64 salt
     ActiveSupport::Base64.encode64(Digest::SHA1.digest(decoded_salt + Iconv.conv('ucs-2le', 'utf-8', password))).strip
   end
