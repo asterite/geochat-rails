@@ -386,6 +386,8 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_my ".my password", :key => MyNode::Password, :value => nil
   it_parses_my "#my password something", :key => MyNode::Password, :value => 'something'
   it_parses_my ".my password something", :key => MyNode::Password, :value => 'something'
+  it_parses_my "#my__password", :key => MyNode::Password, :value => nil
+  it_parses_my "#mypassword", :key => MyNode::Password, :value => nil
   # TODO set multiple things at once
 
   it_parses_whois "whois someuser", :user => 'someuser'

@@ -301,37 +301,37 @@ class Parser < StringScanner
     # My
     if scan /^\s*(?:#|\.)*\s*my\s*$/i
       return HelpNode.new :node => MyNode
-    elsif scan /^\s*(?:#|\.)*\s*my\s+(help|\?)\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)(help|\?)\s*$/i
       return HelpNode.new :node => MyNode
-    elsif scan /^\s*(?:#|\.)*\s*my\s+groups\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)groups\s*$/i
       return MyNode.new :key => MyNode::Groups
-    elsif scan /^\s*(?:#|\.)*\s*my\s+(?:group|g)\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)(?:group|g)\s*$/i
       return MyNode.new :key => MyNode::Group
-    elsif scan /^\s*(?:#|\.)*\s*my\s+(?:group|g)\s+(?:@\s*)?(\S+)\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)(?:group|g)\s+(?:@\s*)?(\S+)\s*$/i
       return MyNode.new :key => MyNode::Group, :value => self[1].strip
-    elsif scan /^\s*(?:#|\.)*\s*my\s+name\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)name\s*$/i
       return MyNode.new :key => MyNode::Name
-    elsif scan /^\s*(?:#|\.)*\s*my\s+name\s+(.+?)\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)name\s+(.+?)\s*$/i
       return MyNode.new :key => MyNode::Name, :value => self[1].strip
-    elsif scan /^\s*(?:#|\.)*\s*my\s+email\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)email\s*$/i
       return MyNode.new :key => MyNode::Email
-    elsif scan /^\s*(?:#|\.)*\s*my\s+email\s+(.+?)\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)email\s+(.+?)\s*$/i
       return MyNode.new :key => MyNode::Email, :value => self[1].strip
-    elsif scan /^\s*(?:#|\.)*\s*my\s+(number|phone|phonenumber|phone\s+number|mobile|mobilenumber|mobile\s+number)\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)(number|phone|phonenumber|phone\s+number|mobile|mobilenumber|mobile\s+number)\s*$/i
       return MyNode.new :key => MyNode::Number
-    elsif scan /^\s*(?:#|\.)*\s*my\s+(number|phone|phonenumber|phone\s+number|mobile|mobilenumber|mobile\s+number)\s*(.+?)\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)(number|phone|phonenumber|phone\s+number|mobile|mobilenumber|mobile\s+number)\s*(.+?)\s*$/i
       return MyNode.new :key => MyNode::Number, :value => self[1].strip
-    elsif scan /^\s*(?:#|\.)*\s*my\s+location\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)location\s*$/i
       return MyNode.new :key => MyNode::Location
-    elsif scan /^\s*(?:#|\.)*\s*my\s+location\s+(.+?)\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)location\s+(.+?)\s*$/i
       return MyNode.new :key => MyNode::Location, :value => check_numeric_location(self[1].strip)
-    elsif scan /^\s*(?:#|\.)*\s*my\s+login\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)login\s*$/i
       return MyNode.new :key => MyNode::Login
-    elsif scan /^\s*(?:#|\.)*\s*my\s+login\s+(\S+)\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)login\s+(\S+)\s*$/i
       return MyNode.new :key => MyNode::Login, :value => self[1]
-    elsif scan /^\s*(?:#|\.)*\s*my\s+password\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)password\s*$/i
       return MyNode.new :key => MyNode::Password
-    elsif scan /^\s*(?:#|\.)*\s*my\s+password\s+(\S+)\s*$/i
+    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)password\s+(\S+)\s*$/i
       return MyNode.new :key => MyNode::Password, :value => self[1]
     end
 
