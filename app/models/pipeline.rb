@@ -614,6 +614,10 @@ class Pipeline
     reply 'Block is not yet implemented.'
   end
 
+  def process_lang(node)
+    reply 'Internationalization is not yet implemented'
+  end
+
   def process_help(node)
     case node.node.try(:new)
     when nil
