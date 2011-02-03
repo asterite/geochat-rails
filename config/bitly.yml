@@ -1,0 +1,11 @@
+development:
+  username: foo
+  api_key: foo
+
+production:
+  username: foo
+  api_key: foo
+
+test:
+  username: foo
+  api_key: foo
