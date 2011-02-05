@@ -34,4 +34,18 @@ class CreateGroupTest < PipelineTest
     send_message 1, "create group Group1"
     assert_not_logged_in_message_sent_to 1
   end
+
+  test "create group fails reserved name" do
+    create_users 1
+    send_message 1, "create group bye"
+    assert_messages_sent_to 1, "You cannot create a group named 'bye' because it is a reserved name."
+    assert !Group.find_by_alias('bye')
+  end
+
+  test "create group fails too short" do
+    create_users 1
+    send_message 1, "create group a"
+    assert_messages_sent_to 1, "You cannot create a group named 'a' because it is too short (minimum is 2 characters)."
+    assert !Group.find_by_alias('bye')
+  end
 end

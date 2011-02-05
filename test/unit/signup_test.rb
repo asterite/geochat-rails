@@ -52,6 +52,18 @@ class SignupTest < PipelineTest
     # TODO
   end
 
+  test "signup reserved name" do
+    send_message 1, ".name Who"
+    assert_messages_sent_to 1, "You cannot signup as 'Who' because it is a reserved name."
+    assert_user_doesnt_exist 'who'
+  end
+
+  test "signup name too short" do
+    send_message 1, ".name a"
+    assert_messages_sent_to 1, "You cannot signup as 'a' because it is too short (minimum is 2 characters)."
+    assert_user_doesnt_exist 'a'
+  end
+
   # TODO test signup when already logged in
 
 end

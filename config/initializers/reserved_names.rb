@@ -1,0 +1,1 @@
+ReservedNames = %w(alias block bye cg create email group groups help iam invite join lang leave lo location log login logout logoff mobile my mute name number off on owner password ping phone start stop unblock unmute user wh where whereis who whois wi)
