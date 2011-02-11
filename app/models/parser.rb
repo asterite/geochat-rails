@@ -310,21 +310,13 @@ class Parser < StringScanner
     return node if node
 
     # Owner
-    if scan /^(?:#|\.)*?\s*(?:owner|ow)(\s+(?:help|\?))?\s*$/i
-      return HelpNode.new :node => OwnerNode
-    elsif scan /^(?:#|\.)*?\s*(?:owner|ow)\s+(?:@\s*)?(\S+)$/i
-      return OwnerNode.new :user => self[1]
-    elsif scan /^(?:#|\.)*?\s*(?:owner|ow)\s+(?:@\s*)?(\S+)\s+(?:\+\s*)?(\d+)$/i
-      return OwnerNode.new :user => self[2], :group => self[1]
-    elsif scan /^(?:#|\.)*?\s*(?:owner|ow)\s+(?:@\s*)?(\S+)\s+(?:@\s*)?(\S+)$/i
-      return OwnerNode.new :user => self[1], :group => self[2]
-    elsif scan /^@\s*(\S+)\s*(?:#|\.)*?\s*(?:owner|ow)\s+(\S+)$/i
-      return OwnerNode.new :user => self[2], :group => self[1]
-    elsif scan /^\$\s*(\S+)\s*$/i
-      return OwnerNode.new :user => self[1]
-    elsif scan /^\$\s*(\S+)\s+(\S+)\s*$/i
-      return OwnerNode.new :user => self[1], :group => self[2]
+    node = command OwnerNode do
+      name 'owner', 'ow'
+      name '\$', :space_after_command => false
+      args :user, :spaces_in_args => false
+      args :user, :group, :spaces_in_args => false
     end
+    return node if node
 
     # My
     if scan /^(?:#|\.)*\s*my\s*$/i
@@ -364,11 +356,14 @@ class Parser < StringScanner
     end
 
     # Who is
-    if scan /^(?:#|\.)*\s*(?:whois|wi)(\s+(?:help|\?))?\s*$/i
-      return HelpNode.new :node => WhoIsNode
-    elsif scan /^(?:#|\.)*\s*(?:whois|wi)\s+(?:@\s*)?(.+?)\s*\??\s*$/i
-      return WhoIsNode.new :user => self[1].strip
+    node = command WhoIsNode do
+      name 'whois', 'wi'
+      args :user, :spaces_in_args => false
+      change_args do |args|
+        args[:user] = args[:user][0 .. -2] if args[:user].end_with?('?')
+      end
     end
+    return node if node
 
     # Where is
     if scan /^(?:#|\.)*\s*(?:whereis|wh|w)(\s+(?:help|\?))?\s*$/i

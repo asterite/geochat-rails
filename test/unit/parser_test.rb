@@ -285,7 +285,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_owner "owner someone", :user => 'someone'
   it_parses_owner "owner someone somegroup", :user => 'someone', :group => 'somegroup'
   it_parses_owner "owner 123456 somegroup", :user => '123456', :group => 'somegroup'
-  it_parses_owner "owner somegroup 123456", :user => '123456', :group => 'somegroup'
   it_parses_owner ".owner someone", :user => 'someone'
   it_parses_owner ".ow someone", :user => 'someone'
   it_parses_owner "@somegroup owner someone", :user => 'someone', :group => 'somegroup'
