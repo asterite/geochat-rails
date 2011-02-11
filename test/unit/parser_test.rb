@@ -168,8 +168,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_login "LoGiN username password", :login => 'username', :password => 'password'
   it_parses_login "login 12345 password", :login => '12345', :password => 'password'
   it_parses_login "login 12345.6789 password", :login => '12345.6789', :password => 'password'
-  it_parses_login "login @username password", :login => 'username', :password => 'password'
-  it_parses_login "login @ username password", :login => 'username', :password => 'password'
   it_parses_login "log in username password", :login => 'username', :password => 'password'
   it_parses_login "iam username password", :login => 'username', :password => 'password'
   it_parses_login "i am username password", :login => 'username', :password => 'password'
@@ -186,7 +184,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_login "...iam username password", :login => 'username', :password => 'password'
   it_parses_login "(username password", :login => 'username', :password => 'password'
   it_parses_login "( username password", :login => 'username', :password => 'password'
-  it_parses_login "( @username password", :login => 'username', :password => 'password'
   it_parses_message "(username password hello", :body => :unchanged
 
   it_parses_logout "logout"
@@ -608,7 +605,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "lang help", :node => LanguageNode
   it_parses_help "help lang", :node => LanguageNode
   it_parses_help "help .lang", :node => LanguageNode
-  it_parses_help "help #lang", :node => LanguageNode
   it_parses_help "lang ?", :node => LanguageNode
   it_parses_help ".lang ?", :node => LanguageNode
   it_parses_help "#lang ?", :node => LanguageNode

@@ -770,7 +770,6 @@ class Pipeline
       short_url = Bitly.new_from_config.shorten_url "http://maps.google.com/?q=#{coords.join ','}"
     end
 
-
     current_user.location = place
     current_user.coords = coords
     current_user.location_short_url = short_url
