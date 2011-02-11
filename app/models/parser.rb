@@ -366,11 +366,14 @@ class Parser < StringScanner
     return node if node
 
     # Where is
-    if scan /^(?:#|\.)*\s*(?:whereis|wh|w)(\s+(?:help|\?))?\s*$/i
-      return HelpNode.new :node => WhereIsNode
-    elsif scan /^(?:#|\.)*\s*(?:whereis|wh|w)\s+(?:@\s*)?(.+?)\s*\??\s*$/i
-      return WhereIsNode.new :user => self[1].strip
+    node = command WhereIsNode do
+      name 'whereis', 'wh', 'w'
+      args :user, :spaces_in_args => false
+      change_args do |args|
+        args[:user] = args[:user][0 .. -2] if args[:user].end_with?('?')
+      end
     end
+    return node if node
 
     # Language
     if scan /^(?:#|\.)*\s*(?:lang|_)(\s+(?:help|\?))?\s*$/i
