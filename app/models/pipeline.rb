@@ -61,6 +61,14 @@ class Pipeline
   def process_signup(node)
     return reply "This device already belongs to another user. To dettach it send: bye" if current_channel
 
+    if node.suggested_login.length < 2
+      return reply "You cannot signup as '#{node.suggested_login}' because it is too short (minimum is 2 characters)."
+    end
+
+    if ReservedNames.include?(node.suggested_login.downcase)
+      return reply "You cannot signup as '#{node.suggested_login}' because it is a reserved name."
+    end
+
     login = User.find_suitable_login node.suggested_login
     password = PasswordGenerator.new_password
 
@@ -112,6 +120,14 @@ class Pipeline
 
   def process_create_group(node)
     return reply_not_logged_in unless current_user
+
+    if node.alias.length < 2
+      return reply "You cannot create a group named '#{node.alias}' because it is too short (minimum is 2 characters)."
+    end
+
+    if ReservedNames.include?(node.alias.downcase)
+      return reply "You cannot create a group named '#{node.alias}' because it is a reserved name."
+    end
 
     if Group.find_by_alias(node.alias)
       return reply "The group #{node.alias} already exists. Please specify another alias."
