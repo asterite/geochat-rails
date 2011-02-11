@@ -57,13 +57,12 @@ class Parser < StringScanner
     scan /\s*/
 
     # Ping
-    scan_command 'ping' do
-      return PingNode.new
+    node = command PingNode do
+      name 'ping'
+      args :text, :optional => true
+      help :no
     end
-
-    scan_command 'ping' do |text|
-      return PingNode.new :text => text.strip
-    end
+    return node if node
 
     options = {}
     options[:blast] = check_blast
@@ -77,32 +76,36 @@ class Parser < StringScanner
         rest = StringScanner.new self[3]
 
         if !target.is_a?(UserTarget)
+
           # Invite
-          rest.scan_command 'invite' do |users|
-            return InviteNode.new :group => group, :users => users.split.without_prefix!('+')
+          node = rest.command InviteNode do
+            name 'invite'
+            name 'i', :prefix => :required
+            name '\+', :prefix => :none, :space_after_command => false
+            args :users
+            change_args do |args|
+              args[:group] = group
+              args[:users] = args[:users].split.without_prefix! '+'
+            end
           end
-
-          rest.scan_command 'i', :prefix => :required do |users|
-            return InviteNode.new :group => group, :users => users.split.without_prefix!('+')
-          end
-
-          rest.scan_command '\+', :prefix => :none, :space_after_command => false do |users|
-            return InviteNode.new :users => users.split.without_prefix!('+'), :group => group
-          end
+          return node if node
 
           # Block
-          rest.scan_command 'block', :spaces_in_args => false do |user|
-            return BlockNode.new :group => group, :user => user
+          node = rest.command BlockNode do
+            name 'block'
+            args :user, :spaces_in_args => false
+            change_args{|args| args[:group] = group}
           end
+          return node if node
 
           # Owner
-          rest.scan_command 'owner', 'ow', :spaces_in_args => false do |user|
-            return OwnerNode.new :group => group, :user => user
+          node = rest.command OwnerNode do
+            name 'owner', 'ow', :spaces_in_args => false
+            name '\$', :space_after_command => false
+            args :user
+            change_args{|args| args[:group] = group}
           end
-
-          rest.scan_command '\$', :space_after_command => false, :spaces_in_args => false do |user|
-            return OwnerNode.new :group => group, :user => user
-          end
+          return node if node
         end
 
         while rest.scan /^\s*(@)?\s*(.+?)\s+(.+?)$/i
@@ -115,10 +118,12 @@ class Parser < StringScanner
               options[:targets] << target
               rest = StringScanner.new rest[3]
             else
-              unscan
+              rest.unscan
+              break
             end
           else
-            unscan
+            rest.unscan
+            break
           end
         end
 
@@ -134,45 +139,46 @@ class Parser < StringScanner
     end
 
     # Help
-    scan_command 'help', 'h', '\?' do
-      return HelpNode.new
-    end
-
-    scan_command 'help', 'h', '\?' do |text|
-      text = text[1 .. -1] if text.start_with?('.')
-      case text.downcase
-      when 'owner', 'group owner', 'owner group', 'ow'
-        return HelpNode.new :node => OwnerNode
-      when 'block'
-        return HelpNode.new :node => BlockNode
-      when 'lang', '_'
-        return HelpNode.new :node => LanguageNode
-      when 'create', 'create group', 'creategroup', 'cg', '*'
-        return HelpNode.new :node => CreateGroupNode
-      when  'join', 'join group', 'joingroup', 'j', '>'
-        return HelpNode.new :node => JoinNode
-      when  'leave', 'leave group', 'leavegroup', 'l', '<'
-        return HelpNode.new :node => LeaveNode
-      when 'log in', 'login', 'li', 'i am', 'iam', "i'm", 'im', '('
-        return HelpNode.new :node => LoginNode
-      when 'log out', 'logout', 'log off', 'logoff', 'lo', 'bye', ')'
-        return HelpNode.new :node => LogoutNode
-      when 'stop', 'off'
-        return HelpNode.new :node => OffNode
-      when 'start', 'on'
-        return HelpNode.new :node => OnNode
-      when 'name', 'n', 'signup'
-        return HelpNode.new :node => SignupNode
-      when 'who is', 'whois', 'wh'
-        return HelpNode.new :node => WhoIsNode
-      when 'whereis', 'where is', 'wi', 'w'
-        return HelpNode.new :node => WhereIsNode
-      when 'my'
-        return HelpNode.new :node => MyNode
-      when 'i', 'invite'
-        return HelpNode.new :node => InviteNode
+    node = command HelpNode do
+      name 'help', 'h', '\?'
+      args :node, :optional => true
+      change_args do |args|
+        args[:node] = args[:node][1 .. -1] if args[:node].start_with?('.')
+        args[:node] = case args[:node].downcase
+                      when 'owner', 'group owner', 'owner group', 'ow'
+                        OwnerNode
+                      when 'block'
+                       BlockNode
+                      when 'lang', '_'
+                        LanguageNode
+                      when 'create', 'create group', 'creategroup', 'cg', '*'
+                        CreateGroupNode
+                      when  'join', 'join group', 'joingroup', 'j', '>'
+                        JoinNode
+                      when  'leave', 'leave group', 'leavegroup', 'l', '<'
+                        LeaveNode
+                      when 'log in', 'login', 'li', 'i am', 'iam', "i'm", 'im', '('
+                        LoginNode
+                      when 'log out', 'logout', 'log off', 'logoff', 'lo', 'bye', ')'
+                        LogoutNode
+                      when 'stop', 'off'
+                        OffNode
+                      when 'start', 'on'
+                        OnNode
+                      when 'name', 'n', 'signup'
+                        SignupNode
+                      when 'who is', 'whois', 'wh'
+                        WhoIsNode
+                      when 'whereis', 'where is', 'wi', 'w'
+                        WhereIsNode
+                      when 'my'
+                        MyNode
+                      when 'i', 'invite'
+                        InviteNode
+                      end
       end
     end
+    return node if node
 
     node = parse_message_with_location options
     return node if node
@@ -187,17 +193,15 @@ class Parser < StringScanner
     end
 
     # Signup
-    scan_command 'name', 'n', 'signup', :help => true do
-      return HelpNode.new :node => SignupNode
+    node = command SignupNode do
+      name 'name', 'signup'
+      name 'n', :prefix => :required
+      args :display_name
+      change_args do |args|
+        args[:suggested_login] = args[:display_name].gsub(/\s/, '')
+      end
     end
-
-    scan_command 'name' do |name|
-      return new_signup name
-    end
-
-    scan_command 'n', :prefix => :required do |name|
-      return new_signup name
-    end
+    return node if node
 
     if scan /^'(.+)'?$/i
       str = self[1].strip
@@ -206,82 +210,53 @@ class Parser < StringScanner
     end
 
     # Login
-    scan_command 'login', 'log in', 'li', 'iam', 'i am', "i'm", 'im', '\(', :help => true do
-      return HelpNode.new :node => LoginNode
+    node = command LoginNode do
+      name 'login', 'log in', 'li', 'iam', 'i am', "i'm", 'im'
+      name '\(', :space_after_command => false
+      name 'li', :prefix => :required
+      args :login, :password, :spaces_in_args => false
     end
-
-    scan_command 'login', 'log in', 'li', 'iam', 'i am', "i'm", 'im', :spaces_in_args => false do |login, password|
-      return LoginNode.new :login => login, :password => password
-    end
-
-    scan_command '\(', :space_after_command => false, :spaces_in_args => false do |login, password|
-      return LoginNode.new :login => login, :password => password
-    end
-
-    scan_command 'li', :prefix => :required, :spaces_in_args => false do |login, password|
-      return LoginNode.new :login => login, :password => password
-    end
-
-    scan_command 'im', :spaces_in_args => false do |login|
-      return HelpNode.new :node => LoginNode
-    end
+    return node if node
 
     # Logout
-    scan_command 'logout', 'log out', 'logoff', 'log off', 'bye', '\)', :help => :explicit do
-      return HelpNode.new :node => LogoutNode
+    node = command LogoutNode do
+      name 'logout', 'log out', 'logoff', 'log off', 'bye'
+      name 'lo', :prefix => :required
+      name '\)', :prefix => :none
     end
-
-    scan_command 'logout', 'log out', 'logoff', 'log off', 'bye' do
-      return LogoutNode.new
-    end
-
-    scan_command  'lo', :prefix => :required do
-      return LogoutNode.new
-    end
-
-    scan_command  '\)', :prefix => :none do
-      return LogoutNode.new
-    end
+    return node if node
 
     # On
-    scan_command 'on', 'start', :help => :explicit do
-      return HelpNode.new :node => OnNode
+    node = command OnNode do
+      name 'on', 'start'
+      name '\!', :prefix => :none
     end
-
-    scan_command 'on', 'start' do
-      return OnNode.new
-    end
-
-    scan_command '\!', :prefix => :none do
-      return OnNode.new
-    end
+    return node if node
 
     # Off
-    scan_command 'off', 'stop', :help => :explicit do
-      return HelpNode.new :node => OffNode
+    node = command OffNode do
+      name 'off', 'stop'
+      name '-', :prefix => :none
     end
-
-    scan_command 'off', 'stop' do
-      return OffNode.new
-    end
-
-    scan_command '-', :prefix => :none do
-      return OffNode.new
-    end
+    return node if node
 
     # Create group
-    if scan /^(?:#|\.)*?\s*(?:create\s*group|create|cg|\*)(\s+(help|\?))?\s*$/i
+    scan_command 'create', 'create group', 'creategroup', 'cg', '\*', :help => true do
       return HelpNode.new :node => CreateGroupNode
-    elsif scan /^(?:#|\.)*?\s*(?:create\s*group|create|cg)\s+(?:@\s*)?(.+?)(\s+.+?)?$/i
+    end
+
+    if scan /^(?:#|\.)*?\s*(?:create\s*group|create|cg)\s+(?:@\s*)?(.+?)(\s+.+?)?$/i
       return new_create_group self[1], self[2]
     elsif scan /^\*\s*(?:@\s*)?(.+?)(\s+.+?)?$/i
       return new_create_group self[1], self[2]
     end
 
     # Invite
-    if scan /^(?:invite|\.invite|\#invite|\.i|\#i)(\s+(help|\?))?\s*$/i
+    scan_command 'invite', 'i', :help => true do
       return HelpNode.new :node => InviteNode
-    elsif scan /^(?:invite|\.invite|\#invite|\.i|\#i)\s+\+?(\d+\s+\+?\d+\s+.+?)$/i
+    end
+
+    if scan /^(?:invite|\.invite|\#invite|\.i|\#i)\s+\+?(\d+\s+\+?\d+\s+.+?)$/i
       users = self[1].split.without_prefix! '+'
       return InviteNode.new :users => users
     elsif scan /^(?:invite|\.invite|\#invite|\.i|\#i)\s+\+?(\d+)\s+(?:@\s*)?(.+?)$/i
@@ -309,33 +284,30 @@ class Parser < StringScanner
     end
 
     # Join
-    if scan /^(?:join|join\s*group|\.\s*j|\.\s*join|\#\s*j|\#\s*join|>)(\s+(help|\?))?\s*$/i
-      return HelpNode.new :node => JoinNode
-    elsif scan /^(?:join|join\s*group|\.\s*j|\.\s*join|\#\s*j|\#\s*join)\s+(?:@\s*)?(\S+)$/i
-      return JoinNode.new :group => self[1]
-    elsif scan /^>\s*(?:@\s*)?(\S+)$/i
-      return JoinNode.new :group => self[1]
+    node = command JoinNode do
+      name 'join', 'join group', 'joingroup'
+      name 'j', :prefix => :required
+      name '>', :space_after_command => false
+      args :group, :spaces_in_args => false
     end
+    return node if node
 
     # Leave
-    if scan /^(?:leave|leave\s*group|\.\s*l|\.\s*leave|\#\s*l|\#\s*leave|<)(\s+(help|\?))?\s*$/i
-      return HelpNode.new :node => LeaveNode
-    elsif scan /^(?:leave|leave\s+group|\.\s*l|\.\s*leave|\#\s*l|\#\s*leave)\s+(?:@\s*)?(\S+)$/i
-      return LeaveNode.new :group => self[1]
-    elsif scan /^<\s*(?:@\s*)?(\S+)$/i
-      return LeaveNode.new :group => self[1]
+    node = command LeaveNode do
+      name 'leave', 'leave group', 'leavegroup'
+      name 'l', :prefix => :required
+      name '<', :space_after_command => false
+      args :group, :spaces_in_args => false
     end
+    return node if node
 
     # Block
-    if scan /^(?:#|\.)*?\s*block(\s+(?:help|\?))?\s*$/i
-      return HelpNode.new :node => BlockNode
-    elsif scan /^(?:#|\.)*?\s*block\s+(?:@\s*)?(\S+)$/i
-      return BlockNode.new :user => self[1]
-    elsif scan /^(?:#|\.)*?\s*block\s+(\S+)\s+(\S+)$/i
-      return BlockNode.new :user => self[1], :group => self[2]
-    elsif scan /^@\s*(\S+)\s*(?:#|\.)*?\s*block\s+(\S+)$/i
-      return BlockNode.new :user => self[2], :group => self[1]
+    node = command BlockNode do
+      name 'block'
+      args :user, :spaces_in_args => false
+      args :user, :group, :spaces_in_args => false
     end
+    return node if node
 
     # Owner
     if scan /^(?:#|\.)*?\s*(?:owner|ow)(\s+(?:help|\?))?\s*$/i

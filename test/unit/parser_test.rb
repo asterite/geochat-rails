@@ -27,10 +27,10 @@ class ParserTest < ActiveSupport::TestCase
   def self.it_parses_signup(string, options = {})
     test "parses signup #{string}" do
       node = parse(string)
-      assert node.is_a?(SignupNode)
+      assert node.is_a?(SignupNode), "Expected node to be SignupNode but was #{node.class}"
       assert_equal options[:display_name], node.display_name
       assert_equal options[:suggested_login] || options[:display_name], node.suggested_login
-      assert_equal options[:group], node.group
+      assert_equal options[:group], node.group, "Group expected to be #{options[:group]} but was #{node.group}"
     end
   end
 
@@ -213,8 +213,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_create_group "create 123alias", :alias => '123alias'
   it_parses_create_group "creategroup alias", :alias => 'alias'
   it_parses_create_group "create group alias", :alias => 'alias'
-  it_parses_create_group "create @alias", :alias => 'alias'
-  it_parses_create_group "create @ alias", :alias => 'alias'
   it_parses_create_group "create alias nochat", :alias => 'alias', :nochat => true
   it_parses_create_group "create alias alert", :alias => 'alias', :nochat => true
   it_parses_create_group "create alias public", :alias => 'alias', :public => true
@@ -238,14 +236,11 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_invite "invite someone", :users => ['someone']
   it_parses_invite "invite 0823242342 group", :users => ['0823242342'], :group => 'group'
   it_parses_invite "invite +0823242342 group", :users => ['0823242342'], :group => 'group'
-  it_parses_invite "invite 0823242342 @group", :users => ['0823242342'], :group => 'group'
   it_parses_invite "invite group 0823242342", :users => ['0823242342'], :group => 'group'
-  it_parses_invite "invite @group 0823242342", :users => ['0823242342'], :group => 'group'
   it_parses_invite "invite group +0823242342", :users => ['0823242342'], :group => 'group'
   it_parses_invite "invite group +0823242342 +another user", :users => ['0823242342', 'another', 'user'], :group => 'group'
   it_parses_invite "invite +0823242342 +1234 +another user", :users => ['0823242342', '1234', 'another', 'user'], :group => nil
   it_parses_invite "invite someone group", :users => ['group'], :group => 'someone'
-  it_parses_invite "invite someone @group", :users => ['group'], :group => 'someone'
   it_parses_invite "invite @group someone", :users => ['group'], :group => 'someone'
   it_parses_invite "@group invite someone", :users => ['someone'], :group => 'group'
   it_parses_invite "MyGroup invite someone", :users => ['someone'], :group => 'MyGroup'
@@ -266,27 +261,20 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_invite "MyGroup +1234 +5678", :users => ['1234', '5678'], :group => 'MyGroup'
 
   it_parses_join "join alias", :group => 'alias'
-  it_parses_join "join @alias", :group => 'alias'
   it_parses_join "join group alias", :group => 'alias'
-  it_parses_join "join group @alias", :group => 'alias'
-  it_parses_join ".j @alias", :group => 'alias'
-  it_parses_join ".join @alias", :group => 'alias'
+  it_parses_join ".j alias", :group => 'alias'
+  it_parses_join ".join alias", :group => 'alias'
   it_parses_join ">alias", :group => 'alias'
-  it_parses_join ">@alias", :group => 'alias'
   it_parses_join "> alias", :group => 'alias'
 
   it_parses_leave "leave alias", :group => 'alias'
-  it_parses_leave "leave @alias", :group => 'alias'
   it_parses_leave "leave group alias", :group => 'alias'
-  it_parses_leave "leave group @alias", :group => 'alias'
-  it_parses_leave ".l @alias", :group => 'alias'
-  it_parses_leave ".leave @alias", :group => 'alias'
+  it_parses_leave ".l alias", :group => 'alias'
+  it_parses_leave ".leave alias", :group => 'alias'
   it_parses_leave "<alias", :group => 'alias'
-  it_parses_leave "<@alias", :group => 'alias'
   it_parses_leave "< alias", :group => 'alias'
 
   it_parses_block "block someone", :user => 'someone'
-  it_parses_block "block @someone", :user => 'someone'
   it_parses_block ".block someone", :user => 'someone'
   it_parses_block "block someone somegroup", :user => 'someone', :group => 'somegroup'
   it_parses_block "@somegroup block someone", :user => 'someone', :group => 'somegroup'
@@ -295,7 +283,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_block "MyGroup .block someone", :user => 'someone', :group => 'MyGroup'
 
   it_parses_owner "owner someone", :user => 'someone'
-  it_parses_owner "owner @someone", :user => 'someone'
   it_parses_owner "owner someone somegroup", :user => 'someone', :group => 'somegroup'
   it_parses_owner "owner 123456 somegroup", :user => '123456', :group => 'somegroup'
   it_parses_owner "owner somegroup 123456", :user => '123456', :group => 'somegroup'
@@ -315,7 +302,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_my ".my g", :key => MyNode::Group, :value => nil
   it_parses_my ".my group something", :key => MyNode::Group, :value => 'something'
   it_parses_my ".my g something", :key => MyNode::Group, :value => 'something'
-  it_parses_my ".my g @something", :key => MyNode::Group, :value => 'something'
   it_parses_my ".my name", :key => MyNode::Name, :value => nil
   it_parses_my ".my name something", :key => MyNode::Name, :value => 'something'
   it_parses_my ".my name something something", :key => MyNode::Name, :value => 'something something'
@@ -337,13 +323,11 @@ class ParserTest < ActiveSupport::TestCase
   # TODO set multiple things at once
 
   it_parses_whois "whois someuser", :user => 'someuser'
-  it_parses_whois "whois @someuser", :user => 'someuser'
   it_parses_whois "whois someuser?", :user => 'someuser'
   it_parses_whois ".wi someuser", :user => 'someuser'
   it_parses_whois ".wi someuser?", :user => 'someuser'
 
   it_parses_whereis "whereis someuser", :user => 'someuser'
-  it_parses_whereis "whereis @someuser", :user => 'someuser'
   it_parses_whereis "whereis someuser?", :user => 'someuser'
   it_parses_whereis ".wh someuser", :user => 'someuser'
   it_parses_whereis ".wh someuser?", :user => 'someuser'
@@ -509,11 +493,11 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_signup_and_join "display name join group", :display_name => 'display name', :suggested_login => 'displayname', :group => 'group'
   it_parses_signup_and_join "display name ! group", :display_name => 'display name', :suggested_login => 'displayname', :group => 'group'
 
-  it_parses_help "help", :node => nil
-  it_parses_help ".help", :node => nil
-  it_parses_help "h", :node => nil
-  it_parses_help ".h", :node => nil
-  it_parses_help "?", :node => nil
+  it_parses_help "help", :node => HelpNode
+  it_parses_help ".help", :node => HelpNode
+  it_parses_help "h", :node => HelpNode
+  it_parses_help ".h", :node => HelpNode
+  it_parses_help "?", :node => HelpNode
   it_parses_help ".im", :node => LoginNode
   it_parses_help ".im username", :node => LoginNode
   it_parses_help "invite help", :node => InviteNode
