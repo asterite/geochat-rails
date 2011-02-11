@@ -148,18 +148,15 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_ping 'Ping'
   it_parses_ping 'ping foo bar', :text => 'foo bar'
   it_parses_ping 'Ping foo bar', :text => 'foo bar'
-  it_parses_ping '#ping foo bar', :text => 'foo bar'
   it_parses_ping '.ping foo bar', :text => 'foo bar'
 
   it_parses_signup 'name DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAYNAME'
   it_parses_signup 'name @loginname', :display_name => 'loginname'
   it_parses_signup 'nAmE DISPLAY NAME', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAYNAME'
   it_parses_signup '  name    DISPLAY NAME   ', :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAYNAME'
-  it_parses_signup '#name @loginname', :display_name => 'loginname'
   it_parses_signup '.name @loginname', :display_name => 'loginname'
   it_parses_signup '. name @loginname', :display_name => 'loginname'
   it_parses_signup '.n @loginname', :display_name => 'loginname'
-  it_parses_signup '#n @loginname', :display_name => 'loginname'
   it_parses_signup "'DISPLAY NAME'", :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAYNAME'
   it_parses_signup "'DISPLAY NAME", :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAYNAME'
   it_parses_signup "   '   DISPLAY NAME   '  ", :display_name => 'DISPLAY NAME', :suggested_login => 'DISPLAYNAME'
@@ -180,7 +177,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_login ".iam username password", :login => 'username', :password => 'password'
   it_parses_login ". iam username password", :login => 'username', :password => 'password'
   it_parses_login ".li username password", :login => 'username', :password => 'password'
-  it_parses_login "# iam username password", :login => 'username', :password => 'password'
   it_parses_login "...iam username password", :login => 'username', :password => 'password'
   it_parses_login "(username password", :login => 'username', :password => 'password'
   it_parses_login "( username password", :login => 'username', :password => 'password'
@@ -196,10 +192,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_logout ".log out"
   it_parses_logout ".bye"
   it_parses_logout ".lo"
-  it_parses_logout "#logout"
-  it_parses_logout "#log out"
-  it_parses_logout "#bye"
-  it_parses_logout "#lo"
   it_parses_logout ")"
   it_parses_message ") hello", :body => :unchanged
 
@@ -208,8 +200,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_on "sTaRt"
   it_parses_on ".on"
   it_parses_on ".start"
-  it_parses_on "#on"
-  it_parses_on "#start"
   it_parses_on "!"
 
   it_parses_off "off"
@@ -217,8 +207,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_off "stop"
   it_parses_off ".off"
   it_parses_off ".stop"
-  it_parses_off "#off"
-  it_parses_off "#stop"
   it_parses_off "-"
 
   it_parses_create_group "create alias", :alias => 'alias'
@@ -243,7 +231,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_create_group "create alias name foo bar baz public nochat", :alias => 'alias', :name => 'foo bar baz', :public => true, :nochat => true
   it_parses_create_group "create alias public name foo bar baz nochat", :alias => 'alias', :name => 'foo bar baz', :public => true, :nochat => true
   it_parses_create_group ".cg alias", :alias => 'alias'
-  it_parses_create_group "#cg alias", :alias => 'alias'
   it_parses_create_group "*alias", :alias => 'alias'
   it_parses_create_group "* alias", :alias => 'alias'
 
@@ -268,12 +255,8 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_invite "MyGroup invite 1234", :users => ['1234'], :group => 'MyGroup'
   it_parses_invite ".invite 0823242342", :users => ['0823242342']
   it_parses_invite ".i 0823242342", :users => ['0823242342']
-  it_parses_invite "#invite 0823242342", :users => ['0823242342']
-  it_parses_invite "#i 0823242342", :users => ['0823242342']
   it_parses_invite "MyGroup .invite 1234", :users => ['1234'], :group => 'MyGroup'
   it_parses_invite "MyGroup .i 1234", :users => ['1234'], :group => 'MyGroup'
-  it_parses_invite "MyGroup #invite 1234", :users => ['1234'], :group => 'MyGroup'
-  it_parses_invite "MyGroup #i 1234", :users => ['1234'], :group => 'MyGroup'
   it_parses_invite "+1234", :users => ['1234']
   it_parses_invite "+ 1234", :users => ['1234']
   it_parses_invite "+someone", :users => ['someone']
@@ -288,8 +271,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_join "join group @alias", :group => 'alias'
   it_parses_join ".j @alias", :group => 'alias'
   it_parses_join ".join @alias", :group => 'alias'
-  it_parses_join "#j @alias", :group => 'alias'
-  it_parses_join "#join @alias", :group => 'alias'
   it_parses_join ">alias", :group => 'alias'
   it_parses_join ">@alias", :group => 'alias'
   it_parses_join "> alias", :group => 'alias'
@@ -300,8 +281,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_leave "leave group @alias", :group => 'alias'
   it_parses_leave ".l @alias", :group => 'alias'
   it_parses_leave ".leave @alias", :group => 'alias'
-  it_parses_leave "#l @alias", :group => 'alias'
-  it_parses_leave "#leave @alias", :group => 'alias'
   it_parses_leave "<alias", :group => 'alias'
   it_parses_leave "<@alias", :group => 'alias'
   it_parses_leave "< alias", :group => 'alias'
@@ -309,13 +288,10 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_block "block someone", :user => 'someone'
   it_parses_block "block @someone", :user => 'someone'
   it_parses_block ".block someone", :user => 'someone'
-  it_parses_block "#block someone", :user => 'someone'
   it_parses_block "block someone somegroup", :user => 'someone', :group => 'somegroup'
   it_parses_block "@somegroup block someone", :user => 'someone', :group => 'somegroup'
-  it_parses_block "@somegroup #block someone", :user => 'someone', :group => 'somegroup'
   it_parses_block "@somegroup .block someone", :user => 'someone', :group => 'somegroup'
   it_parses_block "MyGroup block someone", :user => 'someone', :group => 'MyGroup'
-  it_parses_block "MyGroup #block someone", :user => 'someone', :group => 'MyGroup'
   it_parses_block "MyGroup .block someone", :user => 'someone', :group => 'MyGroup'
 
   it_parses_owner "owner someone", :user => 'someone'
@@ -325,8 +301,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_owner "owner somegroup 123456", :user => '123456', :group => 'somegroup'
   it_parses_owner ".owner someone", :user => 'someone'
   it_parses_owner ".ow someone", :user => 'someone'
-  it_parses_owner "#owner someone", :user => 'someone'
-  it_parses_owner "#ow someone", :user => 'someone'
   it_parses_owner "@somegroup owner someone", :user => 'someone', :group => 'somegroup'
   it_parses_owner "@somegroup .ow someone", :user => 'someone', :group => 'somegroup'
   it_parses_owner "MyGroup owner someone", :user => 'someone', :group => 'MyGroup'
@@ -336,55 +310,30 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_owner "$someone somegroup", :user => 'someone', :group => 'somegroup'
   it_parses_owner "MyGroup $someone", :user => 'someone', :group => 'MyGroup'
 
-  it_parses_my "#my groups", :key => MyNode::Groups, :value => nil
   it_parses_my ".my groups", :key => MyNode::Groups, :value => nil
-  it_parses_my "#my group", :key => MyNode::Group, :value => nil
   it_parses_my ".my group", :key => MyNode::Group, :value => nil
-  it_parses_my "#my g", :key => MyNode::Group, :value => nil
   it_parses_my ".my g", :key => MyNode::Group, :value => nil
-  it_parses_my "#my group something", :key => MyNode::Group, :value => 'something'
   it_parses_my ".my group something", :key => MyNode::Group, :value => 'something'
-  it_parses_my "#my g something", :key => MyNode::Group, :value => 'something'
   it_parses_my ".my g something", :key => MyNode::Group, :value => 'something'
   it_parses_my ".my g @something", :key => MyNode::Group, :value => 'something'
-  it_parses_my "#my name", :key => MyNode::Name, :value => nil
   it_parses_my ".my name", :key => MyNode::Name, :value => nil
-  it_parses_my "#my name something", :key => MyNode::Name, :value => 'something'
   it_parses_my ".my name something", :key => MyNode::Name, :value => 'something'
   it_parses_my ".my name something something", :key => MyNode::Name, :value => 'something something'
-  it_parses_my "#my email", :key => MyNode::Email, :value => nil
   it_parses_my ".my email", :key => MyNode::Email, :value => nil
-  it_parses_my "#my email something", :key => MyNode::Email, :value => 'something'
   it_parses_my ".my email something", :key => MyNode::Email, :value => 'something'
-  it_parses_my "#my number", :key => MyNode::Number, :value => nil
   it_parses_my ".my number", :key => MyNode::Number, :value => nil
-  it_parses_my "#my phone", :key => MyNode::Number, :value => nil
   it_parses_my ".my phone", :key => MyNode::Number, :value => nil
-  it_parses_my "#my phonenumber", :key => MyNode::Number, :value => nil
   it_parses_my ".my phonenumber", :key => MyNode::Number, :value => nil
-  it_parses_my "#my phone number", :key => MyNode::Number, :value => nil
   it_parses_my ".my phone number", :key => MyNode::Number, :value => nil
-  it_parses_my "#my mobile", :key => MyNode::Number, :value => nil
   it_parses_my ".my mobile", :key => MyNode::Number, :value => nil
-  it_parses_my "#my mobilenumber", :key => MyNode::Number, :value => nil
   it_parses_my ".my mobilenumber", :key => MyNode::Number, :value => nil
-  it_parses_my "#my mobile number", :key => MyNode::Number, :value => nil
   it_parses_my ".my mobile number", :key => MyNode::Number, :value => nil
-  it_parses_my "#my location", :key => MyNode::Location, :value => nil
   it_parses_my ".my location", :key => MyNode::Location, :value => nil
-  it_parses_my "#my location something long", :key => MyNode::Location, :value => 'something long'
   it_parses_my ".my location something long", :key => MyNode::Location, :value => 'something long'
-  it_parses_my "#my location 10.2, 30.4", :key => MyNode::Location, :value => [10.2, 30.4]
-  it_parses_my "#my login", :key => MyNode::Login, :value => nil
   it_parses_my ".my login", :key => MyNode::Login, :value => nil
-  it_parses_my "#my login something", :key => MyNode::Login, :value => 'something'
   it_parses_my ".my login something", :key => MyNode::Login, :value => 'something'
-  it_parses_my "#my password", :key => MyNode::Password, :value => nil
   it_parses_my ".my password", :key => MyNode::Password, :value => nil
-  it_parses_my "#my password something", :key => MyNode::Password, :value => 'something'
   it_parses_my ".my password something", :key => MyNode::Password, :value => 'something'
-  it_parses_my "#my__password", :key => MyNode::Password, :value => nil
-  it_parses_my "#mypassword", :key => MyNode::Password, :value => nil
   # TODO set multiple things at once
 
   it_parses_whois "whois someuser", :user => 'someuser'
@@ -392,22 +341,17 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_whois "whois someuser?", :user => 'someuser'
   it_parses_whois ".wi someuser", :user => 'someuser'
   it_parses_whois ".wi someuser?", :user => 'someuser'
-  it_parses_whois "#wi someuser", :user => 'someuser'
-  it_parses_whois "#wi someuser?", :user => 'someuser'
 
   it_parses_whereis "whereis someuser", :user => 'someuser'
   it_parses_whereis "whereis @someuser", :user => 'someuser'
   it_parses_whereis "whereis someuser?", :user => 'someuser'
   it_parses_whereis ".wh someuser", :user => 'someuser'
   it_parses_whereis ".wh someuser?", :user => 'someuser'
-  it_parses_whereis "#wh someuser", :user => 'someuser'
-  it_parses_whereis "#wh someuser?", :user => 'someuser'
   it_parses_whereis ".w someuser", :user => 'someuser'
   it_parses_whereis ".w someuser?", :user => 'someuser'
 
   it_parses_language "lang en", :name => 'en'
   it_parses_language ".lang en", :name => 'en'
-  it_parses_language "#lang en", :name => 'en'
   it_parses_language "_en", :name => 'en'
   it_parses_language "_ en", :name => 'en'
   it_parses_language "___ en", :name => 'en'
@@ -567,26 +511,18 @@ class ParserTest < ActiveSupport::TestCase
 
   it_parses_help "help", :node => nil
   it_parses_help ".help", :node => nil
-  it_parses_help "#help", :node => nil
   it_parses_help "h", :node => nil
   it_parses_help ".h", :node => nil
-  it_parses_help "#h", :node => nil
   it_parses_help "?", :node => nil
   it_parses_help ".im", :node => LoginNode
   it_parses_help ".im username", :node => LoginNode
-  it_parses_help "#im", :node => LoginNode
-  it_parses_help "#im username", :node => LoginNode
   it_parses_help "invite help", :node => InviteNode
   it_parses_help "invite ?", :node => InviteNode
   it_parses_help "invite", :node => InviteNode
   it_parses_help ".i help", :node => InviteNode
   it_parses_help ".i ?", :node => InviteNode
   it_parses_help ".i", :node => InviteNode
-  it_parses_help "#i help", :node => InviteNode
-  it_parses_help "#i ?", :node => InviteNode
-  it_parses_help "#i", :node => InviteNode
   it_parses_help "help invite", :node => InviteNode
-  it_parses_help "#my", :node => MyNode
   it_parses_help ".my", :node => MyNode
   it_parses_help "owner help", :node => OwnerNode
   it_parses_help "help owner", :node => OwnerNode
@@ -607,11 +543,9 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "help .lang", :node => LanguageNode
   it_parses_help "lang ?", :node => LanguageNode
   it_parses_help ".lang ?", :node => LanguageNode
-  it_parses_help "#lang ?", :node => LanguageNode
   it_parses_help "? lang", :node => LanguageNode
   it_parses_help "lang", :node => LanguageNode
   it_parses_help ".lang", :node => LanguageNode
-  it_parses_help "#lang", :node => LanguageNode
   it_parses_help "_", :node => LanguageNode
   it_parses_help "_ ?", :node => LanguageNode
   it_parses_help "? _", :node => LanguageNode
@@ -624,7 +558,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "create group help", :node => CreateGroupNode
   it_parses_help "creategroup help", :node => CreateGroupNode
   it_parses_help ".cg help", :node => CreateGroupNode
-  it_parses_help "#cg help", :node => CreateGroupNode
   it_parses_help "help .cg", :node => CreateGroupNode
   it_parses_help "help *", :node => CreateGroupNode
   it_parses_help "* help", :node => CreateGroupNode
@@ -679,7 +612,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "my help", :node => MyNode
   it_parses_help "help my", :node => MyNode
 
-  it_parses_unknown_command "#my_passwor", :trigger => '#', :command => 'my_passwor'
   it_parses_unknown_command ".my_passwor", :trigger => '.', :command => 'my_passwor'
 
 end

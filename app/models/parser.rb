@@ -57,11 +57,11 @@ class Parser < StringScanner
     scan /\s*/
 
     # Ping
-    scan_optionally_prefixed_command('ping') do
+    scan_command 'ping' do
       return PingNode.new
     end
 
-    scan_optionally_prefixed_command('ping') do |text|
+    scan_command 'ping' do |text|
       return PingNode.new :text => text.strip
     end
 
@@ -78,22 +78,30 @@ class Parser < StringScanner
 
         if !target.is_a?(UserTarget)
           # Invite
-          if rest.scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+(.+?)$/i
-            return InviteNode.new :group => group, :users => rest[1].split.without_prefix!('+')
-          elsif rest.scan /^\s*\+\s*(.+?)$/i
-            return InviteNode.new :users => rest[1].split.without_prefix!('+'), :group => group
+          rest.scan_command 'invite' do |users|
+            return InviteNode.new :group => group, :users => users.split.without_prefix!('+')
+          end
+
+          rest.scan_command 'i', :prefix => :required do |users|
+            return InviteNode.new :group => group, :users => users.split.without_prefix!('+')
+          end
+
+          rest.scan_command '\+', :prefix => :none, :space_after_command => false do |users|
+            return InviteNode.new :users => users.split.without_prefix!('+'), :group => group
           end
 
           # Block
-          if rest.scan /^\s*(?:#|\.)*?\s*block\s+(\S+)$/i
-            return BlockNode.new :group => group, :user => rest[1]
+          rest.scan_command 'block', :spaces_in_args => false do |user|
+            return BlockNode.new :group => group, :user => user
           end
 
           # Owner
-          if rest.scan /^\s*(?:#|\.)*?\s*(?:owner|.owner|.ow|#owner|#ow)\s+(\S+)$/i
-            return OwnerNode.new :group => group, :user => rest[1]
-          elsif rest.scan /^\s*\$\s*(\S+)$/i
-            return OwnerNode.new :group => group, :user => rest[1]
+          rest.scan_command 'owner', 'ow', :spaces_in_args => false do |user|
+            return OwnerNode.new :group => group, :user => user
+          end
+
+          rest.scan_command '\$', :space_after_command => false, :spaces_in_args => false do |user|
+            return OwnerNode.new :group => group, :user => user
           end
         end
 
@@ -126,11 +134,11 @@ class Parser < StringScanner
     end
 
     # Help
-    scan_optionally_prefixed_command 'help', 'h', '\?' do
+    scan_command 'help', 'h', '\?' do
       return HelpNode.new
     end
 
-    scan_optionally_prefixed_command 'help', 'h', '\?' do |text|
+    scan_command 'help', 'h', '\?' do |text|
       text = text[1 .. -1] if text.start_with?('.')
       case text.downcase
       when 'owner', 'group owner', 'owner group', 'ow'
@@ -382,22 +390,6 @@ class Parser < StringScanner
     end
 
     MessageNode.new options.merge(:body => string)
-  end
-
-  def scan_optionally_prefixed_command(*names, &block)
-    names = names.join('|')
-    names = "(?:#{names})"
-
-    if block.arity == 0
-      if scan /^(?:#|\.)*?\s*#{names}\s*$/i
-        yield
-      end
-    else
-      args = Array.new(block.arity, "(.+?)").join('\s+')
-      if scan /^(?:#|\.)*?\s*#{names}\s+#{args}$/i
-        yield *Array.new(block.arity) {|i| self[i + 1]}
-      end
-    end
   end
 
   def parse_message_with_location(options = {})
