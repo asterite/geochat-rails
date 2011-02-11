@@ -187,53 +187,85 @@ class Parser < StringScanner
     end
 
     # Signup
-    if scan /^(?:#|\.)*?\s*(?:name|n|signup)(\s+(help|\?))?\s*$/i
+    scan_command 'name', 'n', 'signup', :help => true do
       return HelpNode.new :node => SignupNode
-    elsif scan /^(?:#|\.)*?\s*name\s*@?(.+?)\s*$/i
-      return new_signup self[1].strip
-    elsif scan /^(?:#|\.)+\s*n\s*@?(.+?)\s*$/i
-      return new_signup self[1].strip
-    elsif scan /^'(.+)'?$/i
+    end
+
+    scan_command 'name' do |name|
+      return new_signup name
+    end
+
+    scan_command 'n', :prefix => :required do |name|
+      return new_signup name
+    end
+
+    if scan /^'(.+)'?$/i
       str = self[1].strip
       str = str[0 ... -1] if str[-1] == "'"
       return new_signup str.strip
     end
 
     # Login
-    if scan /^(?:#|\.)*?\s*(?:log\s*in|li|iam|i\s+am|i'm|im|\()(\s+(help|\?))?\s*$/i
+    scan_command 'login', 'log in', 'li', 'iam', 'i am', "i'm", 'im', '\(', :help => true do
       return HelpNode.new :node => LoginNode
-    elsif scan /^(?:#|\.)*?\s*(?:log\s*in|iam|i\s+am|i'm|im|\()\s*(?:@\s*)?(\S+)\s+(\S+)\s*$/i
-      return LoginNode.new :login => self[1], :password => self[2]
-    elsif scan /^(?:#|\.)+\s*li\s*(?:@\s*)?(.+?)\s+(.+?)\s*$/i
-      return LoginNode.new :login => self[1], :password => self[2]
-    elsif scan /^(?:#|\.)*?\s*(.im)(\s+\S+)?\s*$/i
+    end
+
+    scan_command 'login', 'log in', 'li', 'iam', 'i am', "i'm", 'im', :spaces_in_args => false do |login, password|
+      return LoginNode.new :login => login, :password => password
+    end
+
+    scan_command '\(', :space_after_command => false, :spaces_in_args => false do |login, password|
+      return LoginNode.new :login => login, :password => password
+    end
+
+    scan_command 'li', :prefix => :required, :spaces_in_args => false do |login, password|
+      return LoginNode.new :login => login, :password => password
+    end
+
+    scan_command 'im', :spaces_in_args => false do |login|
       return HelpNode.new :node => LoginNode
     end
 
     # Logout
-    if scan /^(?:#|\.)*?\s*(log\s*out|log\s*off|lo|bye|\))\s+(help|\?)\s*$/i
+    scan_command 'logout', 'log out', 'logoff', 'log off', 'bye', '\)', :help => :explicit do
       return HelpNode.new :node => LogoutNode
-    elsif scan /^(?:#|\.)*?\s*(log\s*out|log\s*off|log\s*out|lo|bye)\s*$/i
+    end
+
+    scan_command 'logout', 'log out', 'logoff', 'log off', 'bye' do
       return LogoutNode.new
-    elsif scan /^\)\s*$/i
+    end
+
+    scan_command  'lo', :prefix => :required do
+      return LogoutNode.new
+    end
+
+    scan_command  '\)', :prefix => :none do
       return LogoutNode.new
     end
 
     # On
-    if scan /^(?:#|\.)*?\s*(on|start)\s+(help|\?)\s*$/i
+    scan_command 'on', 'start', :help => :explicit do
       return HelpNode.new :node => OnNode
-    elsif scan /^(?:#|\.)*?\s*(on|start)\s*/i
+    end
+
+    scan_command 'on', 'start' do
       return OnNode.new
-    elsif scan /^\!\s*$/i
+    end
+
+    scan_command '\!', :prefix => :none do
       return OnNode.new
     end
 
     # Off
-    if scan /^(?:#|\.)*?\s*(off|stop)\s+(help|\?)\s*$/i
+    scan_command 'off', 'stop', :help => :explicit do
       return HelpNode.new :node => OffNode
-    elsif scan /^(?:#|\.)*?\s*(off|stop)\s*$/i
+    end
+
+    scan_command 'off', 'stop' do
       return OffNode.new
-    elsif scan /^-\s*$/i
+    end
+
+    scan_command '-', :prefix => :none do
       return OffNode.new
     end
 
