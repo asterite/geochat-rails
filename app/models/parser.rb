@@ -376,13 +376,12 @@ class Parser < StringScanner
     return node if node
 
     # Language
-    if scan /^(?:#|\.)*\s*(?:lang|_)(\s+(?:help|\?))?\s*$/i
-      return HelpNode.new :node => LanguageNode
-    elsif scan /^(?:#|\.)*\s*(?:lang)\s+(.+?)\s*$/i
-      return LanguageNode.new :name => self[1].strip
-    elsif scan /^(?:#|\.)*\s*_+\s*(.+?)\s*$/i
-      return LanguageNode.new :name => self[1].strip
+    node = command LanguageNode do
+      name 'lang'
+      name '_', :space_after_command => false
+      args :name
     end
+    return node if node
 
     # Unknown command
     if scan /^(#|\.)+\s*(\S+)\s*(?:.+?)?$/i

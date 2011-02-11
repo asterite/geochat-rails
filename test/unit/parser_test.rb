@@ -337,7 +337,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_language ".lang en", :name => 'en'
   it_parses_language "_en", :name => 'en'
   it_parses_language "_ en", :name => 'en'
-  it_parses_language "___ en", :name => 'en'
 
   it_parses_message "@group 1234", :body => '1234', :target => UnknownTarget.new('group')
   it_parses_message "1234", :body => '1234'
