@@ -15,51 +15,60 @@ class Parser < StringScanner
 
   def parse
     node = parse_node
+
     if node.is_a?(MessageNode) && node.body
-      # Check mentions
-      node.body.scan /\s+@\s*(\S+)/ do |match|
-        node.mentions ||= []
-        node.mentions << match.first
-      end
-
-      # Check tags
-      node.body.scan /#\s*(\S+)/ do |match|
-        node.tags ||= []
-        node.tags << match.first
-      end
-
-      # Check locations
-      node.body.scan /\s+\/[^\/]+\/|\s+\/\S+/ do |match|
-        match = match.strip
-        match = match[1 .. -1] if match.start_with?('/')
-        ['/', ',', '.', ';'].each do |char|
-          match = match[0 .. -2] if match.end_with?(char)
-        end
-        if match.present?
-          node.locations ||= []
-          node.locations << match
-        end
-      end
-
-      # Check numeric locations
-      node.locations.map!{|x| check_numeric_location x} if node.locations
+      check_mentions node
+      check_tags node
+      check_locations node
     end
     node
   end
 
-  def parse_node
-    # Ping
-    if scan /^\s*(?:#|\.)*?\s*ping\s*$/i
-      return PingNode.new :text => nil
-    elsif scan /^\s*(?:#|\.)*?\s*ping\s+(.+?)\s*$/i
-      return PingNode.new :text => self[1].strip
+  def check_mentions(node)
+    node.body.scan /\s+@\s*(\S+)/ do |match|
+      node.mentions ||= []
+      node.mentions << match.first
     end
+  end
+
+  def check_tags(node)
+    node.body.scan /#\s*(\S+)/ do |match|
+      node.tags ||= []
+      node.tags << match.first
+    end
+  end
+
+  def check_locations(node)
+    node.body.scan /\s+\/[^\/]+\/|\s+\/\S+/ do |match|
+      match = match.strip
+      match = match[1 .. -1] if match.start_with?('/')
+      ['/', ',', '.', ';'].each do |char|
+        match = match[0 .. -2] if match.end_with?(char)
+      end
+      if match.present?
+        node.locations ||= []
+        node.locations << check_numeric_location(match)
+      end
+    end
+  end
+
+  def parse_node
+    # Skip first spaces
+    scan /\s*/
+
+    # Ping
+    node = command PingNode do
+      name 'ping'
+      args :text, :optional => true
+      help :no
+    end
+    return node if node
 
     options = {}
     options[:blast] = check_blast
 
     # Check if first token is a group
-    if scan /^\s*(@)?\s*(.+?)\s+(.+?)$/i
+    if scan /^(@)?\s*(.+?)\s+(.+?)$/i
       group = self[2]
       if (self[1] && target = UnknownTarget.new(group)) || (@lookup && target = @lookup.get_target(group))
         options[:targets] = [target]
@@ -67,24 +76,36 @@ class Parser < StringScanner
         rest = StringScanner.new self[3]
 
         if !target.is_a?(UserTarget)
+
           # Invite
-          if rest.scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+(.+?)$/i
-            return InviteNode.new :group => group, :users => rest[1].split.without_prefix!('+')
-          elsif rest.scan /^\s*\+\s*(.+?)$/i
-            return InviteNode.new :users => rest[1].split.without_prefix!('+'), :group => group
+          node = rest.command InviteNode do
+            name 'invite'
+            name 'i', :prefix => :required
+            name '\+', :prefix => :none, :space_after_command => false
+            args :users
+            change_args do |args|
+              args[:group] = group
+              args[:users] = args[:users].split.without_prefix! '+'
+            end
           end
+          return node if node
 
           # Block
-          if rest.scan /^\s*(?:#|\.)*?\s*block\s+(\S+)$/i
-            return BlockNode.new :group => group, :user => rest[1]
+          node = rest.command BlockNode do
+            name 'block'
+            args :user, :spaces_in_args => false
+            change_args{|args| args[:group] = group}
           end
+          return node if node
 
           # Owner
-          if rest.scan /^\s*(?:#|\.)*?\s*(?:owner|.owner|.ow|#owner|#ow)\s+(\S+)$/i
-            return OwnerNode.new :group => group, :user => rest[1]
-          elsif rest.scan /^\s*\$\s*(\S+)$/i
-            return OwnerNode.new :group => group, :user => rest[1]
+          node = rest.command OwnerNode do
+            name 'owner', 'ow', :spaces_in_args => false
+            name '\$', :space_after_command => false
+            args :user
+            change_args{|args| args[:group] = group}
           end
+          return node if node
         end
 
         while rest.scan /^\s*(@)?\s*(.+?)\s+(.+?)$/i
@@ -97,10 +118,12 @@ class Parser < StringScanner
               options[:targets] << target
               rest = StringScanner.new rest[3]
             else
-              unscan
+              rest.unscan
+              break
             end
           else
-            unscan
+            rest.unscan
+            break
           end
         end
 
@@ -116,45 +139,52 @@ class Parser < StringScanner
     end
 
     # Help
-    if scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s*$/i
-      return HelpNode.new
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(owner|group\s+owner|owner\s+group|.ow|#ow|\.owner|#owner)\s*$/i
-      return HelpNode.new :node => OwnerNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(block)\s*$/i
-      return HelpNode.new :node => BlockNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(lang|_)\s*$/i
-      return HelpNode.new :node => LanguageNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:create\s*group|create|cg|\*)\s*$/i
-      return HelpNode.new :node => CreateGroupNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:join\s*group|join|j|>)\s*$/i
-      return HelpNode.new :node => JoinNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:leave\s*group|leave|l|<)\s*$/i
-      return HelpNode.new :node => LeaveNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(?:log\s*in|li|iam|i\s+am|i'm|im|\()\s*$/i
-      return HelpNode.new :node => LoginNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(log\s*out|log\s*off|lo|bye|\))\s*$/i
-      return HelpNode.new :node => LogoutNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(stop|off)\s*$/i
-      return HelpNode.new :node => OffNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(start|on)\s*$/i
-      return HelpNode.new :node => OnNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(name|n|signup)\s*$/i
-      return HelpNode.new :node => SignupNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(whois|wh)\s*$/i
-      return HelpNode.new :node => WhoIsNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(whereis|wi|w)\s*$/i
-      return HelpNode.new :node => WhereIsNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(my)\s*$/i
-      return HelpNode.new :node => MyNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:help|h|\?)\s+(?:#|\.)*\s*(i|invite)\s*$/i
-      return HelpNode.new :node => InviteNode
+    node = command HelpNode do
+      name 'help', 'h', '\?'
+      args :node, :optional => true
+      change_args do |args|
+        args[:node] = args[:node][1 .. -1] if args[:node].start_with?('.')
+        args[:node] = case args[:node].downcase
+                      when 'owner', 'group owner', 'owner group', 'ow'
+                        OwnerNode
+                      when 'block'
+                       BlockNode
+                      when 'lang', '_'
+                        LanguageNode
+                      when 'create', 'create group', 'creategroup', 'cg', '*'
+                        CreateGroupNode
+                      when  'join', 'join group', 'joingroup', 'j', '>'
+                        JoinNode
+                      when  'leave', 'leave group', 'leavegroup', 'l', '<'
+                        LeaveNode
+                      when 'log in', 'login', 'li', 'i am', 'iam', "i'm", 'im', '('
+                        LoginNode
+                      when 'log out', 'logout', 'log off', 'logoff', 'lo', 'bye', ')'
+                        LogoutNode
+                      when 'stop', 'off'
+                        OffNode
+                      when 'start', 'on'
+                        OnNode
+                      when 'name', 'n', 'signup'
+                        SignupNode
+                      when 'who is', 'whois', 'wh'
+                        WhoIsNode
+                      when 'whereis', 'where is', 'wi', 'w'
+                        WhereIsNode
+                      when 'my'
+                        MyNode
+                      when 'i', 'invite'
+                        InviteNode
+                      end
+      end
     end
+    return node if node
 
     node = parse_message_with_location options
     return node if node
 
     # Signup and join
-    if scan /^\s*(.+?)\s*>\s*(\S+)\s*$/i
+    if scan /^(.+?)\s*>\s*(\S+)\s*$/i
       return new_signup self[1].strip, self[2]
     end
 
@@ -163,203 +193,201 @@ class Parser < StringScanner
     end
 
     # Signup
-    if scan /^\s*(?:#|\.)*?\s*(?:name|n|signup)(\s+(help|\?))?\s*$/i
-      return HelpNode.new :node => SignupNode
-    elsif scan /^\s*(?:#|\.)*?\s*name\s*@?(.+?)\s*$/i
-      return new_signup self[1].strip
-    elsif scan /^\s*(?:#|\.)+\s*n\s*@?(.+?)\s*$/i
-      return new_signup self[1].strip
-    elsif scan /^\s*'(.+)'?$/i
+    node = command SignupNode do
+      name 'name', 'signup'
+      name 'n', :prefix => :required
+      args :display_name
+      change_args do |args|
+        args[:suggested_login] = args[:display_name].gsub(/\s/, '')
+      end
+    end
+    return node if node
+
+    if scan /^'(.+)'?$/i
       str = self[1].strip
       str = str[0 ... -1] if str[-1] == "'"
       return new_signup str.strip
     end
 
     # Login
-    if scan /^\s*(?:#|\.)*?\s*(?:log\s*in|li|iam|i\s+am|i'm|im|\()(\s+(help|\?))?\s*$/i
-      return HelpNode.new :node => LoginNode
-    elsif scan /^\s*(?:#|\.)*?\s*(?:log\s*in|iam|i\s+am|i'm|im|\()\s*(?:@\s*)?(\S+)\s+(\S+)\s*$/i
-      return LoginNode.new :login => self[1], :password => self[2]
-    elsif scan /^\s*(?:#|\.)+\s*li\s*(?:@\s*)?(.+?)\s+(.+?)\s*$/i
-      return LoginNode.new :login => self[1], :password => self[2]
-    elsif scan /^\s*(?:#|\.)*?\s*(.im)(\s+\S+)?\s*$/i
-      return HelpNode.new :node => LoginNode
+    node = command LoginNode do
+      name 'login', 'log in', 'li', 'iam', 'i am', "i'm", 'im'
+      name '\(', :space_after_command => false
+      name 'li', :prefix => :required
+      args :login, :password, :spaces_in_args => false
     end
+    return node if node
 
     # Logout
-    if scan /^\s*(?:#|\.)*?\s*(log\s*out|log\s*off|lo|bye|\))\s+(help|\?)\s*$/i
-      return HelpNode.new :node => LogoutNode
-    elsif scan /^\s*(?:#|\.)*?\s*(log\s*out|log\s*off|log\s*out|lo|bye)\s*$/i
-      return LogoutNode.new
-    elsif scan /^\s*\)\s*$/i
-      return LogoutNode.new
+    node = command LogoutNode do
+      name 'logout', 'log out', 'logoff', 'log off', 'bye'
+      name 'lo', :prefix => :required
+      name '\)', :prefix => :none
     end
+    return node if node
 
     # On
-    if scan /^\s*(?:#|\.)*?\s*(on|start)\s+(help|\?)\s*$/i
-      return HelpNode.new :node => OnNode
-    elsif scan /^\s*(?:#|\.)*?\s*(on|start)\s*/i
-      return OnNode.new
-    elsif scan /^\s*\!\s*$/i
-      return OnNode.new
+    node = command OnNode do
+      name 'on', 'start'
+      name '\!', :prefix => :none
     end
+    return node if node
 
     # Off
-    if scan /^\s*(?:#|\.)*?\s*(off|stop)\s+(help|\?)\s*$/i
-      return HelpNode.new :node => OffNode
-    elsif scan /^\s*(?:#|\.)*?\s*(off|stop)\s*$/i
-      return OffNode.new
-    elsif scan /^\s*-\s*$/i
-      return OffNode.new
+    node = command OffNode do
+      name 'off', 'stop'
+      name '-', :prefix => :none
     end
+    return node if node
 
     # Create group
-    if scan /^\s*(?:#|\.)*?\s*(?:create\s*group|create|cg|\*)(\s+(help|\?))?\s*$/i
+    scan_command 'create', 'create group', 'creategroup', 'cg', '\*', :help => true do
       return HelpNode.new :node => CreateGroupNode
-    elsif scan /^\s*(?:#|\.)*?\s*(?:create\s*group|create|cg)\s+(?:@\s*)?(.+?)(\s+.+?)?$/i
+    end
+
+    if scan /^(?:#|\.)*?\s*(?:create\s*group|create|cg)\s+(?:@\s*)?(.+?)(\s+.+?)?$/i
       return new_create_group self[1], self[2]
-    elsif scan /^\s*\*\s*(?:@\s*)?(.+?)(\s+.+?)?$/i
+    elsif scan /^\*\s*(?:@\s*)?(.+?)(\s+.+?)?$/i
       return new_create_group self[1], self[2]
     end
 
     # Invite
-    if scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)(\s+(help|\?))?\s*$/i
+    scan_command 'invite', 'i', :help => true do
       return HelpNode.new :node => InviteNode
-    elsif scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+\+?(\d+\s+\+?\d+\s+.+?)$/i
+    end
+
+    if scan /^(?:invite|\.invite|\#invite|\.i|\#i)\s+\+?(\d+\s+\+?\d+\s+.+?)$/i
       users = self[1].split.without_prefix! '+'
       return InviteNode.new :users => users
-    elsif scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+\+?(\d+)\s+(?:@\s*)?(.+?)$/i
+    elsif scan /^(?:invite|\.invite|\#invite|\.i|\#i)\s+\+?(\d+)\s+(?:@\s*)?(.+?)$/i
       return InviteNode.new :users => [self[1].strip], :group => self[2].strip
-    elsif scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+(?:@\s*)?(.+?)\s+\+?(\d+\s*.*?)$/i
+    elsif scan /^(?:invite|\.invite|\#invite|\.i|\#i)\s+(?:@\s*)?(.+?)\s+\+?(\d+\s*.*?)$/i
       group = self[1].strip
       users = self[2].split.without_prefix! '+'
       return InviteNode.new :users => users, :group => group
-    elsif scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+@\s*(.+?)\s+(.+?)$/i
+    elsif scan /^(?:invite|\.invite|\#invite|\.i|\#i)\s+@\s*(.+?)\s+(.+?)$/i
       users = [self[1].strip]
       group = self[2].strip
       return InviteNode.new :users => users, :group => group
-    elsif scan /^\s*(?:invite|\.invite|\#invite|\.i|\#i)\s+(.+?)$/i
+    elsif scan /^(?:invite|\.invite|\#invite|\.i|\#i)\s+(.+?)$/i
       pieces = self[1].split.without_prefix! '@'
       group, *users = pieces
       group, users = nil, [group] if users.empty?
       return InviteNode.new :users => users, :group => group
-    elsif scan /^\s*@\s*(.+?)\s+(?:invite|\.invite|\#invite|\.i|\#i)\s+(.+?)$/i
+    elsif scan /^@\s*(.+?)\s+(?:invite|\.invite|\#invite|\.i|\#i)\s+(.+?)$/i
       users = self[2].split
       return InviteNode.new :users => users, :group => self[1].strip
-    elsif scan /^\s*\+\s*(.+?)$/i
+    elsif scan /^\+\s*(.+?)$/i
       return InviteNode.new :users => self[1].split
-    elsif scan /^\s*@\s*(.+?)\s+\+\s*(.+?)$/i
+    elsif scan /^@\s*(.+?)\s+\+\s*(.+?)$/i
       return InviteNode.new :users => self[2].split, :group => self[1].strip
     end
 
     # Join
-    if scan /^\s*(?:join|join\s*group|\.\s*j|\.\s*join|\#\s*j|\#\s*join|>)(\s+(help|\?))?\s*$/i
-      return HelpNode.new :node => JoinNode
-    elsif scan /^\s*(?:join|join\s*group|\.\s*j|\.\s*join|\#\s*j|\#\s*join)\s+(?:@\s*)?(\S+)$/i
-      return JoinNode.new :group => self[1]
-    elsif scan /^\s*>\s*(?:@\s*)?(\S+)$/i
-      return JoinNode.new :group => self[1]
+    node = command JoinNode do
+      name 'join', 'join group', 'joingroup'
+      name 'j', :prefix => :required
+      name '>', :space_after_command => false
+      args :group, :spaces_in_args => false
     end
+    return node if node
 
     # Leave
-    if scan /^\s*(?:leave|leave\s*group|\.\s*l|\.\s*leave|\#\s*l|\#\s*leave|<)(\s+(help|\?))?\s*$/i
-      return HelpNode.new :node => LeaveNode
-    elsif scan /^\s*(?:leave|leave\s+group|\.\s*l|\.\s*leave|\#\s*l|\#\s*leave)\s+(?:@\s*)?(\S+)$/i
-      return LeaveNode.new :group => self[1]
-    elsif scan /^\s*<\s*(?:@\s*)?(\S+)$/i
-      return LeaveNode.new :group => self[1]
+    node = command LeaveNode do
+      name 'leave', 'leave group', 'leavegroup'
+      name 'l', :prefix => :required
+      name '<', :space_after_command => false
+      args :group, :spaces_in_args => false
     end
+    return node if node
 
     # Block
-    if scan /^\s*(?:#|\.)*?\s*block(\s+(?:help|\?))?\s*$/i
-      return HelpNode.new :node => BlockNode
-    elsif scan /^\s*(?:#|\.)*?\s*block\s+(?:@\s*)?(\S+)$/i
-      return BlockNode.new :user => self[1]
-    elsif scan /^\s*(?:#|\.)*?\s*block\s+(\S+)\s+(\S+)$/i
-      return BlockNode.new :user => self[1], :group => self[2]
-    elsif scan /^\s*@\s*(\S+)\s*(?:#|\.)*?\s*block\s+(\S+)$/i
-      return BlockNode.new :user => self[2], :group => self[1]
+    node = command BlockNode do
+      name 'block'
+      args :user, :spaces_in_args => false
+      args :user, :group, :spaces_in_args => false
     end
+    return node if node
 
     # Owner
-    if scan /^\s*(?:#|\.)*?\s*(?:owner|ow)(\s+(?:help|\?))?\s*$/i
+    if scan /^(?:#|\.)*?\s*(?:owner|ow)(\s+(?:help|\?))?\s*$/i
       return HelpNode.new :node => OwnerNode
-    elsif scan /^\s*(?:#|\.)*?\s*(?:owner|ow)\s+(?:@\s*)?(\S+)$/i
+    elsif scan /^(?:#|\.)*?\s*(?:owner|ow)\s+(?:@\s*)?(\S+)$/i
       return OwnerNode.new :user => self[1]
-    elsif scan /^\s*(?:#|\.)*?\s*(?:owner|ow)\s+(?:@\s*)?(\S+)\s+(?:\+\s*)?(\d+)$/i
+    elsif scan /^(?:#|\.)*?\s*(?:owner|ow)\s+(?:@\s*)?(\S+)\s+(?:\+\s*)?(\d+)$/i
       return OwnerNode.new :user => self[2], :group => self[1]
-    elsif scan /^\s*(?:#|\.)*?\s*(?:owner|ow)\s+(?:@\s*)?(\S+)\s+(?:@\s*)?(\S+)$/i
+    elsif scan /^(?:#|\.)*?\s*(?:owner|ow)\s+(?:@\s*)?(\S+)\s+(?:@\s*)?(\S+)$/i
       return OwnerNode.new :user => self[1], :group => self[2]
-    elsif scan /^\s*@\s*(\S+)\s*(?:#|\.)*?\s*(?:owner|ow)\s+(\S+)$/i
+    elsif scan /^@\s*(\S+)\s*(?:#|\.)*?\s*(?:owner|ow)\s+(\S+)$/i
       return OwnerNode.new :user => self[2], :group => self[1]
-    elsif scan /^\s*\$\s*(\S+)\s*$/i
+    elsif scan /^\$\s*(\S+)\s*$/i
       return OwnerNode.new :user => self[1]
-    elsif scan /^\s*\$\s*(\S+)\s+(\S+)\s*$/i
+    elsif scan /^\$\s*(\S+)\s+(\S+)\s*$/i
       return OwnerNode.new :user => self[1], :group => self[2]
     end
 
     # My
-    if scan /^\s*(?:#|\.)*\s*my\s*$/i
+    if scan /^(?:#|\.)*\s*my\s*$/i
       return HelpNode.new :node => MyNode
-    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)(help|\?)\s*$/i
+    elsif scan /^(?:#|\.)*\s*my(?:\s+|_*)(help|\?)\s*$/i
       return HelpNode.new :node => MyNode
-    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)groups\s*$/i
+    elsif scan /^(?:#|\.)*\s*my(?:\s+|_*)groups\s*$/i
       return MyNode.new :key => MyNode::Groups
-    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)(?:group|g)\s*$/i
+    elsif scan /^(?:#|\.)*\s*my(?:\s+|_*)(?:group|g)\s*$/i
       return MyNode.new :key => MyNode::Group
-    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)(?:group|g)\s+(?:@\s*)?(\S+)\s*$/i
+    elsif scan /^(?:#|\.)*\s*my(?:\s+|_*)(?:group|g)\s+(?:@\s*)?(\S+)\s*$/i
       return MyNode.new :key => MyNode::Group, :value => self[1].strip
-    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)name\s*$/i
+    elsif scan /^(?:#|\.)*\s*my(?:\s+|_*)name\s*$/i
       return MyNode.new :key => MyNode::Name
-    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)name\s+(.+?)\s*$/i
+    elsif scan /^(?:#|\.)*\s*my(?:\s+|_*)name\s+(.+?)\s*$/i
       return MyNode.new :key => MyNode::Name, :value => self[1].strip
-    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)email\s*$/i
+    elsif scan /^(?:#|\.)*\s*my(?:\s+|_*)email\s*$/i
       return MyNode.new :key => MyNode::Email
-    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)email\s+(.+?)\s*$/i
+    elsif scan /^(?:#|\.)*\s*my(?:\s+|_*)email\s+(.+?)\s*$/i
       return MyNode.new :key => MyNode::Email, :value => self[1].strip
-    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)(number|phone|phonenumber|phone\s+number|mobile|mobilenumber|mobile\s+number)\s*$/i
+    elsif scan /^(?:#|\.)*\s*my(?:\s+|_*)(number|phone|phonenumber|phone\s+number|mobile|mobilenumber|mobile\s+number)\s*$/i
       return MyNode.new :key => MyNode::Number
-    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)(number|phone|phonenumber|phone\s+number|mobile|mobilenumber|mobile\s+number)\s*(.+?)\s*$/i
+    elsif scan /^(?:#|\.)*\s*my(?:\s+|_*)(number|phone|phonenumber|phone\s+number|mobile|mobilenumber|mobile\s+number)\s*(.+?)\s*$/i
       return MyNode.new :key => MyNode::Number, :value => self[1].strip
-    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)location\s*$/i
+    elsif scan /^(?:#|\.)*\s*my(?:\s+|_*)location\s*$/i
       return MyNode.new :key => MyNode::Location
-    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)location\s+(.+?)\s*$/i
+    elsif scan /^(?:#|\.)*\s*my(?:\s+|_*)location\s+(.+?)\s*$/i
       return MyNode.new :key => MyNode::Location, :value => check_numeric_location(self[1].strip)
-    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)login\s*$/i
+    elsif scan /^(?:#|\.)*\s*my(?:\s+|_*)login\s*$/i
       return MyNode.new :key => MyNode::Login
-    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)login\s+(\S+)\s*$/i
+    elsif scan /^(?:#|\.)*\s*my(?:\s+|_*)login\s+(\S+)\s*$/i
       return MyNode.new :key => MyNode::Login, :value => self[1]
-    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)password\s*$/i
+    elsif scan /^(?:#|\.)*\s*my(?:\s+|_*)password\s*$/i
       return MyNode.new :key => MyNode::Password
-    elsif scan /^\s*(?:#|\.)*\s*my(?:\s+|_*)password\s+(\S+)\s*$/i
+    elsif scan /^(?:#|\.)*\s*my(?:\s+|_*)password\s+(\S+)\s*$/i
       return MyNode.new :key => MyNode::Password, :value => self[1]
     end
 
     # Who is
-    if scan /^\s*(?:#|\.)*\s*(?:whois|wi)(\s+(?:help|\?))?\s*$/i
+    if scan /^(?:#|\.)*\s*(?:whois|wi)(\s+(?:help|\?))?\s*$/i
       return HelpNode.new :node => WhoIsNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:whois|wi)\s+(?:@\s*)?(.+?)\s*\??\s*$/i
+    elsif scan /^(?:#|\.)*\s*(?:whois|wi)\s+(?:@\s*)?(.+?)\s*\??\s*$/i
       return WhoIsNode.new :user => self[1].strip
     end
 
     # Where is
-    if scan /^\s*(?:#|\.)*\s*(?:whereis|wh|w)(\s+(?:help|\?))?\s*$/i
+    if scan /^(?:#|\.)*\s*(?:whereis|wh|w)(\s+(?:help|\?))?\s*$/i
       return HelpNode.new :node => WhereIsNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:whereis|wh|w)\s+(?:@\s*)?(.+?)\s*\??\s*$/i
+    elsif scan /^(?:#|\.)*\s*(?:whereis|wh|w)\s+(?:@\s*)?(.+?)\s*\??\s*$/i
       return WhereIsNode.new :user => self[1].strip
     end
 
     # Language
-    if scan /^\s*(?:#|\.)*\s*(?:lang|_)(\s+(?:help|\?))?\s*$/i
+    if scan /^(?:#|\.)*\s*(?:lang|_)(\s+(?:help|\?))?\s*$/i
       return HelpNode.new :node => LanguageNode
-    elsif scan /^\s*(?:#|\.)*\s*(?:lang)\s+(.+?)\s*$/i
+    elsif scan /^(?:#|\.)*\s*(?:lang)\s+(.+?)\s*$/i
       return LanguageNode.new :name => self[1].strip
-    elsif scan /^\s*(?:#|\.)*\s*_+\s*(.+?)\s*$/i
+    elsif scan /^(?:#|\.)*\s*_+\s*(.+?)\s*$/i
       return LanguageNode.new :name => self[1].strip
     end
 
     # Unknown command
-    if scan /^\s*(#|\.)+\s*(\S+)\s*(?:.+?)?$/i
+    if scan /^(#|\.)+\s*(\S+)\s*(?:.+?)?$/i
       trigger = self[1][0 ... 1]
       command = self[2]
       return UnknownCommandNode.new :trigger => trigger, :command => command
@@ -369,71 +397,71 @@ class Parser < StringScanner
   end
 
   def parse_message_with_location(options = {})
-    if scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+\.\d+\.\d+)\s*°?\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+\.\d+\.\d+)\s*°?\s*(E|W)?\s*\*?\s*(.+?)?$/i
+    if scan /^(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+\.\d+\.\d+)\s*°?\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+\.\d+\.\d+)\s*°?\s*(E|W)?\s*\*?\s*(.+?)?$/i
       sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
       sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
       loc = location(* self[2].gsub(/\s/, '').split('.') + self[5].gsub(/\s/, '').split('.'))
       loc[0] = loc[0] * sign0
       loc[1] = loc[1] * sign1
       MessageNode.new options.merge(:location => loc, :body => self[7].try(:strip))
-    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+\,\d+\,\d+)\s*°?\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+\,\d+\,\d+)\s*°?\s*(E|W)?\s*\*?\s*(.+?)?$/i
+    elsif scan /^(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+\,\d+\,\d+)\s*°?\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+\,\d+\,\d+)\s*°?\s*(E|W)?\s*\*?\s*(.+?)?$/i
       sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
       sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
       loc = location(* self[2].gsub(/\s/, '').split(',') + self[5].gsub(/\s/, '').split(','))
       loc[0] = loc[0] * sign0
       loc[1] = loc[1] * sign1
       MessageNode.new options.merge(:location => loc, :body => self[7].try(:strip))
-    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+\.\d+\.\d+\.\d+)\s*°?\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+\.\d+\.\d+\.\d+)\s*°?\s*(E|W)?\s*\*?\s*(.+?)?$/i
+    elsif scan /^(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+\.\d+\.\d+\.\d+)\s*°?\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+\.\d+\.\d+\.\d+)\s*°?\s*(E|W)?\s*\*?\s*(.+?)?$/i
       sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
       sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
       loc = location(* self[2].gsub(/\s/, '').split('.') + self[5].gsub(/\s/, '').split('.'))
       loc[0] = loc[0] * sign0
       loc[1] = loc[1] * sign1
       MessageNode.new options.merge(:location => loc, :body => self[7].try(:strip))
-    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+\,\d+\,\d+\,\d+)\s*°?\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+\,\d+\,\d+\,\d+)\s*°?\s*(E|W)?\s*\*?\s*(.+?)?$/i
+    elsif scan /^(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+\,\d+\,\d+\,\d+)\s*°?\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+\,\d+\,\d+\,\d+)\s*°?\s*(E|W)?\s*\*?\s*(.+?)?$/i
       sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
       sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
       loc = location(* self[2].gsub(/\s/, '').split(',') + self[5].gsub(/\s/, '').split(','))
       loc[0] = loc[0] * sign0
       loc[1] = loc[1] * sign1
       MessageNode.new options.merge(:location => loc, :body => self[7].try(:strip))
-    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*°\s*(N|S)?(?:\s*(?:\*|,)?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*°\s*(E|W)?\s*\*?\s*([^\s\d].+?)?$/i
+    elsif scan /^(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*°\s*(N|S)?(?:\s*(?:\*|,)?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*°\s*(E|W)?\s*\*?\s*([^\s\d].+?)?$/i
       sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
       sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
       loc = [self[2].gsub(/\s/, '').to_f, self[5].gsub(/\s/, '').to_f]
       loc[0] = loc[0] * sign0
       loc[1] = loc[1] * sign1
       MessageNode.new options.merge(:location => loc, :body => self[7].try(:strip))
-    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)(?:\s*°\s*|\s+)(\d+)?(?:\s*'\s*|\s+)(\d+)?(?:\s*''\s*)?\s*(N|S)?(?:\s*(?:\*|,)?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)(?:\s*°\s*|\s*)(\d+)?(?:\s*'\s*|\s*)(\d+)?(?:\s*''\s*)?\s*(E|W)?\s*\*?\s*(.+?)?$/i
+    elsif scan /^(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)(?:\s*°\s*|\s+)(\d+)?(?:\s*'\s*|\s+)(\d+)?(?:\s*''\s*)?\s*(N|S)?(?:\s*(?:\*|,)?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)(?:\s*°\s*|\s*)(\d+)?(?:\s*'\s*|\s*)(\d+)?(?:\s*''\s*)?\s*(E|W)?\s*\*?\s*(.+?)?$/i
       sign0 = self[1] == 'S' || self[5] == 'S' ? -1 : 1
       sign1 = self[6] == 'W' || self[10] == 'W' ? -1 : 1
       loc = location(self[2].gsub(/\s/, ''), self[3], self[4], self[7].gsub(/\s/, ''), self[8], self[9])
       loc[0] = loc[0] * sign0
       loc[1] = loc[1] * sign1
       MessageNode.new options.merge(:location => loc, :body => self[11].try(:strip))
-    elsif scan /^\s*(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(N|S)?(?:\s*(?:\*|,)\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(E|W)?\s*\*?\s*(.+?)?$/i
+    elsif scan /^(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(N|S)?(?:\s*(?:\*|,)\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(E|W)?\s*\*?\s*(.+?)?$/i
       sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
       sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
       loc = [self[2].gsub(/\s/, '').to_f, self[5].gsub(/\s/, '').to_f]
       loc[0] = loc[0] * sign0
       loc[1] = loc[1] * sign1
       MessageNode.new options.merge(:location => loc, :body => self[7].try(:strip))
-    elsif scan /^\s*(?:at|l:)\s+\/?(.+?)\/?\s*\*\s*([^\/]+)?$/i
+    elsif scan /^(?:at|l:)\s+\/?(.+?)\/?\s*\*\s*([^\/]+)?$/i
       MessageNode.new options.merge(:location => self[1], :body => self[2].try(:strip))
-    elsif scan /^\s*(?:at|l:)\s+\/(.+?)\/\s*(!)?\s*(.+?)?$/i
+    elsif scan /^(?:at|l:)\s+\/(.+?)\/\s*(!)?\s*(.+?)?$/i
       MessageNode.new options.merge(:location => self[1], :body => self[3].try(:strip), :blast => self[2] ? true : options[:blast])
-    elsif scan /^\s*\/?(.+?)\/?\s*\*\s*([^\/]+)?$/i
+    elsif scan /^\/?(.+?)\/?\s*\*\s*([^\/]+)?$/i
       MessageNode.new options.merge(:location => self[1], :body => self[2].try(:strip))
-    elsif scan /^\s*(?:(?:at|l:)\s+)?\s*\/([^\/]+)$/i
+    elsif scan /^(?:(?:at|l:)\s+)?\s*\/([^\/]+)$/i
       pieces = self[1].split ' ', 2
       if pieces[1] && pieces[1].start_with?('!')
         options[:blast] = true
         pieces[1] = pieces[1][1 .. -1].strip
       end
       MessageNode.new options.merge(:location => pieces[0], :body => pieces[1])
-    elsif scan /^\s*(?:at|l:)\s+\/?(.+?)\/?$/i
+    elsif scan /^(?:at|l:)\s+\/?(.+?)\/?$/i
       MessageNode.new options.merge(:location => self[1])
-    elsif scan /^\s*\/(.+?)\/\s*(!)?\s*(.+?)?$/i
+    elsif scan /^\/(.+?)\/\s*(!)?\s*(.+?)?$/i
       MessageNode.new options.merge(:location => self[1], :body => self[3].try(:strip), :blast => self[2] ? true : options[:blast])
     else
       nil
@@ -441,7 +469,7 @@ class Parser < StringScanner
   end
 
   def check_blast
-    if scan /\s*!\s*(.+?)$/i
+    if scan /!\s*(.+?)$/i
       self.string = self[1]
       true
     else
