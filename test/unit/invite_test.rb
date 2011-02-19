@@ -65,7 +65,7 @@ class InviteTest < PipelineTest
 
     send_message 1, "create group Group1"
     send_message 1, "create group Group2"
-    send_message 1, "#my group Group1"
+    send_message 1, ".my group Group1"
 
     send_message 1, "invite User2 User3"
     assert_invite_exists "Group1", "User2", "User3"

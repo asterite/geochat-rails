@@ -596,6 +596,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "my help", :node => MyNode
   it_parses_help "help my", :node => MyNode
 
-  it_parses_unknown_command ".my_passwor", :trigger => '.', :command => 'my_passwor'
+  it_parses_unknown_command ".my_passwor", :command => 'my_passwor'
 
 end
