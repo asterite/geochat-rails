@@ -23,6 +23,10 @@ class StringScanner
       names = names.join('|')
       names = "(?:#{names})"
 
+      if scan /^.\*(?:help|h|\?)\s+#{names}$/i
+        p "!"
+      end
+
       if command.args == [[:none]]
         if scan /^#{prefix}\s*#{names}\s+(help|\?)\s*$/i
           return HelpNode.new :node => node
