@@ -241,15 +241,44 @@ class Parser < StringScanner
     return node if node
 
     # Create group
-    scan_command 'create', 'create group', 'creategroup', 'cg', '\*', :help => true do
-      return HelpNode.new :node => CreateGroupNode
+    node = command CreateGroupNode do
+      name 'create group'
+      name 'creategroup', 'create', 'cg'
+      name '\*', :prefix => :none, :space_after_command => false
+      args :alias, :options
+      args :alias
+      change_args do |args|
+        args[:public] = false
+        args[:nochat] = false
+        if args[:options]
+          pieces = args[:options].split
+          in_name = false
+          name = nil
+          pieces.each do |piece|
+            down = piece.downcase
+            case down
+            when 'name'
+              in_name = true
+              name = ''
+            when 'nochat', 'alert'
+              args[:nochat] = true
+              in_name = false
+            when 'public', 'nohide', 'visible'
+              args[:public] = true
+              in_name = false
+            when 'chat', 'chatroom', 'hide', 'private'
+              in_name = false
+            else
+              name << piece
+              name << ' '
+            end
+          end
+        end
+        args[:name] = name.strip if name
+        args.delete :options
+      end
     end
-
-    if scan /^\.*\s*(?:create\s*group|create|cg)\s+(?:@\s*)?(.+?)(\s+.+?)?$/i
-      return new_create_group self[1], self[2]
-    elsif scan /^\*\s*(?:@\s*)?(.+?)(\s+.+?)?$/i
-      return new_create_group self[1], self[2]
-    end
+    return node if node
 
     # Invite
     scan_command 'invite', 'i', :help => true do
@@ -486,36 +515,6 @@ class Parser < StringScanner
 
   def new_signup(string, group = nil)
     SignupNode.new :display_name => string, :suggested_login => string.gsub(/\s/, ''), :group => group
-  end
-
-  def new_create_group(group_alias, pieces)
-    options = {:alias => self[1], :public => false, :nochat => false}
-    if pieces
-      pieces = pieces.split
-      in_name = false
-      name = nil
-      pieces.each do |piece|
-        down = piece.downcase
-        case down
-        when 'name'
-          in_name = true
-          name = ''
-        when 'nochat', 'alert'
-          options[:nochat] = true
-          in_name = false
-        when 'public', 'nohide', 'visible'
-          options[:public] = true
-          in_name = false
-        when 'chat', 'chatroom', 'hide', 'private'
-          in_name = false
-        else
-          name << piece
-          name << ' '
-        end
-      end
-    end
-    options[:name] = name.strip if name
-    CreateGroupNode.new options
   end
 
   def location(*args)

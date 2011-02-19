@@ -58,6 +58,8 @@ class StringScanner
           arg = spaces_in_args ? '(.+?)' : '(\S+)'
           the_args = Array.new(args.length, arg).join('\s+')
 
+          #p "^#{prefix}\\s*#{names}#{space}#{the_args}\\s*"
+
           if scan /^#{prefix}\s*#{names}#{space}#{the_args}\s*$/i
             hash = Hash.new
             args.each_with_index do |name, i|
@@ -69,12 +71,14 @@ class StringScanner
             return command.node.new hash
           end
 
-          1.upto(args.length - 1) do |new_length|
-            arg = spaces_in_args ? '(.+?)' : '(\S+)'
-            the_args = Array.new(new_length, arg).join('\s+')
+          if command.args.length == 1
+            1.upto(args.length - 1) do |new_length|
+              arg = spaces_in_args ? '(.+?)' : '(\S+)'
+              the_args = Array.new(new_length, arg).join('\s+')
 
-            if scan /^#{prefix}\s*#{names}#{space}#{the_args}\s*$/i
-              return HelpNode.new :node => node
+              if scan /^#{prefix}\s*#{names}#{space}#{the_args}\s*$/i
+                return HelpNode.new :node => node
+              end
             end
           end
         end
