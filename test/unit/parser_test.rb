@@ -240,8 +240,9 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_invite "invite group +0823242342", :users => ['0823242342'], :group => 'group'
   it_parses_invite "invite group +0823242342 +another user", :users => ['0823242342', 'another', 'user'], :group => 'group'
   it_parses_invite "invite +0823242342 +1234 +another user", :users => ['0823242342', '1234', 'another', 'user'], :group => nil
-  it_parses_invite "invite someone group", :users => ['group'], :group => 'someone'
-  it_parses_invite "invite @group someone", :users => ['group'], :group => 'someone'
+  it_parses_invite "invite group someone", :users => ['someone'], :group => 'group'
+  it_parses_invite "invite group someone else", :users => ['someone', 'else'], :group => 'group'
+  it_parses_invite "invite @group someone", :users => ['someone'], :group => 'group'
   it_parses_invite "@group invite someone", :users => ['someone'], :group => 'group'
   it_parses_invite "MyGroup invite someone", :users => ['someone'], :group => 'MyGroup'
   it_parses_invite "MyGroup invite +someone", :users => ['someone'], :group => 'MyGroup'
@@ -262,6 +263,7 @@ class ParserTest < ActiveSupport::TestCase
 
   it_parses_join "join alias", :group => 'alias'
   it_parses_join "join group alias", :group => 'alias'
+  it_parses_join "join group1", :group => 'group1'
   it_parses_join ".j alias", :group => 'alias'
   it_parses_join ".join alias", :group => 'alias'
   it_parses_join ">alias", :group => 'alias'
@@ -269,6 +271,7 @@ class ParserTest < ActiveSupport::TestCase
 
   it_parses_leave "leave alias", :group => 'alias'
   it_parses_leave "leave group alias", :group => 'alias'
+  it_parses_leave "leave group1", :group => 'group1'
   it_parses_leave ".l alias", :group => 'alias'
   it_parses_leave ".leave alias", :group => 'alias'
   it_parses_leave "<alias", :group => 'alias'
@@ -338,7 +341,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_language ".lang en", :name => 'en'
   it_parses_language "_en", :name => 'en'
   it_parses_language "_ en", :name => 'en'
-  it_parses_language "___ en", :name => 'en'
 
   it_parses_message "@group 1234", :body => '1234', :target => UnknownTarget.new('group')
   it_parses_message "1234", :body => '1234'
@@ -493,11 +495,11 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_signup_and_join "display name join group", :display_name => 'display name', :suggested_login => 'displayname', :group => 'group'
   it_parses_signup_and_join "display name ! group", :display_name => 'display name', :suggested_login => 'displayname', :group => 'group'
 
-  it_parses_help "help", :node => HelpNode
-  it_parses_help ".help", :node => HelpNode
-  it_parses_help "h", :node => HelpNode
-  it_parses_help ".h", :node => HelpNode
-  it_parses_help "?", :node => HelpNode
+  it_parses_help "help", :node => nil
+  it_parses_help ".help", :node => nil
+  it_parses_help "h", :node => nil
+  it_parses_help ".h", :node => nil
+  it_parses_help "?", :node => nil
   it_parses_help ".im", :node => LoginNode
   it_parses_help ".im username", :node => LoginNode
   it_parses_help "invite help", :node => InviteNode

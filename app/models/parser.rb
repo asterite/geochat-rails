@@ -138,48 +138,6 @@ class Parser < StringScanner
       unscan
     end
 
-    # Help
-    node = command HelpNode do
-      name 'help', 'h', '\?'
-      args :node, :optional => true
-      change_args do |args|
-        args[:node] = args[:node][1 .. -1] if args[:node].start_with?('.')
-        args[:node] = case args[:node].downcase
-                      when 'owner', 'group owner', 'owner group', 'ow'
-                        OwnerNode
-                      when 'block'
-                       BlockNode
-                      when 'lang', '_'
-                        LanguageNode
-                      when 'create', 'create group', 'creategroup', 'cg', '*'
-                        CreateGroupNode
-                      when  'join', 'join group', 'joingroup', 'j', '>'
-                        JoinNode
-                      when  'leave', 'leave group', 'leavegroup', 'l', '<'
-                        LeaveNode
-                      when 'log in', 'login', 'li', 'i am', 'iam', "i'm", 'im', '('
-                        LoginNode
-                      when 'log out', 'logout', 'log off', 'logoff', 'lo', 'bye', ')'
-                        LogoutNode
-                      when 'stop', 'off'
-                        OffNode
-                      when 'start', 'on'
-                        OnNode
-                      when 'name', 'n', 'signup'
-                        SignupNode
-                      when 'who is', 'whois', 'wh'
-                        WhoIsNode
-                      when 'whereis', 'where is', 'wi', 'w'
-                        WhereIsNode
-                      when 'my'
-                        MyNode
-                      when 'i', 'invite'
-                        InviteNode
-                      end
-      end
-    end
-    return node if node
-
     node = parse_message_with_location options
     return node if node
 
@@ -196,18 +154,15 @@ class Parser < StringScanner
     node = command SignupNode do
       name 'name', 'signup'
       name 'n', :prefix => :required
+      name "'", :prefix => :none, :space_after_command => false
       args :display_name
       change_args do |args|
+        args[:display_name] = args[:display_name][0 .. -2] if args[:display_name].end_with? "'"
+        args[:display_name] = args[:display_name].strip
         args[:suggested_login] = args[:display_name].gsub(/\s/, '')
       end
     end
     return node if node
-
-    if scan /^'(.+)'?$/i
-      str = self[1].strip
-      str = str[0 ... -1] if str[-1] == "'"
-      return new_signup str.strip
-    end
 
     # Login
     node = command LoginNode do
@@ -281,40 +236,44 @@ class Parser < StringScanner
     return node if node
 
     # Invite
-    scan_command 'invite', 'i', :help => true do
-      return HelpNode.new :node => InviteNode
-    end
+    node = command InviteNode do
+      name 'invite'
+      name 'i', :prefix => :required
+      name '\+', :prefix => :none, :space_after_command => false
+      args :users
+      change_args do |args, name|
+        users = args[:users].split
+        if users.length == 1 || name == '+'
+          args[:users] = users
+        else
+          args[:users] = []
+          only_users = false
+          users.each_with_index do |user, i|
+            user = user[1 .. -1] if user.start_with? '@'
+            starts_with_plus = user.start_with? '+'
+            digits = user =~ /^\d+$/
 
-    if scan /^(?:invite|\.invite|\.i)\s+\+?(\d+\s+\+?\d+\s+.+?)$/i
-      users = self[1].split.without_prefix! '+'
-      return InviteNode.new :users => users
-    elsif scan /^(?:invite|\.invite|\.i)\s+\+?(\d+)\s+(?:@\s*)?(.+?)$/i
-      return InviteNode.new :users => [self[1].strip], :group => self[2].strip
-    elsif scan /^(?:invite|\.invite|\.i)\s+(?:@\s*)?(.+?)\s+\+?(\d+\s*.*?)$/i
-      group = self[1].strip
-      users = self[2].split.without_prefix! '+'
-      return InviteNode.new :users => users, :group => group
-    elsif scan /^(?:invite|\.invite|\.i)\s+@\s*(.+?)\s+(.+?)$/i
-      users = [self[1].strip]
-      group = self[2].strip
-      return InviteNode.new :users => users, :group => group
-    elsif scan /^(?:invite|\.invite|\.i)\s+(.+?)$/i
-      pieces = self[1].split.without_prefix! '@'
-      group, *users = pieces
-      group, users = nil, [group] if users.empty?
-      return InviteNode.new :users => users, :group => group
-    elsif scan /^@\s*(.+?)\s+(?:invite|\.invite|\.i)\s+(.+?)$/i
-      users = self[2].split
-      return InviteNode.new :users => users, :group => self[1].strip
-    elsif scan /^\+\s*(.+?)$/i
-      return InviteNode.new :users => self[1].split
-    elsif scan /^@\s*(.+?)\s+\+\s*(.+?)$/i
-      return InviteNode.new :users => self[2].split, :group => self[1].strip
+            if i == 1 && !starts_with_plus && users.length == 2 && !args[:group]
+              args[:group] = user
+            elsif args[:group] || only_users || starts_with_plus || digits
+              if starts_with_plus
+                user = user[1 .. -1]
+                only_users = true
+              end
+              args[:users] << user
+            else
+              args[:group] = user
+            end
+          end
+        end
+      end
     end
+    return node if node
 
     # Join
     node = command JoinNode do
-      name 'join', 'join group', 'joingroup'
+      name 'join group'
+      name 'join', 'joingroup'
       name 'j', :prefix => :required
       name '>', :space_after_command => false
       args :group, :spaces_in_args => false
@@ -323,7 +282,8 @@ class Parser < StringScanner
 
     # Leave
     node = command LeaveNode do
-      name 'leave', 'leave group', 'leavegroup'
+      name 'leave group'
+      name 'leave', 'leavegroup'
       name 'l', :prefix => :required
       name '<', :space_after_command => false
       args :group, :spaces_in_args => false
@@ -339,21 +299,17 @@ class Parser < StringScanner
     return node if node
 
     # Owner
-    if scan /^\.*\s*(?:owner|ow)(\s+(?:help|\?))?\s*$/i
-      return HelpNode.new :node => OwnerNode
-    elsif scan /^\.*\s*(?:owner|ow)\s+(?:@\s*)?(\S+)$/i
-      return OwnerNode.new :user => self[1]
-    elsif scan /^\.*\s*(?:owner|ow)\s+(?:@\s*)?(\S+)\s+(?:\+\s*)?(\d+)$/i
-      return OwnerNode.new :user => self[2], :group => self[1]
-    elsif scan /^\.*\s*(?:owner|ow)\s+(?:@\s*)?(\S+)\s+(?:@\s*)?(\S+)$/i
-      return OwnerNode.new :user => self[1], :group => self[2]
-    elsif scan /^@\s*(\S+)\s*\.*\s*(?:owner|ow)\s+(\S+)$/i
-      return OwnerNode.new :user => self[2], :group => self[1]
-    elsif scan /^\$\s*(\S+)\s*$/i
-      return OwnerNode.new :user => self[1]
-    elsif scan /^\$\s*(\S+)\s+(\S+)\s*$/i
-      return OwnerNode.new :user => self[1], :group => self[2]
+    node = command OwnerNode do
+      name 'owner group'
+      name 'owner', 'ow', 'group owner'
+      name '\$', :prefix => :none, :space_after_command => false
+      args :user, :spaces_in_args => false
+      args :user, :group, :spaces_in_args => false
+      change_args do |args|
+        args[:group], args[:user] = args[:user], args[:group] if args[:group] && args[:group].integer?
+      end
     end
+    return node if node
 
     # My
     if scan /^\.*\s*my\s*$/i
@@ -393,27 +349,45 @@ class Parser < StringScanner
     end
 
     # Who is
-    if scan /^\.*\s*(?:whois|wi)(\s+(?:help|\?))?\s*$/i
-      return HelpNode.new :node => WhoIsNode
-    elsif scan /^\.*\s*(?:whois|wi)\s+(?:@\s*)?(.+?)\s*\??\s*$/i
-      return WhoIsNode.new :user => self[1].strip
+    node = command WhoIsNode do
+      name 'whois', 'wi'
+      args :user, :spaces_in_args => false
+      change_args do |args|
+        args[:user] = args[:user][0 .. -2] if args[:user].end_with? '?'
+      end
     end
+    return node if node
 
-    # Where is
-    if scan /^\.*\s*(?:whereis|wh|w)(\s+(?:help|\?))?\s*$/i
-      return HelpNode.new :node => WhereIsNode
-    elsif scan /^\.*\s*(?:whereis|wh|w)\s+(?:@\s*)?(.+?)\s*\??\s*$/i
-      return WhereIsNode.new :user => self[1].strip
+    node = command WhereIsNode do
+      name 'whereis', 'wh', 'w'
+      args :user, :spaces_in_args => false
+      change_args do |args|
+        args[:user] = args[:user][0 .. -2] if args[:user].end_with? '?'
+      end
     end
+    return node if node
 
     # Language
-    if scan /^\.*\s*(?:lang|_)(\s+(?:help|\?))?\s*$/i
-      return HelpNode.new :node => LanguageNode
-    elsif scan /^\.*\s*(?:lang)\s+(.+?)\s*$/i
-      return LanguageNode.new :name => self[1].strip
-    elsif scan /^\.*\s*_+\s*(.+?)\s*$/i
-      return LanguageNode.new :name => self[1].strip
+    node = command LanguageNode do
+      name 'lang'
+      name '_', :prefix => :none, :space_after_command => false
+      args :name
     end
+    return node if node
+
+    # Help
+    node = command HelpNode do
+      name 'help', 'h', '\?'
+      args :node, :optional => true
+      change_args do |args|
+        args[:node] = args[:node][1 .. -1] if args[:node].start_with?('.')
+        args[:node] = case args[:node].downcase
+                      when 'my'
+                        MyNode
+                      end
+      end
+    end
+    return node if node
 
     # Unknown command
     if scan /^\.+\s*(\S+)\s*(?:.+?)?$/i
@@ -479,6 +453,10 @@ class Parser < StringScanner
     elsif scan /^(?:at|l:)\s+\/(.+?)\/\s*(!)?\s*(.+?)?$/i
       MessageNode.new options.merge(:location => self[1], :body => self[3].try(:strip), :blast => self[2] ? true : options[:blast])
     elsif scan /^\/?(.+?)\/?\s*\*\s*([^\/]+)?$/i
+      if self[1] == 'help'
+        unscan
+        return
+      end
       MessageNode.new options.merge(:location => self[1], :body => self[2].try(:strip))
     elsif scan /^(?:(?:at|l:)\s+)?\s*\/([^\/]+)$/i
       pieces = self[1].split ' ', 2

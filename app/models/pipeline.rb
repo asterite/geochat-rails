@@ -649,7 +649,7 @@ class Pipeline
 
   def process_help(node)
     case node.node.try(:new)
-    when HelpNode
+    when nil, HelpNode
       reply "GeoChat help center. Send help followed by a topic. Topics: signup, login, logout, create, join, leave, invite, on, off, my, whereis, whois, owner."
     when SignupNode
       reply "To signup in GeoChat send: name YOUR_NAME"
