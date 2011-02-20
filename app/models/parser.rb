@@ -159,7 +159,7 @@ class Parser < StringScanner
       change_args do |args|
         args[:display_name] = args[:display_name][0 .. -2] if args[:display_name].end_with? "'"
         args[:display_name] = args[:display_name].strip
-        args[:suggested_login] = args[:display_name].gsub(/\s/, '')
+        args[:suggested_login] = args[:display_name].without_spaces
       end
     end
     return node if node
@@ -398,76 +398,112 @@ class Parser < StringScanner
     MessageNode.new options.merge(:body => string)
   end
 
+  At = "(?:at|l:)?"
+  NS = "(N|S)?"
+  EW = "(E|W)?"
+  Sign = "(?:\\+|\\-)?"
+  FloatNumber = "(#{Sign}\\s*\\d+(?:\\.\\d+)?)"
+  IntNumber = "(\\d+)?"
+  TwoDotsNumber = "(#{Sign}\\s*\\d+\\.\\d+\\.\\d+)"
+  TwoCommasNumber = "(#{Sign}\\s*\\d+\\,\\d+\\,\\d+)"
+  ThreeDotsNumber = "(#{Sign}\\s*\\d+\\.\\d+\\.\\d+\\.\\d+)"
+  ThreeCommasNumber = "(#{Sign}\\s*\\d+\\,\\d+\\,\\d+\\,\\d+)"
+  Sep = "(?:\\s*\\*?\\s*|\\s+)"
+  Deg = "(?:\\s*°\\s*|\\s+)"
+  OptDeg = "(?:\\s*°\\s*|\\s*)"
+  Minutes = "(?:\\s*'\\s*|\\s+)"
+  OptMinutes = "(?:\\s*'\\s*|\\s*)"
+  Seconds = "(?:\\s*''\\s*)?"
+  StarComma = "(?:\\*|,)"
+  SlashLocation = "\\/(.+?)\\/"
+  OptSlashLocation = "\\/?(.+?)\\/?"
+  NoSlash = "([^\\/]+)"
+  Blast = "(!)?"
+
+  LocatedMessage1 = /^#{At}?\s*#{NS}\s*#{TwoDotsNumber}\s*°?\s*#{NS}#{Sep}#{EW}\s*#{TwoDotsNumber}\s*°?\s*#{EW}\s*\*?\s*(.+?)?$/i
+  LocatedMessage2 = /^#{At}?\s*#{NS}\s*#{TwoCommasNumber}\s*°?\s*#{NS}#{Sep}#{EW}\s*#{TwoCommasNumber}\s*°?\s*#{EW}\s*\*?\s*(.+?)?$/i
+  LocatedMessage3 = /^#{At}?\s*#{NS}\s*#{ThreeDotsNumber}\s*°?\s*#{NS}#{Sep}#{EW}\s*#{ThreeDotsNumber}\s*°?\s*#{EW}\s*\*?\s*(.+?)?$/i
+  LocatedMessage4 = /^#{At}?\s*#{NS}\s*#{ThreeCommasNumber}\s*°?\s*#{NS}#{Sep}#{EW}\s*#{ThreeCommasNumber}\s*°?\s*#{EW}\s*\*?\s*(.+?)?$/i
+  LocatedMessage5 = /^#{At}?\s*#{NS}\s*#{FloatNumber}\s*°\s*#{NS}(?:\s*#{StarComma}?\s*|\s+)#{EW}\s*#{FloatNumber}\s*°\s*#{EW}\s*\*?\s*([^\s\d].+?)?$/i
+  LocatedMessage6 = /^#{At}?\s*#{NS}\s*#{FloatNumber}#{Deg}#{IntNumber}#{Minutes}#{IntNumber}#{Seconds}\s*#{NS}(?:\s*#{StarComma}?\s*|\s+)#{EW}\s*#{FloatNumber}#{OptDeg}#{IntNumber}#{OptMinutes}#{IntNumber}#{Seconds}\s*#{EW}\s*\*?\s*(.+?)?$/i
+  LocatedMessage7 = /^#{At}?\s*#{NS}\s*#{FloatNumber}\s*#{NS}(?:\s*#{StarComma}\s*|\s+)#{EW}\s*#{FloatNumber}\s*#{EW}\s*\*?\s*(.+?)?$/i
+  LocatedMessage8 = /^#{At}?\s+#{OptSlashLocation}\s*\*\s*#{NoSlash}?$/i
+  LocatedMessage9 = /^#{At}?\s+#{SlashLocation}\s*#{Blast}\s*(.+?)?$/i
+  LocatedMessage10 = /^#{OptSlashLocation}\s*\*\s*#{NoSlash}?$/i
+  LocatedMessage11 = /^(?:#{At}\s+)?\s*\/#{NoSlash}$/i
+  LocatedMessage12 = /^#{At}\s+#{OptSlashLocation}$/i
+  LocatedMessage13 = /^#{SlashLocation}\s*#{Blast}\s*(.+?)?$/i
+
   def parse_message_with_location(options = {})
-    if scan /^(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+\.\d+\.\d+)\s*°?\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+\.\d+\.\d+)\s*°?\s*(E|W)?\s*\*?\s*(.+?)?$/i
+    if scan LocatedMessage1
       sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
       sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
-      loc = location(* self[2].gsub(/\s/, '').split('.') + self[5].gsub(/\s/, '').split('.'))
+      loc = location(* self[2].without_spaces.split('.') + self[5].without_spaces.split('.'))
       loc[0] = loc[0] * sign0
       loc[1] = loc[1] * sign1
       MessageNode.new options.merge(:location => loc, :body => self[7].try(:strip))
-    elsif scan /^(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+\,\d+\,\d+)\s*°?\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+\,\d+\,\d+)\s*°?\s*(E|W)?\s*\*?\s*(.+?)?$/i
+    elsif scan LocatedMessage2
       sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
       sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
-      loc = location(* self[2].gsub(/\s/, '').split(',') + self[5].gsub(/\s/, '').split(','))
+      loc = location(* self[2].without_spaces.split(',') + self[5].without_spaces.split(','))
       loc[0] = loc[0] * sign0
       loc[1] = loc[1] * sign1
       MessageNode.new options.merge(:location => loc, :body => self[7].try(:strip))
-    elsif scan /^(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+\.\d+\.\d+\.\d+)\s*°?\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+\.\d+\.\d+\.\d+)\s*°?\s*(E|W)?\s*\*?\s*(.+?)?$/i
+    elsif scan LocatedMessage3
       sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
       sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
-      loc = location(* self[2].gsub(/\s/, '').split('.') + self[5].gsub(/\s/, '').split('.'))
+      loc = location(* self[2].without_spaces.split('.') + self[5].without_spaces.split('.'))
       loc[0] = loc[0] * sign0
       loc[1] = loc[1] * sign1
       MessageNode.new options.merge(:location => loc, :body => self[7].try(:strip))
-    elsif scan /^(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+\,\d+\,\d+\,\d+)\s*°?\s*(N|S)?(?:\s*\*?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+\,\d+\,\d+\,\d+)\s*°?\s*(E|W)?\s*\*?\s*(.+?)?$/i
+    elsif scan LocatedMessage4
       sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
       sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
-      loc = location(* self[2].gsub(/\s/, '').split(',') + self[5].gsub(/\s/, '').split(','))
+      loc = location(* self[2].without_spaces.split(',') + self[5].without_spaces.split(','))
       loc[0] = loc[0] * sign0
       loc[1] = loc[1] * sign1
       MessageNode.new options.merge(:location => loc, :body => self[7].try(:strip))
-    elsif scan /^(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*°\s*(N|S)?(?:\s*(?:\*|,)?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*°\s*(E|W)?\s*\*?\s*([^\s\d].+?)?$/i
+    elsif scan LocatedMessage5
       sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
       sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
-      loc = [self[2].gsub(/\s/, '').to_f, self[5].gsub(/\s/, '').to_f]
+      loc = [self[2].without_spaces.to_f, self[5].without_spaces.to_f]
       loc[0] = loc[0] * sign0
       loc[1] = loc[1] * sign1
       MessageNode.new options.merge(:location => loc, :body => self[7].try(:strip))
-    elsif scan /^(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)(?:\s*°\s*|\s+)(\d+)?(?:\s*'\s*|\s+)(\d+)?(?:\s*''\s*)?\s*(N|S)?(?:\s*(?:\*|,)?\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)(?:\s*°\s*|\s*)(\d+)?(?:\s*'\s*|\s*)(\d+)?(?:\s*''\s*)?\s*(E|W)?\s*\*?\s*(.+?)?$/i
+    elsif scan LocatedMessage6
       sign0 = self[1] == 'S' || self[5] == 'S' ? -1 : 1
       sign1 = self[6] == 'W' || self[10] == 'W' ? -1 : 1
-      loc = location(self[2].gsub(/\s/, ''), self[3], self[4], self[7].gsub(/\s/, ''), self[8], self[9])
+      loc = location(self[2].without_spaces, self[3], self[4], self[7].without_spaces, self[8], self[9])
       loc[0] = loc[0] * sign0
       loc[1] = loc[1] * sign1
       MessageNode.new options.merge(:location => loc, :body => self[11].try(:strip))
-    elsif scan /^(?:at|l:)?\s*(N|S)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(N|S)?(?:\s*(?:\*|,)\s*|\s+)(E|W)?\s*((?:\+|\-)?\s*\d+(?:\.\d+)?)\s*(E|W)?\s*\*?\s*(.+?)?$/i
+    elsif scan LocatedMessage7
       sign0 = self[1] == 'S' || self[3] == 'S' ? -1 : 1
       sign1 = self[4] == 'W' || self[6] == 'W' ? -1 : 1
-      loc = [self[2].gsub(/\s/, '').to_f, self[5].gsub(/\s/, '').to_f]
+      loc = [self[2].without_spaces.to_f, self[5].without_spaces.to_f]
       loc[0] = loc[0] * sign0
       loc[1] = loc[1] * sign1
       MessageNode.new options.merge(:location => loc, :body => self[7].try(:strip))
-    elsif scan /^(?:at|l:)\s+\/?(.+?)\/?\s*\*\s*([^\/]+)?$/i
+    elsif scan LocatedMessage8
       MessageNode.new options.merge(:location => self[1], :body => self[2].try(:strip))
-    elsif scan /^(?:at|l:)\s+\/(.+?)\/\s*(!)?\s*(.+?)?$/i
+    elsif scan LocatedMessage9
       MessageNode.new options.merge(:location => self[1], :body => self[3].try(:strip), :blast => self[2] ? true : options[:blast])
-    elsif scan /^\/?(.+?)\/?\s*\*\s*([^\/]+)?$/i
+    elsif scan LocatedMessage10
       if self[1] == 'help'
         unscan
         return
       end
       MessageNode.new options.merge(:location => self[1], :body => self[2].try(:strip))
-    elsif scan /^(?:(?:at|l:)\s+)?\s*\/([^\/]+)$/i
+    elsif scan LocatedMessage11
       pieces = self[1].split ' ', 2
       if pieces[1] && pieces[1].start_with?('!')
         options[:blast] = true
         pieces[1] = pieces[1][1 .. -1].strip
       end
       MessageNode.new options.merge(:location => pieces[0], :body => pieces[1])
-    elsif scan /^(?:at|l:)\s+\/?(.+?)\/?$/i
+    elsif scan LocatedMessage12
       MessageNode.new options.merge(:location => self[1])
-    elsif scan /^\/(.+?)\/\s*(!)?\s*(.+?)?$/i
+    elsif scan LocatedMessage13
       MessageNode.new options.merge(:location => self[1], :body => self[3].try(:strip), :blast => self[2] ? true : options[:blast])
     else
       nil
@@ -483,8 +519,12 @@ class Parser < StringScanner
     end
   end
 
+  NumericLocationNum = "(\\d+(?:(?:\\.|,)\\d+)?)"
+  NumericLocationSep = "(?:\\s+|\\s*(?:,|\\.|\\*)\\s*)"
+  NumericLocation = /^\s*#{NumericLocationNum}#{NumericLocationSep}#{NumericLocationNum}\s*$/
+
   def check_numeric_location(string)
-    if string =~ /^\s*(\d+(?:(?:\.|,)\d+)?)(?:\s+|\s*(?:,|\.|\*)\s*)(\d+(?:(?:\.|,)\d+)?)\s*$/
+    if string =~ NumericLocation
       location($1, $2)
     else
       string
@@ -492,7 +532,7 @@ class Parser < StringScanner
   end
 
   def new_signup(string, group = nil)
-    SignupNode.new :display_name => string, :suggested_login => string.gsub(/\s/, ''), :group => group
+    SignupNode.new :display_name => string, :suggested_login => string.without_spaces, :group => group
   end
 
   def location(*args)
