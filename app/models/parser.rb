@@ -409,10 +409,10 @@ class Parser < StringScanner
   ThreeDotsNumber = "(#{Sign}\\s*\\d+\\.\\d+\\.\\d+\\.\\d+)"
   ThreeCommasNumber = "(#{Sign}\\s*\\d+\\,\\d+\\,\\d+\\,\\d+)"
   Sep = "(?:\\s*\\*?\\s*|\\s+)"
-  Deg = "(?:\\s*°\\s*|\\s+)"
-  OptDeg = "(?:\\s*°\\s*|\\s*)"
+  DegOrSpace = "(?:\\s*°\\s*|\\s+)"
+  OptDeg = "\\s*°?\\s*"
   Minutes = "(?:\\s*'\\s*|\\s+)"
-  OptMinutes = "(?:\\s*'\\s*|\\s*)"
+  OptMinutes = "\\s*'?\\s*"
   Seconds = "(?:\\s*''\\s*)?"
   StarComma = "(?:\\*|,)"
   SlashLocation = "\\/(.+?)\\/"
@@ -420,12 +420,12 @@ class Parser < StringScanner
   NoSlash = "([^\\/]+)"
   Blast = "(!)?"
 
-  LocatedMessage1 = /^#{At}?\s*#{NS}\s*#{TwoDotsNumber}\s*°?\s*#{NS}#{Sep}#{EW}\s*#{TwoDotsNumber}\s*°?\s*#{EW}\s*\*?\s*(.+?)?$/i
-  LocatedMessage2 = /^#{At}?\s*#{NS}\s*#{TwoCommasNumber}\s*°?\s*#{NS}#{Sep}#{EW}\s*#{TwoCommasNumber}\s*°?\s*#{EW}\s*\*?\s*(.+?)?$/i
-  LocatedMessage3 = /^#{At}?\s*#{NS}\s*#{ThreeDotsNumber}\s*°?\s*#{NS}#{Sep}#{EW}\s*#{ThreeDotsNumber}\s*°?\s*#{EW}\s*\*?\s*(.+?)?$/i
-  LocatedMessage4 = /^#{At}?\s*#{NS}\s*#{ThreeCommasNumber}\s*°?\s*#{NS}#{Sep}#{EW}\s*#{ThreeCommasNumber}\s*°?\s*#{EW}\s*\*?\s*(.+?)?$/i
+  LocatedMessage1 = /^#{At}?\s*#{NS}\s*#{TwoDotsNumber}#{OptDeg}#{NS}#{Sep}#{EW}\s*#{TwoDotsNumber}#{OptDeg}#{EW}\s*\*?\s*(.+?)?$/i
+  LocatedMessage2 = /^#{At}?\s*#{NS}\s*#{TwoCommasNumber}#{OptDeg}#{NS}#{Sep}#{EW}\s*#{TwoCommasNumber}#{OptDeg}#{EW}\s*\*?\s*(.+?)?$/i
+  LocatedMessage3 = /^#{At}?\s*#{NS}\s*#{ThreeDotsNumber}#{OptDeg}#{NS}#{Sep}#{EW}\s*#{ThreeDotsNumber}#{OptDeg}#{EW}\s*\*?\s*(.+?)?$/i
+  LocatedMessage4 = /^#{At}?\s*#{NS}\s*#{ThreeCommasNumber}#{OptDeg}#{NS}#{Sep}#{EW}\s*#{ThreeCommasNumber}#{OptDeg}#{EW}\s*\*?\s*(.+?)?$/i
   LocatedMessage5 = /^#{At}?\s*#{NS}\s*#{FloatNumber}\s*°\s*#{NS}(?:\s*#{StarComma}?\s*|\s+)#{EW}\s*#{FloatNumber}\s*°\s*#{EW}\s*\*?\s*([^\s\d].+?)?$/i
-  LocatedMessage6 = /^#{At}?\s*#{NS}\s*#{FloatNumber}#{Deg}#{IntNumber}#{Minutes}#{IntNumber}#{Seconds}\s*#{NS}(?:\s*#{StarComma}?\s*|\s+)#{EW}\s*#{FloatNumber}#{OptDeg}#{IntNumber}#{OptMinutes}#{IntNumber}#{Seconds}\s*#{EW}\s*\*?\s*(.+?)?$/i
+  LocatedMessage6 = /^#{At}?\s*#{NS}\s*#{FloatNumber}#{DegOrSpace}#{IntNumber}#{Minutes}#{IntNumber}#{Seconds}\s*#{NS}(?:\s*#{StarComma}?\s*|\s+)#{EW}\s*#{FloatNumber}#{OptDeg}#{IntNumber}#{OptMinutes}#{IntNumber}#{Seconds}\s*#{EW}\s*\*?\s*(.+?)?$/i
   LocatedMessage7 = /^#{At}?\s*#{NS}\s*#{FloatNumber}\s*#{NS}(?:\s*#{StarComma}\s*|\s+)#{EW}\s*#{FloatNumber}\s*#{EW}\s*\*?\s*(.+?)?$/i
   LocatedMessage8 = /^#{At}?\s+#{OptSlashLocation}\s*\*\s*#{NoSlash}?$/i
   LocatedMessage9 = /^#{At}?\s+#{SlashLocation}\s*#{Blast}\s*(.+?)?$/i
