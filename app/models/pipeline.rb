@@ -118,7 +118,7 @@ class Pipeline
     reply "#{current_channel.user.display_name}, this device has been removed from your account."
   end
 
-  def process_create_group(node)
+  def process_create(node)
     return reply_not_logged_in unless current_user
 
     if node.alias.length < 2
@@ -657,7 +657,7 @@ class Pipeline
       reply "To login to GeoChat from this channel send: login YOUR_LOGIN YOUR_PASSWORD"
     when LogoutNode
       reply "To logout from GeoChat send: logout"
-    when CreateGroupNode
+    when CreateNode
       reply "To create a group send: create GROUP_ALIAS"
     when JoinNode
       reply "To join a group send: join GROUP_ALIAS"
@@ -681,7 +681,7 @@ class Pipeline
   end
 
   KnownCommands = ['ping', 'name', 'login', 'iam', 'logout', 'logoff', 'bye', 'on', 'start', 'off', 'stop', 'create', 'creategroup', 'cg', 'invite', 'join', 'leave', 'block', 'owner', 'my groups', 'my group', 'my name', 'my email', 'my number', 'my phone', 'my phonenumber', 'my mobile', 'my mobilenumber', 'my location', 'my login', 'my password', 'whois', 'whereis', 'lang', 'at', 'help']
-  def process_unknown_command(node)
+  def process_unknown(node)
     candidate = KnownCommands.min_by {|x| x.levenshtein node.command}
     reply "Unknown command .#{node.command}. Maybe you meant to send: .#{candidate}"
   end

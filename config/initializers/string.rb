@@ -25,7 +25,22 @@ class String
     distance[self.size][other.size]
   end
 
+  # Returns a new string with spaces removed (everywhere).
   def without_spaces
     gsub(/\s/, '')
+  end
+
+  NumericLocationNum = "(\\d+(?:(?:\\.|,)\\d+)?)"
+  NumericLocationSep = "(?:\\s+|\\s*(?:,|\\.|\\*)\\s*)"
+  NumericLocation = /^\s*#{NumericLocationNum}#{NumericLocationSep}#{NumericLocationNum}\s*$/
+
+  # If this string denotes a numeric location, a two element array is returned
+  # with it. Otherwise this string is returned.
+  def to_location
+    if self =~ NumericLocation
+      [$1, $2].to_location
+    else
+      self
+    end
   end
 end

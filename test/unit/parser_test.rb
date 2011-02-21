@@ -59,8 +59,8 @@ class ParserTest < ActiveSupport::TestCase
     it_parses_node string, OffNode
   end
 
-  def self.it_parses_create_group(string, options = {})
-    it_parses_node string, CreateGroupNode, options
+  def self.it_parses_create(string, options = {})
+    it_parses_node string, CreateNode, options
   end
 
   def self.it_parses_invite(string, options = {})
@@ -87,8 +87,8 @@ class ParserTest < ActiveSupport::TestCase
     it_parses_node string, PingNode, options
   end
 
-  def self.it_parses_unknown_command(string, options = {})
-    it_parses_node string, UnknownCommandNode, options
+  def self.it_parses_unknown(string, options = {})
+    it_parses_node string, UnknownNode, options
   end
 
   def self.it_parses_message(string, options = {})
@@ -209,28 +209,28 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_off ".stop"
   it_parses_off "-"
 
-  it_parses_create_group "create alias", :alias => 'alias'
-  it_parses_create_group "create 123alias", :alias => '123alias'
-  it_parses_create_group "creategroup alias", :alias => 'alias'
-  it_parses_create_group "create group alias", :alias => 'alias'
-  it_parses_create_group "create alias nochat", :alias => 'alias', :nochat => true
-  it_parses_create_group "create alias alert", :alias => 'alias', :nochat => true
-  it_parses_create_group "create alias public", :alias => 'alias', :public => true
-  it_parses_create_group "create alias nohide", :alias => 'alias', :public => true
-  it_parses_create_group "create alias hide", :alias => 'alias', :public => false
-  it_parses_create_group "create alias private", :alias => 'alias', :public => false
-  it_parses_create_group "create alias visible", :alias => 'alias', :public => true
-  it_parses_create_group "create alias chat", :alias => 'alias', :nochat => false
-  it_parses_create_group "create alias chatroom", :alias => 'alias', :nochat => false
-  it_parses_create_group "create alias public nochat", :alias => 'alias', :public => true, :nochat => true
-  it_parses_create_group "create alias nochat public", :alias => 'alias', :public => true, :nochat => true
-  it_parses_create_group "create alias name foobar", :alias => 'alias', :name => 'foobar'
-  it_parses_create_group "create alias name foo bar baz", :alias => 'alias', :name => 'foo bar baz'
-  it_parses_create_group "create alias name foo bar baz public nochat", :alias => 'alias', :name => 'foo bar baz', :public => true, :nochat => true
-  it_parses_create_group "create alias public name foo bar baz nochat", :alias => 'alias', :name => 'foo bar baz', :public => true, :nochat => true
-  it_parses_create_group ".cg alias", :alias => 'alias'
-  it_parses_create_group "*alias", :alias => 'alias'
-  it_parses_create_group "* alias", :alias => 'alias'
+  it_parses_create "create alias", :alias => 'alias'
+  it_parses_create "create 123alias", :alias => '123alias'
+  it_parses_create "creategroup alias", :alias => 'alias'
+  it_parses_create "create group alias", :alias => 'alias'
+  it_parses_create "create alias nochat", :alias => 'alias', :nochat => true
+  it_parses_create "create alias alert", :alias => 'alias', :nochat => true
+  it_parses_create "create alias public", :alias => 'alias', :public => true
+  it_parses_create "create alias nohide", :alias => 'alias', :public => true
+  it_parses_create "create alias hide", :alias => 'alias', :public => false
+  it_parses_create "create alias private", :alias => 'alias', :public => false
+  it_parses_create "create alias visible", :alias => 'alias', :public => true
+  it_parses_create "create alias chat", :alias => 'alias', :nochat => false
+  it_parses_create "create alias chatroom", :alias => 'alias', :nochat => false
+  it_parses_create "create alias public nochat", :alias => 'alias', :public => true, :nochat => true
+  it_parses_create "create alias nochat public", :alias => 'alias', :public => true, :nochat => true
+  it_parses_create "create alias name foobar", :alias => 'alias', :name => 'foobar'
+  it_parses_create "create alias name foo bar baz", :alias => 'alias', :name => 'foo bar baz'
+  it_parses_create "create alias name foo bar baz public nochat", :alias => 'alias', :name => 'foo bar baz', :public => true, :nochat => true
+  it_parses_create "create alias public name foo bar baz nochat", :alias => 'alias', :name => 'foo bar baz', :public => true, :nochat => true
+  it_parses_create ".cg alias", :alias => 'alias'
+  it_parses_create "*alias", :alias => 'alias'
+  it_parses_create "* alias", :alias => 'alias'
 
   it_parses_invite "invite 0823242342", :users => ['0823242342']
   it_parses_invite "invite someone", :users => ['someone']
@@ -534,18 +534,18 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "_", :node => LanguageNode
   it_parses_help "_ ?", :node => LanguageNode
   it_parses_help "? _", :node => LanguageNode
-  it_parses_help "help create", :node => CreateGroupNode
-  it_parses_help "help creategroup", :node => CreateGroupNode
-  it_parses_help "help create group", :node => CreateGroupNode
-  it_parses_help "? create", :node => CreateGroupNode
-  it_parses_help "create help", :node => CreateGroupNode
-  it_parses_help "create ?", :node => CreateGroupNode
-  it_parses_help "create group help", :node => CreateGroupNode
-  it_parses_help "creategroup help", :node => CreateGroupNode
-  it_parses_help ".cg help", :node => CreateGroupNode
-  it_parses_help "help .cg", :node => CreateGroupNode
-  it_parses_help "help *", :node => CreateGroupNode
-  it_parses_help "* help", :node => CreateGroupNode
+  it_parses_help "help create", :node => CreateNode
+  it_parses_help "help creategroup", :node => CreateNode
+  it_parses_help "help create group", :node => CreateNode
+  it_parses_help "? create", :node => CreateNode
+  it_parses_help "create help", :node => CreateNode
+  it_parses_help "create ?", :node => CreateNode
+  it_parses_help "create group help", :node => CreateNode
+  it_parses_help "creategroup help", :node => CreateNode
+  it_parses_help ".cg help", :node => CreateNode
+  it_parses_help "help .cg", :node => CreateNode
+  it_parses_help "help *", :node => CreateNode
+  it_parses_help "* help", :node => CreateNode
   it_parses_help "help join", :node => JoinNode
   it_parses_help "join help", :node => JoinNode
   it_parses_help "join group help", :node => JoinNode
@@ -597,6 +597,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "my help", :node => MyNode
   it_parses_help "help my", :node => MyNode
 
-  it_parses_unknown_command ".my_passwor", :command => 'my_passwor'
+  it_parses_unknown ".my_passwor", :command => 'my_passwor'
 
 end
