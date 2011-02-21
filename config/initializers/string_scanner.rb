@@ -3,7 +3,7 @@ class StringScanner
     command = Command.new node
     command.instance_eval(&block)
 
-    command.args :none if command.args.length == 0
+    no_args = command.args.length == 0 || command.args.any?{|x| x.last == {:optional => true}}
 
     command.names.each do |names|
       name_options = names.last
@@ -13,28 +13,57 @@ class StringScanner
         name_options = {}
       end
 
-      prefix = case name_options[:prefix]
-               when nil, :optional
-                 '\.*'
-               when :required
-                 '\.+'
-               end
-
       names = names.join('|')
-      names = "(?:#{names})"
+      names = "(#{names})"
 
-      if command.args == [[:none]]
-        if scan /^#{prefix}\s*#{names}\s+(help|\?)\s*$/i
+      old_pos = self.pos
+
+      # Check help names
+      if scan /^\.*(?:help|h|\?)\s+\.*/i
+        if scan /^#{names}\s*$/
+          return HelpNode.new :node => node
+        else
+          self.pos = old_pos
+        end
+      end
+
+      prefix = name_options[:prefix] == :required ? '\.+' : '\.*'
+
+      old_pos = self.pos
+
+      # If the string doesn't start with the command name, abort
+      next unless scan /^#{prefix}\s*#{names}/i
+
+      matched_name = self[1]
+
+      # Special case: no arguments
+      if no_args
+        # This is the command
+        if scan /^\s*$/i
+          return command.node.new
+        # This is the help
+        elsif scan /^\s+(help|\?)\s*$/i
           return HelpNode.new :node => node
         end
       else
+        # Check if help follows
         if command.help != :no
-          if scan /^#{prefix}\s*#{names}(\s+(help|\?))?\s*$/i
+          if scan /^(\s+(help|\?))?\s*$/i
             return HelpNode.new :node => node
           end
         end
       end
 
+      # A space must follow (if specified so)
+      space_after_command = !name_options.has_key?(:space_after_command) || name_options[:space_after_command]
+      space = space_after_command ? /^\s+/ : /\s*/
+
+      if !scan space
+        self.pos = old_pos
+        next
+      end
+
+      # Now check arguments
       command.args.each do |args|
         args_options = args.last
         if args_options.is_a?(Hash)
@@ -42,45 +71,57 @@ class StringScanner
         else
           args_options = {}
         end
-        spaces_in_args = !args_options.has_key?(:spaces_in_args) || args_options[:spaces_in_args]
 
-        if args[0] == :none || args_options[:optional]
-          if scan /^#{prefix}\s*#{names}\s*$/i
-            return command.node.new
+        spaces_in_args = !args_options.has_key?(:spaces_in_args) || args_options[:spaces_in_args]
+        the_args = command_args args.length, spaces_in_args
+
+        if scan the_args
+          hash = Hash.new
+          args.each_with_index do |name, i|
+            hash[name.to_sym] = self[i + 1]
           end
+          command.change_args.call hash, matched_name if command.change_args
+          return command.node.new hash
         end
 
-        if args[0] != :none
-          spaces_in_args = !args_options.has_key?(:spaces_in_args) || args_options[:spaces_in_args]
-          space_after_command = !name_options.has_key?(:space_after_command) || name_options[:space_after_command]
-          space = space_after_command ? '\s+' : '\s*'
-
-          arg = spaces_in_args ? '(.+?)' : '(\S+)'
-          the_args = Array.new(args.length, arg).join('\s+')
-
-          if scan /^#{prefix}\s*#{names}#{space}#{the_args}\s*$/i
-            hash = Hash.new
-            args.each_with_index do |name, i|
-              hash[name.to_sym] = self[i + 1]
-            end
-            if command.change_args
-              command.change_args.call hash
-            end
-            return command.node.new hash
-          end
-
+        # This is in case less then the required arguments were provided => show command help
+        if command.args.length == 1
           1.upto(args.length - 1) do |new_length|
-            arg = spaces_in_args ? '(.+?)' : '(\S+)'
-            the_args = Array.new(new_length, arg).join('\s+')
+            the_args = command_args new_length, spaces_in_args
 
-            if scan /^#{prefix}\s*#{names}#{space}#{the_args}\s*$/i
+            if scan the_args
               return HelpNode.new :node => node
             end
           end
         end
       end
+
+      self.pos = old_pos
     end
     nil
+  end
+
+  # Follows a small cache for matching number of arguments
+
+  ArgsWithSpaces = {}
+  ArgsWithoutSpaces = {}
+
+  def command_args(num, spaces_in_args)
+    if spaces_in_args
+      existing = ArgsWithSpaces[num]
+      return existing if existing
+
+      the_args = Array.new(num, '(.+?)').join('\s+')
+      the_args = /^#{the_args}\s*$/i
+      ArgsWithSpaces[num] = the_args
+    else
+      existing = ArgsWithoutSpaces[num]
+      return existing if existing
+
+      the_args = Array.new(num, '(\S+?)').join('\s+')
+      the_args = /^#{the_args}\s*$/i
+      ArgsWithoutSpaces[num] = the_args
+    end
   end
 
   class Command
@@ -118,52 +159,6 @@ class StringScanner
         @help = option
       else
         @help
-      end
-    end
-  end
-
-  def scan_command(*names, &block)
-    options = names.last
-    if options.is_a?(Hash)
-      names.pop
-    else
-      options = {}
-    end
-
-    prefix = case options[:prefix]
-      when nil, :optional
-        '\.*'
-      when :required
-        '\.+'
-    end
-
-    names = names.join('|')
-    names = "(?:#{names})"
-
-    help = options[:help]
-    if help
-      case help
-      when true
-        yield if scan /^#{prefix}\s*#{names}(\s+(help|\?))?\s*$/i
-      when :explicit
-        yield if scan /^#{prefix}\s*#{names}\s+(help|\?)\s*$/i
-      end
-      return
-    end
-
-    if block.arity == 0
-      if scan /^#{prefix}\s*#{names}\s*$/i
-        yield
-      end
-    else
-      spaces_in_args = !options.has_key?(:spaces_in_args) || options[:spaces_in_args]
-      space_after_command = !options.has_key?(:space_after_command) || options[:space_after_command]
-      space = space_after_command ? '\s+' : '\s*'
-
-      arg = spaces_in_args ? '(.+?)' : '(\S+)'
-      args = Array.new(block.arity, arg).join('\s+')
-      if scan /^#{prefix}\s*#{names}#{space}#{args}\s*$/i
-        yield *Array.new(block.arity) {|i| self[i + 1]}
       end
     end
   end

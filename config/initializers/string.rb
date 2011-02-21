@@ -24,4 +24,8 @@ class String
     end
     distance[self.size][other.size]
   end
+
+  def without_spaces
+    gsub(/\s/, '')
+  end
 end

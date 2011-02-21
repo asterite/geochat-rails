@@ -57,17 +57,17 @@ class HelpTest < PipelineTest
 
   test "help my" do
     send_message 1, "help my"
-    assert_messages_sent_to 1, "To change your settings send: #my OPTION or #my OPTION VALUE. Options: login, password, name, email, phone, location, group, groups"
+    assert_messages_sent_to 1, "To change your settings send: .my OPTION or .my OPTION VALUE. Options: login, password, name, email, phone, location, group, groups"
   end
 
   test "help whereis" do
     send_message 1, "help whereis"
-    assert_messages_sent_to 1, "To find out the location of a user send: #whereis USER_LOGIN"
+    assert_messages_sent_to 1, "To find out the location of a user send: .whereis USER_LOGIN"
   end
 
   test "help whois" do
     send_message 1, "help whois"
-    assert_messages_sent_to 1, "To find out the display name of a user send: #whois USER_LOGIN"
+    assert_messages_sent_to 1, "To find out the display name of a user send: .whois USER_LOGIN"
   end
 
   test "help owner" do

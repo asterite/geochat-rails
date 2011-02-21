@@ -29,7 +29,7 @@ class CreateGroupTest < PipelineTest
 
   test "create group with a logged off user" do
     create_users 1
-    send_message 1, "#bye"
+    send_message 1, "bye"
 
     send_message 1, "create group Group1"
     assert_not_logged_in_message_sent_to 1

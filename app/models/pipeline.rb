@@ -348,7 +348,7 @@ class Pipeline
   end
 
   def process_my_password
-    reply "Forgot your password? Set it via: #my password newpassword"
+    reply "Forgot your password? Set it via: .my password newpassword"
   end
 
   def process_my_password=(value)
@@ -398,7 +398,7 @@ class Pipeline
 
   def process_my_group
     group = current_user.default_group || default_group({
-      :no_default_group_message => "Your don't have a default group. To choose one send: #my group groupalias"
+      :no_default_group_message => "Your don't have a default group. To choose one send: .my group groupalias"
     })
     return unless group
 
@@ -554,7 +554,7 @@ class Pipeline
 
     if not group
       group = default_group({
-        :no_default_group_message => "You don't have a default group so prefix messages with a group (for example: groupalias Hello!) or set your default group with: #my group groupalias"
+        :no_default_group_message => "You don't have a default group so prefix messages with a group (for example: groupalias Hello!) or set your default group with: .my group groupalias"
       })
     end
     return unless group
@@ -649,7 +649,7 @@ class Pipeline
 
   def process_help(node)
     case node.node.try(:new)
-    when nil
+    when nil, HelpNode
       reply "GeoChat help center. Send help followed by a topic. Topics: signup, login, logout, create, join, leave, invite, on, off, my, whereis, whois, owner."
     when SignupNode
       reply "To signup in GeoChat send: name YOUR_NAME"
@@ -670,11 +670,11 @@ class Pipeline
     when OffNode
       reply "To stop receiving messages from this channel send: off"
     when MyNode
-      reply "To change your settings send: #my OPTION or #my OPTION VALUE. Options: login, password, name, email, phone, location, group, groups"
+      reply "To change your settings send: .my OPTION or .my OPTION VALUE. Options: login, password, name, email, phone, location, group, groups"
     when WhereIsNode
-      reply "To find out the location of a user send: #whereis USER_LOGIN"
+      reply "To find out the location of a user send: .whereis USER_LOGIN"
     when WhoIsNode
-      reply "To find out the display name of a user send: #whois USER_LOGIN"
+      reply "To find out the display name of a user send: .whois USER_LOGIN"
     when OwnerNode
       reply "To make a user owner of a group send: owner GROUP_ALIAS USER_LOGIN"
     end
@@ -683,7 +683,7 @@ class Pipeline
   KnownCommands = ['ping', 'name', 'login', 'iam', 'logout', 'logoff', 'bye', 'on', 'start', 'off', 'stop', 'create', 'creategroup', 'cg', 'invite', 'join', 'leave', 'block', 'owner', 'my groups', 'my group', 'my name', 'my email', 'my number', 'my phone', 'my phonenumber', 'my mobile', 'my mobilenumber', 'my location', 'my login', 'my password', 'whois', 'whereis', 'lang', 'at', 'help']
   def process_unknown_command(node)
     candidate = KnownCommands.min_by {|x| x.levenshtein node.command}
-    reply "Unknown command #{node.trigger}#{node.command}. Maybe you meant to send: #{node.trigger}#{candidate}"
+    reply "Unknown command .#{node.command}. Maybe you meant to send: .#{candidate}"
   end
 
   def join(user, group)
