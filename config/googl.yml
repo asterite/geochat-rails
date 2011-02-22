@@ -1,5 +1,5 @@
 development:
-  key: AIzaSyDxyX4nOVo2z06wr9do_S27oPKGsgfApQ4
+  key: foo
 
 production:
   key: foo
