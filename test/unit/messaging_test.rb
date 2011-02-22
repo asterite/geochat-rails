@@ -202,7 +202,7 @@ class MessagingTest < PipelineTest
     send_message 2..3, "join Group1"
 
     send_message 1, "@User2 Hello!"
-    assert_messages_sent_to 2, T.message_only_to_you('User1', "Hello!")
+    assert_messages_sent_to 2, T.message_only_to_you('User1', [], "Hello!")
     assert_no_messages_sent_to 1, 3, 4
     assert_message_saved "User1", "Group1", "Hello!"
   end
@@ -219,7 +219,7 @@ class MessagingTest < PipelineTest
       send_message 2..4, "join Group2"
 
       send_message 1, msg
-      assert_messages_sent_to 2, "[Group2] #{T.message_only_to_you 'User1', 'Hello!'}"
+      assert_messages_sent_to 2, "[Group2] #{T.message_only_to_you 'User1', [], 'Hello!'}"
       assert_no_messages_sent_to 1, 3, 4
       assert_message_saved "User1", "Group2", "Hello!"
     end
@@ -236,7 +236,7 @@ class MessagingTest < PipelineTest
     assert_no_messages_saved
   end
 
-  test "send message to user user fails explicit group" do
+  test "send message to user fails explicit group" do
     create_users 1..4
     create_group 1, "Group1"
     create_group 1, "Group2"
@@ -249,6 +249,38 @@ class MessagingTest < PipelineTest
     assert_messages_sent_to 1, T.cant_send_message_to_user_via_group_does_not_belong('User2', 'Group2')
     assert_no_messages_sent_to 2, 3, 4
     assert_no_messages_saved
+  end
+
+  test "send message to many users" do
+    create_users 1..4
+    create_group 1, "Group1"
+    send_message 2..4, "join Group1"
+
+    send_message 1, "@User2 @User3 Hello!"
+    assert_messages_sent_to 2, T.message_only_to_you('User1', ['User3'], 'Hello!')
+  end
+
+  test "send message to many users explicit group" do
+    create_users 1..4
+    create_group 1, "Group1"
+    create_group 1, "Group2"
+    send_message 2..4, "join Group1"
+    send_message 2..4, "join Group2"
+
+    send_message 1, "Group2 @User2 @User3 Hello!"
+    assert_messages_sent_to 2, "[Group2] #{T.message_only_to_you('User1', ['User3'], 'Hello!')}"
+  end
+
+  test "send message to many users user not found" do
+    create_users 1..4
+    create_group 1, "Group1"
+    create_group 1, "Group2"
+    send_message 2..4, "join Group1"
+    send_message 2..4, "join Group2"
+
+    send_message 1, "Group2 @User2 @User5 Hello!"
+    assert_messages_sent_to 1, T.user_does_not_exist('User5')
+    assert_messages_sent_to 2, "[Group2] #{T.message_only_to_you('User1', [], 'Hello!')}"
   end
 
   test "forward owners" do
@@ -290,7 +322,7 @@ class MessagingTest < PipelineTest
 
     send_message 2, "@User3 Hello!"
     assert_messages_sent_to 1, T.message_only_to_user('User2', 'User3', 'Hello!')
-    assert_messages_sent_to 3, T.message_only_to_you('User2', 'Hello!')
+    assert_messages_sent_to 3, T.message_only_to_you('User2', [], 'Hello!')
     assert_message_saved "User2", "Group1", "Hello!"
   end
 
@@ -307,7 +339,7 @@ class MessagingTest < PipelineTest
 
     send_message 2, "@User4 Hello!"
     assert_messages_sent_to 1, T.message_only_to_user('User2', 'User4', 'Hello!')
-    assert_messages_sent_to 4, T.message_only_to_you('User2', 'Hello!')
+    assert_messages_sent_to 4, T.message_only_to_you('User2', [], 'Hello!')
     assert_message_saved "User2", "Group1", "Hello!"
   end
 

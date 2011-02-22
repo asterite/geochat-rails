@@ -22,7 +22,7 @@ class NuntiumControllerTest < ActionController::TestCase
 
     msg = messages.first
     assert_equal User.find_by_login('User1'), msg.sender
-    assert_equal User.find_by_login('User2'), msg.receiver
+    assert_equal [User.find_by_login('User2').id], msg.data[:receivers]
     assert_equal Group.find_by_alias('Group1'), msg.group
     assert_equal 'Hello!', msg.text
   end

@@ -67,26 +67,45 @@ class MessageNode < Node
   def process
     return reply T.you_are_not_signed_in unless current_user
 
+    users = []
+
     if self.target.present?
       if self.target.is_a?(UnknownTarget)
         group = Group.find_by_alias self.target.name
-        user = User.find_by_login_or_mobile_number self.target.name unless group
+        if not group
+          user = User.find_by_login_or_mobile_number self.target.name
+          users << user if user
+        end
       elsif self.target.is_a?(GroupTarget)
         group = self.target.payload[:group]
         explicit_group = true
         invite = self.target.payload[:invite]
       end
 
-      if self.second_target
+      @targets[1 .. -1].each do |target|
         if group
-          user = User.find_by_login_or_mobile_number self.second_target.name
-        elsif user
-          group = Group.find_by_alias self.second_target.name
-          explicit_group = true
+          user = User.find_by_login_or_mobile_number target.name
+          if user
+            users << user
+          else
+            reply T.user_does_not_exist(target.name)
+          end
+        elsif users.present?
+          group = Group.find_by_alias target.name
+          if group
+            explicit_group = true
+          else
+            user = User.find_by_login_or_mobile_number target.name
+            if user
+              users << user
+            else
+              reply T.user_does_not_exist(target.name)
+            end
+          end
         end
       end
 
-      if !group && !user
+      if !group && !users.present?
         return reply_group_does_not_exist self.target.name
       end
     end
@@ -134,7 +153,7 @@ class MessageNode < Node
       return reply T.cant_send_messages_to_disabled_group(group)
     end
 
-    if user
+    users.each do |user|
       if explicit_group && !user.belongs_to(group)
         return reply T.cant_send_message_to_user_via_group_does_not_belong(user, group)
       elsif !current_user.shares_a_common_group_with(user)
@@ -159,10 +178,13 @@ class MessageNode < Node
       end
     end
 
-    if user
-      send_message_to_user_in_group user, group, T.message_only_to_you(current_user, text_to_send)
+    if users.present?
+      users.each do |user|
+        others = users.reject{|x| x == user}
+        send_message_to_user_in_group user, group, T.message_only_to_you(current_user, others, text_to_send)
+      end
       if group.forward_owners
-        send_message_to_group_owners group, T.message_only_to_user(current_user, user, text_to_send), :except => user
+        send_message_to_group_owners group, T.message_only_to_user(current_user, users, text_to_send), :except => user
       end
     elsif group.chatroom || @blast
       send_message_to_group group, "#{current_user.login}: #{text_to_send}"
@@ -173,12 +195,12 @@ class MessageNode < Node
     self.saved_message = {
       :sender => current_user,
       :group => group,
-      :receiver => user,
       :text => text_to_save,
       :lat => current_user.lat,
       :lon => current_user.lon,
       :location => current_user.location,
       :location_short_url => current_user.location_short_url
     }
+    self.saved_message[:receivers] = users.map(&:id) if users.present?
   end
 end

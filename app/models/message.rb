@@ -3,13 +3,16 @@ class Message < ActiveRecord::Base
   belongs_to :receiver, :class_name => 'User'
   belongs_to :group
 
+  serialize :data
+
   def self.create_from_hash(hash)
     return unless hash
 
     msg = Message.new
-    [:group, :sender, :receiver, :text, :lat, :lon, :location, :location_short_url].each do |method|
+    [:group, :sender, :text, :lat, :lon, :location, :location_short_url].each do |method|
       msg.send "#{method}=", hash.delete(method)
     end
+    msg.data = hash
     msg.save!
   end
 

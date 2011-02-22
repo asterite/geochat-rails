@@ -332,12 +332,21 @@ module T
       end
     end
 
-    def message_only_to_you(from, text)
-      "#{from} only to you: #{text}"
+    def message_only_to_you(from, others, text)
+      if others.empty?
+        "#{from} only to you: #{text}"
+      else
+        "#{from} only to #{others.join ','} and you: #{text}"
+      end
     end
 
     def message_only_to_user(from, to, text)
-      "#{from} only to #{to}: #{text}"
+      to = *to
+      "#{from} only to #{to.join ','}: #{text}"
+    end
+
+    def message_only_to_others_and_you(from, others, text)
+      "#{from} only to #{others.join ','} and you: #{text}"
     end
 
     def device_belongs_to_another_user
