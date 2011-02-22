@@ -18,8 +18,8 @@ class Node
     self::Command.names
   end
 
-
   attr_accessor :matched_name
+  attr_accessor :pipeline
 
   def initialize(attrs = {})
     attrs.each do |k, v|
@@ -36,6 +36,46 @@ class Node
 
   def after_scan_with_group
     after_scan
+  end
+
+  def current_channel
+    @pipeline.current_channel
+  end
+
+  def current_user
+    @pipeline.current_user
+  end
+
+  def channel=(chan)
+    @pipeline.channel = chan
+  end
+
+  def message
+    @pipeline.message
+  end
+
+  def saved_message=(msg)
+    @pipeline.saved_message = msg
+  end
+
+  def reply(msg)
+    @pipeline.reply(msg)
+  end
+
+  def address2
+    @pipeline.address2
+  end
+
+  def create_channel_for(user)
+    @pipeline.create_channel_for user
+  end
+
+  def method_missing(name, *args)
+    if @pipeline && @pipeline.respond_to?(name)
+      @pipeline.send name, *args
+    else
+      super
+    end
   end
 end
 

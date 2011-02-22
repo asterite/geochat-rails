@@ -14,4 +14,11 @@ class UnknownNode < Node
   def self.names
     []
   end
+
+  KnownCommands = ['ping', 'name', 'login', 'iam', 'logout', 'logoff', 'bye', 'on', 'start', 'off', 'stop', 'create', 'creategroup', 'cg', 'invite', 'join', 'leave', 'block', 'owner', 'my groups', 'my group', 'my name', 'my email', 'my number', 'my phone', 'my phonenumber', 'my mobile', 'my mobilenumber', 'my location', 'my login', 'my password', 'whois', 'whereis', 'lang', 'at', 'help']
+
+  def process
+    candidate = KnownCommands.min_by {|x| x.levenshtein @command}
+    reply "Unknown command .#{@command}. Maybe you meant to send: .#{candidate}"
+  end
 end

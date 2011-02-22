@@ -8,4 +8,12 @@ class PingNode < Node
     args :text, :optional => true
     help :no
   end
+
+  def process
+    if @text.present?
+      reply "pong: #{@text} (received at #{Time.now.utc})"
+    else
+      reply "pong (received at #{Time.now.utc})"
+    end
+  end
 end
