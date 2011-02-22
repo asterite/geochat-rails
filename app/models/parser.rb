@@ -10,7 +10,7 @@ class Parser < StringScanner
   end
 
   def self.parse(string, lookup = nil, options = {})
-    Parser.new(string, lookup, options).parse
+    self.new(string, lookup, options).parse
   end
 
   def parse
