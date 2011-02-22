@@ -13,8 +13,8 @@ class OwnerTest < PipelineTest
         assert_is_not_group_owner "Group1", "User2"
 
         send_message 1, msg
-        assert_messages_sent_to 1, "The user User2 was successfully set as owner of group Group1."
-        assert_messages_sent_to 2, "User1 has made you owner of group Group1."
+        assert_messages_sent_to 1, T.user_set_as_owner('User2', 'Group1')
+        assert_messages_sent_to 2, T.user_has_made_you_owner('User1', 'Group1')
         assert_group_owners "Group1", "User1", "User2"
       end
 
@@ -23,7 +23,7 @@ class OwnerTest < PipelineTest
 
         send_message 1, "create group Group1"
         send_message 1, msg
-        assert_messages_sent_to 1, "The user #{user} does not exist."
+        assert_messages_sent_to 1, T.user_does_not_exist(user)
         assert_group_owners "Group1", "User1"
       end
 
@@ -32,7 +32,7 @@ class OwnerTest < PipelineTest
 
         send_message 1, "create group Group1"
         send_message 1, msg
-        assert_messages_sent_to 1, "The user User2 does not belong to group Group1."
+        assert_messages_sent_to 1, T.user_does_not_belong_to_group('User2', 'Group1')
         assert_group_owners "Group1", "User1"
       end
     end
@@ -50,8 +50,8 @@ class OwnerTest < PipelineTest
         assert_is_not_group_owner "Group2", "User2"
 
         send_message 1, msg
-        assert_messages_sent_to 1, "The user User2 was successfully set as owner of group Group2."
-        assert_messages_sent_to 2, "User1 has made you owner of group Group2."
+        assert_messages_sent_to 1, T.user_set_as_owner('User2', 'Group2')
+        assert_messages_sent_to 2, T.user_has_made_you_owner('User1', 'Group2')
         assert_group_owners "Group2", "User1", "User2"
       end
     end
@@ -62,7 +62,7 @@ class OwnerTest < PipelineTest
 
     send_message 1, "create Group1"
     send_message 1, "owner Group2 User2"
-    assert_messages_sent_to 1, "The group Group2 or User2 does not exist."
+    assert_messages_sent_to 1, T.group_does_not_exist(T.a_or_b 'Group2', 'User2')
     assert_group_owners "Group1", "User1"
   end
 
@@ -71,7 +71,7 @@ class OwnerTest < PipelineTest
 
     send_message 1, "create Group1"
     send_message 1, "owner Group2 User2"
-    assert_messages_sent_to 1, "The group Group2 does not exist."
+    assert_messages_sent_to 1, T.group_does_not_exist('Group2')
     assert_group_owners "Group1", "User1"
   end
 
@@ -81,7 +81,7 @@ class OwnerTest < PipelineTest
     send_message 1, "create Group1"
     send_message 1, "create Group2"
     send_message 1, "owner User2"
-    assert_messages_sent_to 1, "You must specify a group to set User2 as an owner, or set a default group."
+    assert_messages_sent_to 1, T.you_must_specify_a_group_to_set_owner('User2')
     assert_group_owners "Group1", "User1"
   end
 
@@ -89,7 +89,7 @@ class OwnerTest < PipelineTest
     create_users 1, 2
 
     send_message 1, "owner User2"
-    assert_messages_sent_to 1,  "You don't belong to any group yet. To join a group send: join groupalias"
+    assert_messages_sent_to 1,  T.you_dont_belong_to_any_group_yet
   end
 
   test "add group owner not owner" do
@@ -98,7 +98,7 @@ class OwnerTest < PipelineTest
     send_message 1, "create Group1"
     send_message 2, "join Group1"
     send_message 2, "owner User1"
-    assert_messages_sent_to 2, "You can't set User1 as an owner of Group1 because you are not an owner."
+    assert_messages_sent_to 2, T.you_cant_set_owner_you_are_not_owner('User1', 'Group1')
     assert_group_owners "Group1", "User1"
   end
 
@@ -116,7 +116,7 @@ class OwnerTest < PipelineTest
 
     send_message 1, "owner User2"
     send_message 1, "owner User2"
-    assert_messages_sent_to 1, "User2 is already an owner in group Group1."
+    assert_messages_sent_to 1, T.user_already_an_owner('User2', 'Group1')
   end
 
   test "add group self owner" do
@@ -124,7 +124,7 @@ class OwnerTest < PipelineTest
 
     send_message 1, "create Group1"
     send_message 1, "owner User1"
-    assert_messages_sent_to 1, "You are already an owner of group Group1."
+    assert_messages_sent_to 1, T.you_are_already_an_owner_of_group('Group1')
   end
 
   test "add group self not owner" do
@@ -133,6 +133,6 @@ class OwnerTest < PipelineTest
     send_message 1, "create Group1"
     send_message 2, "join Group1"
     send_message 2, "owner User2"
-    assert_messages_sent_to 2, "Nice try :-P"
+    assert_messages_sent_to 2, T.nice_try
   end
 end

@@ -1,5 +1,6 @@
 class LanguageNode < Node
   command
+  Help = T.help_language
 
   attr_accessor :name
 

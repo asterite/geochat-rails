@@ -1,6 +1,6 @@
 class JoinNode < Node
   command
-  Help = "To join a group send: join GROUP_ALIAS"
+  Help = T.help_join
 
   attr_accessor :group
 
@@ -21,7 +21,7 @@ class JoinNode < Node
     end
 
     if current_user.belongs_to group
-      return reply "You already belong to group #{group.alias}."
+      return reply T.you_already_belong_to_group(group)
     end
 
     if group.requires_aproval_to_join
@@ -45,7 +45,7 @@ class JoinNode < Node
       invite = Invite.find_by_group_and_user group, current_user
       if invite
         if invite.requestor
-          send_message_to_user invite.requestor, "#{current_user.login} has just accepted your invitation to join #{group.alias}."
+          send_message_to_user invite.requestor, T.user_has_accepted_your_invitation(current_user, group)
         end
         invite.destroy
       end

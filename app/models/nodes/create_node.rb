@@ -1,6 +1,6 @@
 class CreateNode < Node
   command
-  Help = "To create a group send: create GROUP_ALIAS"
+  Help = T.help_create
 
   attr_accessor :alias
   attr_accessor :public
@@ -51,19 +51,19 @@ class CreateNode < Node
     return reply_not_logged_in unless current_user
 
     if @alias.length < 2
-      return reply "You cannot create a group named '#{@alias}' because it is too short (minimum is 2 characters)."
+      return reply T.cannot_create_group_name_too_short(@alias)
     end
 
     if @alias.command?
-      return reply "You cannot create a group named '#{@alias}' because it is a reserved name."
+      return reply T.cannot_create_group_name_reserved(@alias)
     end
 
     if Group.find_by_alias @alias
-      return reply "The group #{@alias} already exists. Please specify another alias."
+      return reply T.group_already_exists(@alias)
     end
 
     group = current_user.create_group :alias => @alias, :name => (@name || @alias), :chatroom => !@nochat
 
-    reply "Group '#{group.alias}' created. To require users your approval to join, go to geochat.instedd.org. Invite users by sending: #{group.alias} +PHONE_NUMBER"
+    reply T.group_created(@alias)
   end
 end

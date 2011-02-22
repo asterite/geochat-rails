@@ -9,7 +9,7 @@ class LoginTest < PipelineTest
 
     send_message 1, "I am User1 MockPassword"
     assert_user_is_logged_in "sms://1", "User1"
-    assert_messages_sent_to 1, "Hello User1. When you want to remove this device send: bye"
+    assert_messages_sent_to 1, T.hello('User1')
   end
 
   test "login wrong username" do
@@ -18,7 +18,7 @@ class LoginTest < PipelineTest
 
     send_message 1, "I am User2 MockPassword"
     assert_channel_does_not_exist "sms://1"
-    assert_messages_sent_to "sms://1", "Invalid login"
+    assert_messages_sent_to "sms://1", T.invalid_login
   end
 
   test "login wrong password" do
@@ -27,7 +27,7 @@ class LoginTest < PipelineTest
 
     send_message 1, "I am User1 WrongPassword"
     assert_channel_does_not_exist "sms://1"
-    assert_messages_sent_to 1, "Invalid login"
+    assert_messages_sent_to 1, T.invalid_login
   end
 
   test "login when already logged in with another user" do
@@ -38,7 +38,7 @@ class LoginTest < PipelineTest
 
     send_message 1, "I am User1 MockPassword"
     assert_user_is_logged_in "sms://1", "User1"
-    assert_messages_sent_to 1, "Hello User1. When you want to remove this device send: bye"
+    assert_messages_sent_to 1, T.hello('User1')
   end
 
 end

@@ -11,9 +11,9 @@ class SignupTest < PipelineTest
     assert_user_exists "JohnDoe"
     assert_user_is_logged_in "sms://1", "JohnDoe", "John Doe"
     assert_messages_sent_to "sms://1", [
-      "Welcome John Doe to GeoChat! Send HELP for instructions. http://geochat.instedd.org",
-      "Remember you can log in to http://geochat.instedd.org by entering your login (JohnDoe) and the following password: MockPassword",
-      "To send messages to a group, you must first join one. Send: join GROUP"
+      T.welcome_to_geochat('John Doe'),
+      T.remember_you_can_log_in('JohnDoe', 'MockPassword'),
+      T.to_send_message_to_a_group_you_must_first_join_one
     ]
   end
 
@@ -21,7 +21,7 @@ class SignupTest < PipelineTest
     send_message 1, ".name John Doe"
 
     send_message 1, ".name John Doe"
-    assert_messages_sent_to "sms://1", "This device already belongs to another user. To dettach it send: bye"
+    assert_messages_sent_to "sms://1", T.device_belongs_to_another_user
   end
 
   test "signup with existing display name" do
@@ -32,9 +32,9 @@ class SignupTest < PipelineTest
     assert_user_exists "JohnDoe2"
     assert_user_is_logged_in 2, "JohnDoe2", "John Doe"
     assert_messages_sent_to 2, [
-      "Welcome John Doe to GeoChat! Send HELP for instructions. http://geochat.instedd.org",
-      "Remember you can log in to http://geochat.instedd.org by entering your login (JohnDoe2) and the following password: MockPassword",
-      "To send messages to a group, you must first join one. Send: join GROUP"
+      T.welcome_to_geochat('John Doe'),
+      T.remember_you_can_log_in('JohnDoe2', 'MockPassword'),
+      T.to_send_message_to_a_group_you_must_first_join_one
     ]
 
     send_message 4, ".name John Doe"
@@ -42,9 +42,9 @@ class SignupTest < PipelineTest
     assert_user_exists "JohnDoe3"
     assert_user_is_logged_in 4, "JohnDoe3", "John Doe"
     assert_messages_sent_to 4, [
-      "Welcome John Doe to GeoChat! Send HELP for instructions. http://geochat.instedd.org",
-      "Remember you can log in to http://geochat.instedd.org by entering your login (JohnDoe3) and the following password: MockPassword",
-      "To send messages to a group, you must first join one. Send: join GROUP"
+      T.welcome_to_geochat('John Doe'),
+      T.remember_you_can_log_in('JohnDoe3', 'MockPassword'),
+      T.to_send_message_to_a_group_you_must_first_join_one
     ]
   end
 
@@ -54,13 +54,13 @@ class SignupTest < PipelineTest
 
   test "signup reserved name" do
     send_message 1, ".name whois"
-    assert_messages_sent_to 1, "You cannot signup as 'whois' because it is a reserved name."
+    assert_messages_sent_to 1, T.cannot_signup_name_reserved('whois')
     assert_user_doesnt_exist 'who'
   end
 
   test "signup name too short" do
     send_message 1, ".name a"
-    assert_messages_sent_to 1, "You cannot signup as 'a' because it is too short (minimum is 2 characters)."
+    assert_messages_sent_to 1, T.cannot_signup_name_too_short('a')
     assert_user_doesnt_exist 'a'
   end
 

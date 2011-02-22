@@ -9,7 +9,7 @@ class CreateGroupTest < PipelineTest
     send_message 1, "create group Group1"
     assert_group_exists "Group1", "User1"
 
-    assert_messages_sent_to 1, "Group 'Group1' created. To require users your approval to join, go to geochat.instedd.org. Invite users by sending: Group1 +PHONE_NUMBER"
+    assert_messages_sent_to 1, T.group_created('Group1')
   end
 
   test "create group already exists" do
@@ -19,7 +19,7 @@ class CreateGroupTest < PipelineTest
     send_message 2, "create group Group1"
     assert_group_exists "Group1", "User1"
 
-    assert_messages_sent_to 2, "The group Group1 already exists. Please specify another alias."
+    assert_messages_sent_to 2, T.group_already_exists('Group1')
   end
 
   test "create group with a non user" do
@@ -38,14 +38,14 @@ class CreateGroupTest < PipelineTest
   test "create group fails reserved name" do
     create_users 1
     send_message 1, "create group bye"
-    assert_messages_sent_to 1, "You cannot create a group named 'bye' because it is a reserved name."
+    assert_messages_sent_to 1, T.cannot_create_group_name_reserved('bye')
     assert !Group.find_by_alias('bye')
   end
 
   test "create group fails too short" do
     create_users 1
     send_message 1, "create group a"
-    assert_messages_sent_to 1, "You cannot create a group named 'a' because it is too short (minimum is 2 characters)."
+    assert_messages_sent_to 1, T.cannot_create_group_name_too_short('a')
     assert !Group.find_by_alias('bye')
   end
 end

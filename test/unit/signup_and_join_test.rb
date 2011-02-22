@@ -10,9 +10,9 @@ class SignupAndJoinTest < PipelineTest
 
     send_message 2, "User2 ! Group1"
     assert_messages_sent_to 2, [
-      "Welcome User2 to GeoChat! Send HELP for instructions. http://geochat.instedd.org",
-       "Remember you can log in to http://geochat.instedd.org by entering your login (User2) and the following password: MockPassword",
-       "Welcome User2 to group Group1. Reply with 'at TOWN NAME' or with any message to say hi to your group!"
+      T.welcome_to_geochat('User2'),
+      T.remember_you_can_log_in('User2', 'MockPassword'),
+      T.welcome_to_group('User2', 'Group1')
     ]
     assert_group_exists "Group1", "User1", "User2"
   end
@@ -25,9 +25,9 @@ class SignupAndJoinTest < PipelineTest
 
     send_message 2, "User2 join Group1"
     assert_messages_sent_to 2, [
-      "Welcome User2 to GeoChat! Send HELP for instructions. http://geochat.instedd.org",
-      "Remember you can log in to http://geochat.instedd.org by entering your login (User2) and the following password: MockPassword",
-      "Welcome User2 to group Group1. Reply with 'at TOWN NAME' or with any message to say hi to your group!"
+      T.welcome_to_geochat('User2'),
+      T.remember_you_can_log_in('User2', 'MockPassword'),
+      T.welcome_to_group('User2', 'Group1')
     ]
     assert_group_exists "Group1", "User1", "User2"
 
@@ -40,13 +40,13 @@ class SignupAndJoinTest < PipelineTest
     send_message 1, "create group Group1"
 
     send_message 1, "invite 2345"
-    assert_messages_sent_to 2, "1234 has invited you to group Group1. You can join by sending: join Group1"
-    assert_messages_sent_to 1, "Invitation/s sent to 2345"
+    assert_messages_sent_to 2, T.user_has_invited_you('1234', 'Group1')
+    assert_messages_sent_to 1, T.invitations_sent_to_users('2345')
     assert_invite_exists "Group1", "2345"
     assert_group_exists "Group1", "1234"
 
     send_message 2, "join Group1"
-    assert_messages_sent_to 2, "Welcome 2345 to group Group1. Reply with 'at TOWN NAME' or with any message to say hi to your group!"
+    assert_messages_sent_to 2, T.welcome_to_group('2345', 'Group1')
     assert_group_exists "Group1", "1234", "2345"
   end
 

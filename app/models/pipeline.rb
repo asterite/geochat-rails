@@ -1,5 +1,4 @@
 class Pipeline
-  include ActionView::Helpers::DateHelper
 
   attr_accessor :address2
   attr_accessor :protocol
@@ -52,27 +51,23 @@ class Pipeline
 
   def join(user, group)
     user.join group
-    if user.memberships.count > 1
-      send_message_to_user user, "Welcome #{user.display_name} to #{group.alias}. Send '#{group.alias} Hello group!'"
-    else
-      send_message_to_user user, "Welcome #{user.display_name} to group #{group.alias}. Reply with 'at TOWN NAME' or with any message to say hi to your group!"
-    end
+    send_message_to_user user, T.welcome_to_group(user, group)
   end
 
   def reply_not_logged_in
-    reply 'You are not signed in GeoChat. Send "login USERNAME PASSWORD" to login, or "name YOUR_NAME" or "YOUR_NAME join GROUP_NAME" to register.'
+    reply T.you_are_not_signed_in
   end
 
   def reply_user_does_not_exist(user)
-    reply "The user #{user} does not exist."
+    reply T.user_does_not_exist(user)
   end
 
   def reply_group_does_not_exist(group)
-    reply "The group #{group} does not exist."
+    reply T.group_does_not_exist(group)
   end
 
   def reply_dont_belong_to_any_group
-    reply "You don't belong to any group yet. To join a group send: join groupalias"
+    reply T.you_dont_belong_to_any_group_yet
   end
 
   def reply(msg)
@@ -80,8 +75,8 @@ class Pipeline
   end
 
   def notify_join_request(group)
-    send_message_to_group_owners group, "An invitation is pending for approval. To approve it send: invite #{group.alias} #{current_user.login}"
-    reply "Group #{group.alias} requires approval to join by an Administrator. We will let you know when you can start sending messages."
+    send_message_to_group_owners group, T.invitation_pending_for_approval(current_user, group)
+    reply T.group_requires_approval(group)
   end
 
   def send_message_to_group(group, msg)
@@ -130,7 +125,7 @@ class Pipeline
     current_channel.status = :on
     current_channel.save!
 
-    reply "We have turned on updates on this #{current_channel.protocol_name}. Reply with STOP to turn off. Questions email support@instedd.org."
+    reply T.we_have_turned_on_updates_on_this_channel(current_channel)
   end
 
   def update_current_user_location_to(location)
@@ -140,7 +135,7 @@ class Pipeline
         coords = result[:lat], result[:lon]
         place = result[:location]
       else
-        reply "The location '#{location}' could not be found on the map."
+        reply T.location_not_found(location)
         return false
       end
 
@@ -155,7 +150,7 @@ class Pipeline
     current_user.location_short_url = short_url
     current_user.save!
 
-    reply "Your location was successfully updated to #{place} (#{current_user_location_info})"
+    reply T.location_successfuly_updated(place, current_user_location_info)
 
     true
   end

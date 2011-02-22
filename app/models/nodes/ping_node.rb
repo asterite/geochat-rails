@@ -1,5 +1,6 @@
 class PingNode < Node
   command
+  Help = T.help_ping
 
   attr_accessor :text
 
@@ -10,10 +11,11 @@ class PingNode < Node
   end
 
   def process
+    received = T.received_at(Time.now.utc)
     if @text.present?
-      reply "pong: #{@text} (received at #{Time.now.utc})"
+      reply "pong: #{@text} (#{received})"
     else
-      reply "pong (received at #{Time.now.utc})"
+      reply "pong (#{received})"
     end
   end
 end

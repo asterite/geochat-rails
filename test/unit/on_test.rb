@@ -9,15 +9,15 @@ class OnTest < PipelineTest
 
     send_message 1, "on"
     assert_user_is_logged_in 1, "User1"
-    assert_messages_sent_to 1, "You sent 'on' and we have turned on updates on this phone. Reply with STOP to turn off. Questions email support@instedd.org."
+    assert_messages_sent_to 1, T.you_sent_on_and_we_have_turned_on_udpated_on_this_channel('on', 'phone')
   end
 
   test "turn on when on" do
     create_users 1
 
     send_message 1, "on"
-    assert_messages_sent_to 1, "You sent 'on' and we have turned on updates on this phone. Reply with STOP to turn off. Questions email support@instedd.org."
     assert_user_is_logged_in 1, "User1"
+    assert_messages_sent_to 1, T.you_sent_on_and_we_have_turned_on_udpated_on_this_channel('on', 'phone')
   end
 
   test "turn on with start" do
@@ -25,8 +25,8 @@ class OnTest < PipelineTest
     send_message 1, "off"
 
     send_message 1, "start"
-    assert_messages_sent_to 1, "You sent 'start' and we have turned on updates on this phone. Reply with STOP to turn off. Questions email support@instedd.org."
     assert_user_is_logged_in 1, "User1"
+    assert_messages_sent_to 1, T.you_sent_on_and_we_have_turned_on_udpated_on_this_channel('start', 'phone')
   end
 
   test "turn on implicitly when sending a message" do
@@ -35,7 +35,7 @@ class OnTest < PipelineTest
     send_message 1, "off"
 
     send_message 1, "Hello!"
-    assert_messages_sent_to 1, "We have turned on updates on this phone. Reply with STOP to turn off. Questions email support@instedd.org."
+    assert_messages_sent_to 1, T.we_have_turned_on_updates_on_this_channel('phone')
     assert_user_is_logged_in 1, "User1"
   end
 
@@ -50,7 +50,7 @@ class OnTest < PipelineTest
 
     send_message 'mailto://foo', "on"
     assert_user_is_logged_in 'mailto://foo', "User1"
-    assert_messages_sent_to 'mailto://foo', "You sent 'on' and we have turned on updates on this email. Reply with STOP to turn off. Questions email support@instedd.org."
+    assert_messages_sent_to 'mailto://foo', T.you_sent_on_and_we_have_turned_on_udpated_on_this_channel('on', 'email')
   end
 
   test "turn on implicitly when sending an email" do
@@ -59,7 +59,7 @@ class OnTest < PipelineTest
     send_message 'mailto://foo', "off"
 
     send_message 'mailto://foo', "Hello!"
-    assert_messages_sent_to 'mailto://foo', "We have turned on updates on this email. Reply with STOP to turn off. Questions email support@instedd.org."
+    assert_messages_sent_to 'mailto://foo', T.we_have_turned_on_updates_on_this_channel('email')
     assert_user_is_logged_in 'mailto://foo', "User1"
   end
 end

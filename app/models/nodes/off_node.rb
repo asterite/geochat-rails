@@ -1,6 +1,6 @@
 class OffNode < Node
   command
-  Help = "To stop receiving messages from this channel send: off"
+  Help = T.help_off
 
   Command = ::Command.new self do
     name 'off', 'stop'
@@ -14,6 +14,6 @@ class OffNode < Node
     current_channel.status = :off
     current_channel.save!
 
-    reply "GeoChat Alerts. You sent '#{message[:body].strip}' and we have turned off updates on this #{current_channel.protocol_name}. Reply with START to turn back on. Questions email support@instedd.org."
+    reply T.you_sent_off_and_we_have_turned_off_channel(message[:body].strip, current_channel)
   end
 end

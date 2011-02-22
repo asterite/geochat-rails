@@ -10,8 +10,8 @@ class InviteTest < PipelineTest
     send_message 1, "invite User2"
 
     assert_invite_exists "Group1", "User2"
-    assert_messages_sent_to 2, "User1 has invited you to group Group1. You can join by sending: join Group1"
-    assert_messages_sent_to 1, "Invitation/s sent to User2"
+    assert_messages_sent_to 2, T.user_has_invited_you('User1', 'Group1')
+    assert_messages_sent_to 1, T.invitations_sent_to_users('User2')
   end
 
   test "invite with group as target" do
@@ -21,8 +21,8 @@ class InviteTest < PipelineTest
 
     send_message 1, "invite Group1 User2"
     assert_invite_exists "Group1", "User2"
-    assert_messages_sent_to 2, "User1 has invited you to group Group1. You can join by sending: join Group1"
-    assert_messages_sent_to 1, "Invitation/s sent to User2"
+    assert_messages_sent_to 2, T.user_has_invited_you('User1', 'Group1')
+    assert_messages_sent_to 1, T.invitations_sent_to_users('User2')
   end
 
   test "invite with group as target inverted" do
@@ -32,8 +32,8 @@ class InviteTest < PipelineTest
 
     send_message 1, "invite User2 Group1"
     assert_invite_exists "Group1", "User2"
-    assert_messages_sent_to 2, "User1 has invited you to group Group1. You can join by sending: join Group1"
-    assert_messages_sent_to 1, "Invitation/s sent to User2"
+    assert_messages_sent_to 2, T.user_has_invited_you('User1', 'Group1')
+    assert_messages_sent_to 1, T.invitations_sent_to_users('User2')
   end
 
   test "invite many" do
@@ -43,9 +43,8 @@ class InviteTest < PipelineTest
 
     send_message 1, "invite User2 User3"
     assert_invite_exists "Group1", "User2", "User3"
-    assert_messages_sent_to 2, "User1 has invited you to group Group1. You can join by sending: join Group1"
-    assert_messages_sent_to 2, "User1 has invited you to group Group1. You can join by sending: join Group1"
-    assert_messages_sent_to 1, "Invitation/s sent to User2, User3"
+    assert_messages_sent_to 2..3, T.user_has_invited_you('User1', 'Group1')
+    assert_messages_sent_to 1, T.invitations_sent_to_users(['User2', 'User3'])
   end
 
   test "invite many targeted" do
@@ -55,9 +54,8 @@ class InviteTest < PipelineTest
 
     send_message 1, "invite Group1 User2 User3"
     assert_invite_exists "Group1", "User2", "User3"
-    assert_messages_sent_to 2, "User1 has invited you to group Group1. You can join by sending: join Group1"
-    assert_messages_sent_to 2, "User1 has invited you to group Group1. You can join by sending: join Group1"
-    assert_messages_sent_to 1, "Invitation/s sent to User2, User3"
+    assert_messages_sent_to 2..3, T.user_has_invited_you('User1', 'Group1')
+    assert_messages_sent_to 1, T.invitations_sent_to_users(['User2', 'User3'])
   end
 
   test "invite to default group" do
@@ -69,9 +67,8 @@ class InviteTest < PipelineTest
 
     send_message 1, "invite User2 User3"
     assert_invite_exists "Group1", "User2", "User3"
-    assert_messages_sent_to 2, "User1 has invited you to group Group1. You can join by sending: join Group1"
-    assert_messages_sent_to 2, "User1 has invited you to group Group1. You can join by sending: join Group1"
-    assert_messages_sent_to 1, "Invitation/s sent to User2, User3"
+    assert_messages_sent_to 2..3, T.user_has_invited_you('User1', 'Group1')
+    assert_messages_sent_to 1, T.invitations_sent_to_users(['User2', 'User3'])
   end
 
   test "invite to other group" do
@@ -82,9 +79,8 @@ class InviteTest < PipelineTest
 
     send_message 1, "invite Group2 User2 User3"
     assert_invite_exists "Group2", "User2", "User3"
-    assert_messages_sent_to 2, "User1 has invited you to group Group2. You can join by sending: join Group2"
-    assert_messages_sent_to 2, "User1 has invited you to group Group2. You can join by sending: join Group2"
-    assert_messages_sent_to 1, "Invitation/s sent to User2, User3"
+    assert_messages_sent_to 2..3, T.user_has_invited_you('User1', 'Group2')
+    assert_messages_sent_to 1, T.invitations_sent_to_users(['User2', 'User3'])
   end
 
   test "invite to other group simpler syntax" do
@@ -95,9 +91,8 @@ class InviteTest < PipelineTest
 
     send_message 1, "Group2 +User2 +User3"
     assert_invite_exists "Group2", "User2", "User3"
-    assert_messages_sent_to 2, "User1 has invited you to group Group2. You can join by sending: join Group2"
-    assert_messages_sent_to 2, "User1 has invited you to group Group2. You can join by sending: join Group2"
-    assert_messages_sent_to 1, "Invitation/s sent to User2, User3"
+    assert_messages_sent_to 2..3, T.user_has_invited_you('User1', 'Group2')
+    assert_messages_sent_to 1, T.invitations_sent_to_users(['User2', 'User3'])
   end
 
   test "invite non existing user" do
@@ -107,7 +102,7 @@ class InviteTest < PipelineTest
 
     send_message 1, "invite User3"
     assert_no_invite_exists
-    assert_messages_sent_to 1, "Could not find a registered user 'User3' for your invitation."
+    assert_messages_sent_to 1, T.could_not_find_users_for_invitation('User3')
   end
 
   test "invite non existing users" do
@@ -117,7 +112,7 @@ class InviteTest < PipelineTest
 
     send_message 1, "invite User3 User4"
     assert_no_invite_exists
-    assert_messages_sent_to 1, "Could not find registered users 'User3', 'User4' for your invitation."
+    assert_messages_sent_to 1, T.could_not_find_users_for_invitation(['User3', 'User4'])
   end
 
   test "invite without groups" do
@@ -125,7 +120,7 @@ class InviteTest < PipelineTest
 
     send_message 1, "invite User2"
     assert_no_invite_exists
-    assert_messages_sent_to 1, "You don't belong to any group yet. To join a group send: join groupalias"
+    assert_messages_sent_to 1, T.you_dont_belong_to_any_group_yet
   end
 
   test "invite without default group" do
@@ -136,7 +131,7 @@ class InviteTest < PipelineTest
 
     send_message 1, "invite User2"
     assert_no_invite_exists
-    assert_messages_sent_to 1, "You must specify a group to invite the users to, or set a default group."
+    assert_messages_sent_to 1, T.you_must_specify_a_group_to_invite
   end
 
   test "invite new mobile number" do
@@ -148,8 +143,8 @@ class InviteTest < PipelineTest
     assert_user_was_created_from_invite "5591112345678"
     assert_group_exists "Group1", "User1"
     assert_invite_exists "Group1", "5591112345678"
-    assert_messages_sent_to 5591112345678, "Welcome to GeoChat's group Group1. Tell us your name and join the group by sending: YOUR_NAME join Group1"
-    assert_messages_sent_to 1, "Invitation/s sent to 5591112345678"
+    assert_messages_sent_to 5591112345678, T.welcome_to_group_signup_and_join('Group1')
+    assert_messages_sent_to 1, T.invitations_sent_to_users('5591112345678')
 
     send_message 5591112345678, "John Doe > Group1"
     assert_user_doesnt_exist "5591112345678"
@@ -157,9 +152,9 @@ class InviteTest < PipelineTest
     assert_user_was_not_created_from_invite "JohnDoe"
     assert_group_exists "Group1", "User1", "JohnDoe"
     assert_messages_sent_to 5591112345678, [
-      "Welcome John Doe to GeoChat! Send HELP for instructions. http://geochat.instedd.org",
-      "Remember you can log in to http://geochat.instedd.org by entering your login (JohnDoe) and the following password: MockPassword",
-      "Welcome John Doe to group Group1. Reply with 'at TOWN NAME' or with any message to say hi to your group!"
+      T.welcome_to_geochat('John Doe'),
+      T.remember_you_can_log_in('JohnDoe', 'MockPassword'),
+      T.welcome_to_group('John Doe', 'Group1')
     ]
   end
 
@@ -172,12 +167,12 @@ class InviteTest < PipelineTest
     assert_user_was_not_created_from_invite "User2"
     assert_group_exists "Group1", "User1"
     assert_invite_exists "Group1", "User2"
-    assert_messages_sent_to 2, "User1 has invited you to group Group1. You can join by sending: join Group1"
-    assert_messages_sent_to 1, "Invitation/s sent to 2"
+    assert_messages_sent_to 2, T.user_has_invited_you('User1', 'Group1')
+    assert_messages_sent_to 1, T.invitations_sent_to_users('2')
 
     send_message 2, "join Group1"
     assert_group_exists "Group1", "User1", "User2"
-    assert_messages_sent_to 2, "Welcome User2 to group Group1. Reply with 'at TOWN NAME' or with any message to say hi to your group!"
+    assert_messages_sent_to 2, T.welcome_to_group('User2', 'Group1')
   end
 
   test "invite existing mobile number but user does signup" do
@@ -189,12 +184,12 @@ class InviteTest < PipelineTest
     assert_user_was_not_created_from_invite "User2"
     assert_group_exists "Group1", "User1"
     assert_invite_exists "Group1", "User2"
-    assert_messages_sent_to 2, "User1 has invited you to group Group1. You can join by sending: join Group1"
-    assert_messages_sent_to 1, "Invitation/s sent to 2"
+    assert_messages_sent_to 2, T.user_has_invited_you('User1', 'Group1')
+    assert_messages_sent_to 1, T.invitations_sent_to_users('2')
 
     send_message 2, "John Doe > Group1"
     assert_group_exists "Group1", "User1"
-    assert_messages_sent_to 2, "This device already belongs to another user. To dettach it send: bye"
+    assert_messages_sent_to 2, T.device_belongs_to_another_user
   end
 
   test "invite plus number group" do
@@ -203,8 +198,8 @@ class InviteTest < PipelineTest
     send_message 1, "create group Group1"
 
     send_message 1, "invite +2345 Group1"
-    assert_messages_sent_to 2, "1234 has invited you to group Group1. You can join by sending: join Group1"
-    assert_messages_sent_to 1, "Invitation/s sent to 2345"
+    assert_messages_sent_to 2, T.user_has_invited_you('1234', 'Group1')
+    assert_messages_sent_to 1, T.invitations_sent_to_users('2345')
 
     assert_invite_exists "Group1", "2345"
     assert_group_exists "Group1", "1234"
@@ -222,7 +217,7 @@ class InviteTest < PipelineTest
     send_message 1, "invite User1"
 
     assert_no_invite_exists
-    assert_messages_sent_to 1, "You can't invite yourself."
+    assert_messages_sent_to 1, T.you_cant_invite_yourself
   end
 
   test "invite self many times" do
@@ -232,6 +227,6 @@ class InviteTest < PipelineTest
     send_message 1, "invite User1 User1"
 
     assert_no_invite_exists
-    assert_messages_sent_to 1, "You can't invite yourself."
+    assert_messages_sent_to 1, T.you_cant_invite_yourself
   end
 end

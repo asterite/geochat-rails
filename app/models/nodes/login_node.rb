@@ -1,6 +1,6 @@
 class LoginNode < Node
   command
-  Help = "To login to GeoChat from this channel send: login YOUR_LOGIN YOUR_PASSWORD"
+  Help = T.help_login
 
   attr_accessor :login
   attr_accessor :password
@@ -14,7 +14,7 @@ class LoginNode < Node
 
   def process
     user = User.authenticate @login, @password
-    return reply "Invalid login" unless user
+    return reply T.invalid_login unless user
 
     if current_channel
       current_channel.user = user
@@ -23,6 +23,6 @@ class LoginNode < Node
       channel = create_channel_for user
     end
 
-    reply "Hello #{user.display_name}. When you want to remove this device send: bye"
+    reply T.hello(user)
   end
 end

@@ -1,6 +1,6 @@
 class LeaveNode < Node
   command
-  Help = "To leave a group send: leave GROUP_ALIAS"
+  Help = T.help_leave
 
   attr_accessor :group
 
@@ -22,24 +22,16 @@ class LeaveNode < Node
 
     membership = current_user.membership_in(group)
     if !membership
-      return reply "You can't leave group #{group.alias} because you don't belong to it."
+      return reply T.you_cant_leave_group_because_you_dont_belong_to_it(group)
     end
 
     if group.owners == [current_user]
-      return reply "You can't leave group #{group.alias} because you are its only owner."
+      return reply T.you_cant_leave_group_because_you_are_its_only_owner(group)
     end
 
     membership.destroy
 
-    groups = current_user.groups
-    case groups.count
-    when 0
-      reply "Good bye #{current_user.login} from your only group #{group.alias}. To join another group send: join groupalias"
-    when 1
-      reply "Good bye #{current_user.login} from group #{group.alias}. Now your default group is #{groups.first.alias}."
-    else
-      reply "Good bye #{current_user.login} from group #{group.alias}."
-    end
+    reply T.good_bye_from_group(current_user, group)
   end
 end
 

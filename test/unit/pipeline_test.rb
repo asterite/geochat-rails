@@ -110,7 +110,7 @@ class PipelineTest < ActiveSupport::TestCase
   end
 
   def assert_not_logged_in_message_sent_to(user)
-    assert_messages_sent_to user, 'You are not signed in GeoChat. Send "login USERNAME PASSWORD" to login, or "name YOUR_NAME" or "YOUR_NAME join GROUP_NAME" to register.'
+    assert_messages_sent_to user, T.you_are_not_signed_in
   end
 
   def assert_invite_exists(group, *users)

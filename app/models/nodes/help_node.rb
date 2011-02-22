@@ -1,6 +1,6 @@
 class HelpNode < Node
   command
-  Help = "GeoChat help center. Send help followed by a topic. Topics: signup, login, logout, create, join, leave, invite, on, off, my, whereis, whois, owner."
+  Help = T.help_general
 
   attr_accessor :node
 

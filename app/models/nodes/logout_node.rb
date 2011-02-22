@@ -1,6 +1,6 @@
 class LogoutNode < Node
   command
-  Help = "To logout from GeoChat send: logout"
+  Help = T.help_logout
 
   Command = ::Command.new self do
     name 'logout', 'log out', 'logoff', 'log off', 'bye'
@@ -13,6 +13,6 @@ class LogoutNode < Node
 
     current_channel.destroy
 
-    reply "#{current_user.display_name}, this device has been removed from your account."
+    reply T.device_removed_from_your_account(current_user)
   end
 end

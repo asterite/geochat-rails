@@ -1,7 +1,7 @@
 class InviteNode < Node
   command
   command_without_group
-  Help = "To invite someone to a group send: GROUP_ALIAS +PHONE_NUMBER_OR_LOGIN"
+  Help = T.help_invite
 
   attr_accessor :group
   attr_accessor :users
@@ -63,7 +63,7 @@ class InviteNode < Node
     return reply_not_logged_in unless current_user
 
     group = fix_group || default_group({
-      :no_default_group_message => "You must specify a group to invite the users to, or set a default group.",
+      :no_default_group_message => T.you_must_specify_a_group_to_invite
     })
     return unless group
 
@@ -101,13 +101,13 @@ class InviteNode < Node
           end
         else
           current_user.invite user, :to => group
-          send_message_to_user user, "#{current_user.login} has invited you to group #{group.alias}. You can join by sending: join #{group.alias}"
+          send_message_to_user user, T.user_has_invited_you(current_user, group)
           sent << name
         end
       else
         if name.integer?
           current_user.invite name, :to => group
-          send_message :to => "sms://#{name}", :body => "Welcome to GeoChat's group #{group.alias}. Tell us your name and join the group by sending: YOUR_NAME join #{group.alias}"
+          send_message :to => "sms://#{name}", :body => T.welcome_to_group_signup_and_join(group)
           sent << name
         else
           not_found << name unless not_found.include? name
@@ -116,25 +116,16 @@ class InviteNode < Node
     end
 
     if joined.present?
-      if joined.one?
-        reply "#{joined.first} is now a member of group #{group.alias}."
-      else
-        reply "#{joined.join ','} are all now members of group #{group.alias}."
-      end
+      reply T.users_are_now_members_of_group(joined, group)
     end
     if not_found.present?
-      if not_found.one?
-        reply "Could not find a registered user '#{not_found.first}' for your invitation."
-      else
-        users = not_found.map{|x| "'#{x}'"}.join ', '
-        reply "Could not find registered users #{users} for your invitation."
-      end
+      reply T.could_not_find_users_for_invitation(not_found)
     end
     if invited_self
-      reply "You can't invite yourself."
+      reply T.you_cant_invite_yourself
     end
     if sent.present?
-      reply "Invitation/s sent to #{sent.join(', ')}"
+      reply T.invitations_sent_to_users(sent)
     end
   end
 end

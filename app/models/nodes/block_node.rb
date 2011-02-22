@@ -1,6 +1,7 @@
 class BlockNode < Node
   command
   command_without_group
+  Help = T.help_block
 
   attr_accessor :user
   attr_accessor :group

@@ -7,14 +7,14 @@ class MyTest < PipelineTest
     send_message 1, ".name John Doe"
     send_message 1, ".my login"
 
-    assert_messages_sent_to 1, "Your login is: JohnDoe"
+    assert_messages_sent_to 1, T.your_login_is('JohnDoe')
   end
 
   test "set my login" do
     send_message 1, ".name John Doe"
     send_message 1, ".my login FooBar"
 
-    assert_messages_sent_to 1, "Your new login is: FooBar."
+    assert_messages_sent_to 1, T.your_new_login_is('FooBar')
     assert_user_is_logged_in 1, "FooBar", "John Doe"
     assert_user_doesnt_exist "JohnDoe"
   end
@@ -24,7 +24,7 @@ class MyTest < PipelineTest
     send_message 1, ".name John Doe"
     send_message 1, ".my login User2"
 
-    assert_messages_sent_to 1, "The login User2 is already taken."
+    assert_messages_sent_to 1, T.login_taken('User2')
     assert_user_is_logged_in 1, "JohnDoe", "John Doe"
   end
 
@@ -32,14 +32,14 @@ class MyTest < PipelineTest
     send_message 1, ".name John Doe"
     send_message 1, ".my name"
 
-    assert_messages_sent_to 1, "Your display name is: John Doe"
+    assert_messages_sent_to 1, T.your_display_name_is('John Doe')
   end
 
   test "set my name" do
     send_message 1, ".name John Doe"
     send_message 1, ".my name Foo Bar"
 
-    assert_messages_sent_to 1, "Your new display name is: Foo Bar"
+    assert_messages_sent_to 1, T.your_new_display_name_is('Foo Bar')
     assert_equal 'Foo Bar', User.find_by_login("JohnDoe").display_name
   end
 
@@ -47,7 +47,7 @@ class MyTest < PipelineTest
     send_message 1, ".name John Doe"
     send_message 1, ".my groups"
 
-    assert_messages_sent_to 1, "You don't belong to any group yet. To join a group send: join groupalias"
+    assert_messages_sent_to 1, T.you_dont_belong_to_any_group_yet
   end
 
   test "get my groups one" do
@@ -55,7 +55,7 @@ class MyTest < PipelineTest
     send_message 1, "create Group2"
 
     send_message 1, ".my groups"
-    assert_messages_sent_to 1, "Your only group is: Group2"
+    assert_messages_sent_to 1, T.your_only_group_is('Group2')
   end
 
   test "get my groups many" do
@@ -64,14 +64,14 @@ class MyTest < PipelineTest
     send_message 1, "create Group1"
 
     send_message 1, ".my groups"
-    assert_messages_sent_to 1, "Your groups are: Group1, Group2"
+    assert_messages_sent_to 1, T.your_groups_are(['Group1', 'Group2'])
   end
 
   test "get my group no groups" do
     send_message 1, ".name John Doe"
     send_message 1, ".my group"
 
-    assert_messages_sent_to 1, "You don't belong to any group yet. To join a group send: join groupalias"
+    assert_messages_sent_to 1, T.you_dont_belong_to_any_group_yet
   end
 
   test "get my group single group" do
@@ -79,7 +79,7 @@ class MyTest < PipelineTest
     send_message 1, "create Group1"
     send_message 1, ".my group"
 
-    assert_messages_sent_to 1, "Your default group is: Group1"
+    assert_messages_sent_to 1, T.your_default_group_is('Group1')
   end
 
   test "get my group no default group" do
@@ -88,7 +88,7 @@ class MyTest < PipelineTest
     send_message 1, "create Group2"
     send_message 1, ".my group"
 
-    assert_messages_sent_to 1, "Your don't have a default group. To choose one send: .my group groupalias"
+    assert_messages_sent_to 1, T.you_dont_have_a_default_group_choose_one
   end
 
   test "get my group other group" do
@@ -98,7 +98,7 @@ class MyTest < PipelineTest
     send_message 1, ".my group Group2"
     send_message 1, ".my group"
 
-    assert_messages_sent_to 1, "Your default group is: Group2"
+    assert_messages_sent_to 1, T.your_default_group_is('Group2')
   end
 
   test "set my group" do
@@ -106,7 +106,7 @@ class MyTest < PipelineTest
     send_message 1, "create Group1"
     send_message 1, "create Group2"
     send_message 1, ".my group Group2"
-    assert_messages_sent_to 1, "Your new default group is: Group2"
+    assert_messages_sent_to 1, T.your_new_default_group_is('Group2')
   end
 
   test "set my group does not exist" do
@@ -114,7 +114,7 @@ class MyTest < PipelineTest
     send_message 1, "create Group1"
     send_message 1, "create Group2"
     send_message 1, ".my group Group3"
-    assert_messages_sent_to 1, "The group Group3 does not exist."
+    assert_messages_sent_to 1, T.group_does_not_exist('Group3')
   end
 
   test "set my group does not belong to" do
@@ -123,21 +123,21 @@ class MyTest < PipelineTest
     send_message 2, "create Group2"
 
     send_message 1, ".my group Group2"
-    assert_messages_sent_to 1, "You can't set Group2 as your default group because you don't belong to it."
+    assert_messages_sent_to 1, T.you_cant_set_group_as_default_group_dont_belong('Group2')
   end
 
   test "get my password" do
     create_users 1
 
     send_message 1, ".my password"
-    assert_messages_sent_to 1, "Forgot your password? Set it via: .my password newpassword"
+    assert_messages_sent_to 1, T.forgot_your_password?
   end
 
   test "set my password" do
     create_users 1
 
     send_message 1, ".my password foobar"
-    assert_messages_sent_to 1, "Your new password is: foobar"
+    assert_messages_sent_to 1, T.your_new_password_is('foobar')
 
     send_message 1, "logout"
     send_message 1, "login User1 foobar"
@@ -148,35 +148,35 @@ class MyTest < PipelineTest
     create_users 1
 
     send_message 1, ".my number"
-    assert_messages_sent_to 1, "Your phone number is: 1"
+    assert_messages_sent_to 1, T.your_phone_number_is('1')
   end
 
   test "set my number" do
     create_users 1
 
     send_message 1, ".my number 1234"
-    assert_messages_sent_to 1, "You can't change your phone number."
+    assert_messages_sent_to 1, T.you_cant_change_your_phone_number
   end
 
   test "get my email" do
     send_message "mailto://foo", ".name foo"
 
     send_message "mailto://foo", ".my email"
-    assert_messages_sent_to "mailto://foo", "Your email is: foo"
+    assert_messages_sent_to "mailto://foo", T.your_email_is('foo')
   end
 
   test "set my email" do
     send_message "mailto://foo", ".name foo"
 
     send_message "mailto://foo", ".my email 1234"
-    assert_messages_sent_to "mailto://foo", "You can't change your email."
+    assert_messages_sent_to "mailto://foo", T.you_cant_change_your_email
   end
 
   test "get my location never reported" do
     create_users 1
 
     send_message 1, ".my location"
-    assert_messages_sent_to 1, "You never reported your location."
+    assert_messages_sent_to 1, T.you_never_reported_your_location
   end
 
   test "get my location" do
@@ -187,7 +187,7 @@ class MyTest < PipelineTest
 
     send_message 1, "at Paris"
     send_message 1, ".my location"
-    assert_messages_sent_to 1, "You said you was in Paris, France (lat: 10.2, lon: 30.4, url: http://short.url) less than a minute ago."
+    assert_messages_sent_to 1, T.you_said_you_was_in('Paris, France', "lat: 10.2, lon: 30.4, url: http://short.url", Time.now)
   end
 
   test "set my location with place" do
@@ -197,7 +197,7 @@ class MyTest < PipelineTest
     expect_shorten_google_maps 'Paris, France', 'http://short.url'
 
     send_message 1, ".my location Paris"
-    assert_messages_sent_to 1, "Your location was successfully updated to Paris, France (lat: 10.2, lon: 30.4, url: http://short.url)"
+    assert_messages_sent_to 1, T.location_successfuly_updated('Paris, France', "lat: 10.2, lon: 30.4, url: http://short.url")
     assert_user_location "User1", "Paris, France", 10.2, 30.4, "http://short.url"
   end
 
@@ -208,7 +208,7 @@ class MyTest < PipelineTest
     expect_shorten_google_maps 10.2, 30.4, 'http://short.url'
 
     send_message 1, ".my location 10.2, 30.4"
-    assert_messages_sent_to 1, "Your location was successfully updated to Paris (lat: 10.2, lon: 30.4, url: http://short.url)"
+    assert_messages_sent_to 1, T.location_successfuly_updated('Paris', "lat: 10.2, lon: 30.4, url: http://short.url")
     assert_user_location "User1", "Paris", 10.2, 30.4, "http://short.url"
   end
 

@@ -65,9 +65,7 @@ class MessageNode < Node
   end
 
   def process
-    if !current_user
-      return reply 'You are not signed in GeoChat. Send "login USERNAME PASSWORD" to login, or "name YOUR_NAME" or "YOUR_NAME join GROUP_NAME" to register.'
-    end
+    return reply T.you_are_not_signed_in unless current_user
 
     if self.target.present?
       if self.target.is_a?(UnknownTarget)
@@ -98,7 +96,7 @@ class MessageNode < Node
     # Below because if an explicit group is not found then it is the default group
     # and it might be disabled.
     if group && !group.enabled
-      return reply "You can't send messages to #{group.alias} because it is disabled."
+      return reply T.cant_send_messages_to_disabled_group(group)
     end
 
     text_to_send = @body
@@ -106,10 +104,11 @@ class MessageNode < Node
 
     if self.location.present?
       if update_current_user_location_to self.location
+        at_place = T.at_place(current_user.location, current_user_location_info)
         if text_to_send.blank?
-          text_to_send = "at #{current_user.location} (#{current_user_location_info})"
+          text_to_send = at_place
         else
-          text_to_send = "#{text_to_send} (at #{current_user.location}, #{current_user_location_info})"
+          text_to_send = "#{text_to_send} (#{at_place})"
         end
       else
         text_to_send = message[:body]
@@ -117,29 +116,29 @@ class MessageNode < Node
 
       if text_to_save.blank?
         if self.location.is_a?(String)
-          text_to_save = "at #{self.location}"
+          text_to_save = T.at_place(self.location)
         else
-          text_to_save = "at #{self.location.join ', '}"
+          text_to_save = T.at_place(self.location.join ', ')
         end
       end
     end
 
     if not group
       group = default_group({
-        :no_default_group_message => "You don't have a default group so prefix messages with a group (for example: groupalias Hello!) or set your default group with: .my group groupalias"
+        :no_default_group_message => T.you_dont_have_a_default_group_prefix_messages
       })
     end
     return unless group
 
     if group && !group.enabled
-      return reply "You can't send messages to #{group.alias} because it is disabled."
+      return reply T.cant_send_messages_to_disabled_group(group)
     end
 
     if user
       if explicit_group && !user.belongs_to(group)
-        return reply "You can't send a message to user #{user.login} via group #{group.alias} because he/she does not belong to it"
+        return reply T.cant_send_message_to_user_via_group_does_not_belong(user, group)
       elsif !current_user.shares_a_common_group_with(user)
-        return reply "You can't send a message to user #{user.login} because you don't share a common group"
+        return reply T.cant_send_message_to_user_no_common_group(user)
       end
     end
 
@@ -148,22 +147,22 @@ class MessageNode < Node
         join current_user, group
         invite.destroy
       else
-        return reply "You can not send messages to the group #{group.alias} as your invitation has not yet been approved by an admin."
+        return reply T.cant_send_message_to_group_invitation_not_approved(group)
       end
     end
 
     if !current_user.belongs_to(group)
       if group.requires_aproval_to_join
-        return reply "You can not send messages to the group #{group.alias} because you are not a member or the group requires approval to join. To request an invitation send: join #{group.alias}"
+        return reply T.cant_send_message_to_group_not_a_member(group)
       else
         join current_user, group
       end
     end
 
     if user
-      send_message_to_user_in_group user, group, "#{current_user.login} only to you: #{text_to_send}"
+      send_message_to_user_in_group user, group, T.message_only_to_you(current_user, text_to_send)
       if group.forward_owners
-        send_message_to_group_owners group, "#{current_user.login} only to #{user.login}: #{text_to_send}", :except => user
+        send_message_to_group_owners group, T.message_only_to_user(current_user, user, text_to_send), :except => user
       end
     elsif group.chatroom || @blast
       send_message_to_group group, "#{current_user.login}: #{text_to_send}"

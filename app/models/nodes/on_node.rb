@@ -1,6 +1,6 @@
 class OnNode < Node
   command
-  Help = "To start receiving messages from this channel send: on"
+  Help = T.help_on
 
   Command = ::Command.new self do
     name 'on', 'start'
@@ -15,6 +15,6 @@ class OnNode < Node
       current_channel.save!
     end
 
-    reply "You sent '#{message[:body].strip}' and we have turned on updates on this #{current_channel.protocol_name}. Reply with STOP to turn off. Questions email support@instedd.org."
+    reply T.you_sent_on_and_we_have_turned_on_udpated_on_this_channel(message[:body].strip, current_channel)
   end
 end

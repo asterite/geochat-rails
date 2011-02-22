@@ -1,6 +1,6 @@
 class WhoIsNode < Node
   command
-  Help = "To find out the display name of a user send: .whois USER_LOGIN"
+  Help = T.help_whois
 
   attr_accessor :user
 
@@ -19,6 +19,6 @@ class WhoIsNode < Node
       return reply_user_does_not_exist @user
     end
 
-    reply "#{user.login}'s display name is: #{user.display_name}."
+    reply T.user_display_name_is(user)
   end
 end

@@ -1,7 +1,7 @@
 class OwnerNode < Node
   command
   command_without_group
-  Help = "To make a user owner of a group send: owner GROUP_ALIAS USER_LOGIN"
+  Help = T.help_owner
 
   attr_accessor :user
   attr_accessor :group
@@ -32,7 +32,7 @@ class OwnerNode < Node
           if user
             return reply_group_does_not_exist @group
           else
-            return reply_group_does_not_exist("#{@group} or #{@user}")
+            return reply_group_does_not_exist(T.a_or_b(@group, @user))
           end
         end
       end
@@ -44,36 +44,36 @@ class OwnerNode < Node
 
     if not group
       group = default_group({
-        :no_default_group_message => "You must specify a group to set #{user.login} as an owner, or set a default group.",
+        :no_default_group_message => T.you_must_specify_a_group_to_set_owner(user)
       })
     end
     return unless group
 
     membership = user.membership_in group
     if !membership
-      return reply "The user #{user.login} does not belong to group #{group.alias}."
+      return reply T.user_does_not_belong_to_group(user, group)
     end
 
     if current_user.is_owner_of(group)
       if user == current_user
-        return reply "You are already an owner of group #{group.alias}."
+        return reply T.you_are_already_an_owner_of_group(group)
       end
     else
       if user == current_user
-        return reply "Nice try :-P"
+        return reply T.nice_try
       else
-        return reply "You can't set #{user.login} as an owner of #{group.alias} because you are not an owner."
+        return reply T.you_cant_set_owner_you_are_not_owner(user, group)
       end
     end
 
     if membership.role == :owner
-      return reply "#{user.login} is already an owner in group Group1."
+      return reply T.user_already_an_owner(user, group)
     end
 
     membership.role = :owner
     membership.save!
 
-    reply "The user #{user.login} was successfully set as owner of group #{group.alias}."
-    send_message_to_user user, "#{current_user.login} has made you owner of group #{group.alias}."
+    reply T.user_set_as_owner(user, group)
+    send_message_to_user user, T.user_has_made_you_owner(current_user, group)
   end
 end

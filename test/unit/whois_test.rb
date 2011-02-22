@@ -7,7 +7,7 @@ class WhereIsTest < PipelineTest
     create_users 1
 
     send_message 1, ".whois User2"
-    assert_messages_sent_to 1, "The user User2 does not exist."
+    assert_messages_sent_to 1, T.user_does_not_exist('User2')
   end
 
   test "whois" do
@@ -15,12 +15,12 @@ class WhereIsTest < PipelineTest
     send_message 2, ".my name Foo Bar"
 
     send_message 1, ".whois User2"
-    assert_messages_sent_to 1, "User2's display name is: Foo Bar."
+    assert_messages_sent_to 1, T.user_display_name_is(User.find_by_login('User2'))
   end
 
   test "whois not signed in" do
     create_users 2
     send_message 1, ".whois User2"
-    assert_messages_sent_to 1, "User2's display name is: User2."
+    assert_messages_sent_to 1, T.user_display_name_is(User.find_by_login('User2'))
   end
 end

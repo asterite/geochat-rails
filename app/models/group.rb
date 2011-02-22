@@ -26,6 +26,10 @@ class Group < ActiveRecord::Base
     hash
   end
 
+  def to_s
+    self.alias
+  end
+
   private
 
   def update_alias_downcase

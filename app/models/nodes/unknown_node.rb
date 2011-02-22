@@ -19,6 +19,6 @@ class UnknownNode < Node
 
   def process
     candidate = KnownCommands.min_by {|x| x.levenshtein @command}
-    reply "Unknown command .#{@command}. Maybe you meant to send: .#{candidate}"
+    reply T.unknown_command(@command, candidate)
   end
 end

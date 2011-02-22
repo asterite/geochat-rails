@@ -134,6 +134,10 @@ class User < ActiveRecord::Base
     hash
   end
 
+  def to_s
+    self.login
+  end
+
   private
 
   def update_location_reported_at

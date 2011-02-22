@@ -1,6 +1,6 @@
 class SignupNode < Node
   command
-  Help = "To signup in GeoChat send: name YOUR_NAME"
+  Help = T.help_signup
 
   attr_accessor :display_name
   attr_accessor :suggested_login
@@ -28,14 +28,14 @@ class SignupNode < Node
   end
 
   def process
-    return reply "This device already belongs to another user. To dettach it send: bye" if current_channel
+    return reply T.device_belongs_to_another_user if current_channel
 
     if @suggested_login.length < 2
-      return reply "You cannot signup as '#{@suggested_login}' because it is too short (minimum is 2 characters)."
+      return reply T.cannot_signup_name_too_short(@suggested_login)
     end
 
     if @suggested_login.command?
-      return reply "You cannot signup as '#{@suggested_login}' because it is a reserved name."
+      return reply T.cannot_signup_name_reserved(@suggested_login)
     end
 
     login = User.find_suitable_login @suggested_login
@@ -54,15 +54,15 @@ class SignupNode < Node
     end
 
     self.channel = create_channel_for user
-    reply "Welcome #{user.display_name} to GeoChat! Send HELP for instructions. http://geochat.instedd.org"
-    reply "Remember you can log in to http://geochat.instedd.org by entering your login (#{login}) and the following password: #{password}"
+    reply T.welcome_to_geochat(user)
+    reply T.remember_you_can_log_in(login, password)
 
     if @group
       join = JoinNode.new :group => @group
       join.pipeline = @pipeline
       join.process
     else
-      reply "To send messages to a group, you must first join one. Send: join GROUP"
+      reply T.to_send_message_to_a_group_you_must_first_join_one
     end
   end
 end

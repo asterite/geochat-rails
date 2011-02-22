@@ -9,7 +9,7 @@ class OffTest < PipelineTest
     send_message 1, "off"
 
     assert_user_is_logged_off "sms://1", "User1"
-    assert_messages_sent_to 1, "GeoChat Alerts. You sent 'off' and we have turned off updates on this phone. Reply with START to turn back on. Questions email support@instedd.org."
+    assert_messages_sent_to 1, T.you_sent_off_and_we_have_turned_off_channel('off', 'phone')
   end
 
   test "turn off with stop" do
@@ -18,7 +18,7 @@ class OffTest < PipelineTest
     send_message 1, "stop"
 
     assert_user_is_logged_off "sms://1", "User1"
-    assert_messages_sent_to 1, "GeoChat Alerts. You sent 'stop' and we have turned off updates on this phone. Reply with START to turn back on. Questions email support@instedd.org."
+    assert_messages_sent_to 1, T.you_sent_off_and_we_have_turned_off_channel('stop', 'phone')
   end
 
   test "turn off by email" do
@@ -26,7 +26,7 @@ class OffTest < PipelineTest
     send_message 'mailto://foo', "off"
 
     assert_user_is_logged_off "mailto://foo", "User1"
-    assert_messages_sent_to 'mailto://foo', "GeoChat Alerts. You sent 'off' and we have turned off updates on this email. Reply with START to turn back on. Questions email support@instedd.org."
+    assert_messages_sent_to 'mailto://foo', T.you_sent_off_and_we_have_turned_off_channel('off', 'email')
   end
 
   test "turn off when off" do
