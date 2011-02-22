@@ -53,8 +53,8 @@ class SignupTest < PipelineTest
   end
 
   test "signup reserved name" do
-    send_message 1, ".name Who"
-    assert_messages_sent_to 1, "You cannot signup as 'Who' because it is a reserved name."
+    send_message 1, ".name whois"
+    assert_messages_sent_to 1, "You cannot signup as 'whois' because it is a reserved name."
     assert_user_doesnt_exist 'who'
   end
 

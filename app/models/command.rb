@@ -26,8 +26,8 @@ class Command
     space = space_after_command ? /^\s+/ : /\s*/
 
     @names << ({
-      :regex => /^#{names}\s*$/i,
-      :prefixed_regex => /^#{prefix}\s*#{names}/i,
+      :regex => /^#{prefix}\s*#{names}/i,
+      :regex_end => /^\s*\.*#{names}\s*$/i,
       :space => space
     })
   end
@@ -54,19 +54,10 @@ class Command
     self.names.each do |name|
       old_pos = strscan.pos
 
-      # Check help names
-      if strscan.scan /^\.*(?:help|h|\?)\s+\.*/i
-        if strscan.scan name[:regex]
-          return HelpNode.new :node => node
-        else
-          strscan.pos = old_pos
-        end
-      end
-
       old_pos = strscan.pos
 
       # If the string doesn't start with the command name, abort
-      next unless strscan.scan name[:prefixed_regex]
+      next unless strscan.scan name[:regex]
 
       matched_name = strscan[1]
 

@@ -1,4 +1,6 @@
 class CreateNode < Node
+  command
+
   attr_accessor :alias
   attr_accessor :public
   attr_accessor :nochat

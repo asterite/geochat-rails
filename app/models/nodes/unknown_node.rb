@@ -1,4 +1,6 @@
 class UnknownNode < Node
+  command
+
   attr_accessor :command
   attr_accessor :suggestion
 
@@ -7,5 +9,9 @@ class UnknownNode < Node
       command = strscan[1]
       return UnknownNode.new :command => command
     end
+  end
+
+  def self.names
+    []
   end
 end

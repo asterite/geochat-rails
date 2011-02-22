@@ -65,7 +65,7 @@ class Pipeline
       return reply "You cannot signup as '#{node.suggested_login}' because it is too short (minimum is 2 characters)."
     end
 
-    if ReservedNames.include?(node.suggested_login.downcase)
+    if node.suggested_login.command?
       return reply "You cannot signup as '#{node.suggested_login}' because it is a reserved name."
     end
 
@@ -125,7 +125,7 @@ class Pipeline
       return reply "You cannot create a group named '#{node.alias}' because it is too short (minimum is 2 characters)."
     end
 
-    if ReservedNames.include?(node.alias.downcase)
+    if node.alias.command?
       return reply "You cannot create a group named '#{node.alias}' because it is a reserved name."
     end
 

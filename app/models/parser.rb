@@ -17,10 +17,6 @@ class Parser < StringScanner
     # Skip first spaces
     scan /\s*/
 
-    # Ping
-    node = PingNode::Command.scan self
-    return node if node
-
     # Check blast
     options = {}
     options[:blast] = check_blast
@@ -28,18 +24,14 @@ class Parser < StringScanner
     # Check if first token is a group
     if scan /^(@)?\s*(.+?)\s+(.+?)$/i
       group = self[2]
-      if (self[1] && target = UnknownTarget.new(group)) || (@lookup && target = @lookup.get_target(group))
+      if !group.command? && (self[1] && target = UnknownTarget.new(group)) || (@lookup && target = @lookup.get_target(group))
         options[:targets] = [target]
 
         rest = StringScanner.new self[3]
 
         # Check command for when a group is specified first
         unless target.is_a? UserTarget
-          [
-            InviteNode,
-            BlockNode,
-            OwnerNode
-          ].each do |node_class|
+          Node::CommandsWithoutGroup.each do |node_class|
             node = node_class.scan rest
             if node
               node.group = group
@@ -96,25 +88,7 @@ class Parser < StringScanner
     end
 
     # Check other commands
-    [
-      BlockNode,
-      CreateNode,
-      InviteNode,
-      JoinNode,
-      LanguageNode,
-      LeaveNode,
-      LoginNode,
-      LogoutNode,
-      MyNode,
-      OnNode,
-      OffNode,
-      OwnerNode,
-      SignupNode,
-      WhoIsNode,
-      WhereIsNode,
-      HelpNode,
-      UnknownNode,
-    ].each do |node_class|
+    Node::Commands.each do |node_class|
       node = node_class.scan self
       if node
         node.after_scan

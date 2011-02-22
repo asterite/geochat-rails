@@ -43,4 +43,19 @@ class String
       self
     end
   end
+
+  # Returns the command associated to this string, if any, or nil.
+  def command
+    Node::Commands.each do |cmd|
+      cmd.names.each do |name|
+        if self =~ name[:regex_end]
+          return cmd
+        end
+      end
+    end
+
+    nil
+  end
+
+  alias_method :command?, :command
 end

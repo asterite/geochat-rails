@@ -1,4 +1,6 @@
 class SignupNode < Node
+  command
+
   attr_accessor :display_name
   attr_accessor :suggested_login
   attr_accessor :group

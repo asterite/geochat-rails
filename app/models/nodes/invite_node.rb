@@ -1,4 +1,7 @@
 class InviteNode < Node
+  command
+  command_without_group
+
   attr_accessor :group
   attr_accessor :users
 

@@ -1,4 +1,7 @@
 class OwnerNode < Node
+  command
+  command_without_group
+
   attr_accessor :user
   attr_accessor :group
 

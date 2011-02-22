@@ -1,4 +1,6 @@
 class WhereIsNode < Node
+  command
+
   attr_accessor :user
 
   Command = ::Command.new self do

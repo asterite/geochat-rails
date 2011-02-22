@@ -1,4 +1,6 @@
 class LanguageNode < Node
+  command
+
   attr_accessor :name
 
   Command = ::Command.new self do

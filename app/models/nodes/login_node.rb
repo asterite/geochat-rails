@@ -1,4 +1,6 @@
 class LoginNode < Node
+  command
+
   attr_accessor :login
   attr_accessor :password
 

@@ -1,4 +1,6 @@
 class MyNode < Node
+  command
+
   attr_accessor :key
   attr_accessor :value
 
@@ -47,5 +49,9 @@ class MyNode < Node
     elsif strscan.scan /^\.*\s*my(?:\s+|_*)password\s+(\S+)\s*$/i
       return MyNode.new :key => MyNode::Password, :value => strscan[1]
     end
+  end
+
+  def self.names
+    [{:regex_end => /^\s*my\s*$/i}]
   end
 end

@@ -1,4 +1,6 @@
 class LeaveNode < Node
+  command
+
   attr_accessor :group
 
   Command = ::Command.new self do

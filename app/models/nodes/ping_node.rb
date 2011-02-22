@@ -1,4 +1,6 @@
 class PingNode < Node
+  command
+
   attr_accessor :text
 
   Command = ::Command.new self do
