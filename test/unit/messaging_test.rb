@@ -21,7 +21,7 @@ class MessagingTest < PipelineTest
     send_message 2..4, "join Group1"
 
     expect_locate 'santiago de chile', -33.42536, -70.566466, 'Santiago, Chile'
-    expect_bitly_google_maps 'Santiago, Chile', 'http://short.url'
+    expect_shorten_google_maps 'Santiago, Chile', 'http://short.url'
 
     send_message 1, "@Group1 at santiago de chile"
 

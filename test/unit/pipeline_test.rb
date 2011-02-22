@@ -203,19 +203,17 @@ class PipelineTest < ActiveSupport::TestCase
     Geocoder.expects(:reverse).with([lat, lon]).returns(location)
   end
 
-  def expect_bitly(long_url, short_url)
-    bitly = mock('bitly')
-    bitly.expects(:shorten_url).with(long_url).returns(short_url)
-    Bitly.expects(:new).returns(bitly)
+  def expect_shorten(long_url, short_url)
+    Googl.expects(:shorten).with(long_url).returns(short_url)
   end
 
-  def expect_bitly_google_maps(*params)
+  def expect_shorten_google_maps(*params)
     if params.length == 3
-      expect_bitly "http://maps.google.com/?q=#{params[0]},#{params[1]}", params[2]
+      expect_shorten "http://maps.google.com/?q=#{params[0]},#{params[1]}", params[2]
     elsif params.length == 2
-      expect_bitly "http://maps.google.com/?q=#{CGI.escape params[0]}", params[1]
+      expect_shorten "http://maps.google.com/?q=#{CGI.escape params[0]}", params[1]
     else
-      raise "Expected 2 or 3 params for expect_bitly_google_maps"
+      raise "Expected 2 or 3 params for expect_shorten_google_maps"
     end
   end
 end

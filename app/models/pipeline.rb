@@ -144,10 +144,10 @@ class Pipeline
         return false
       end
 
-      short_url = Bitly.new_from_config.shorten_url "http://maps.google.com/?q=#{CGI.escape place}"
+      short_url = Googl.shorten "http://maps.google.com/?q=#{CGI.escape place}"
     else
       place, coords = Geocoder.reverse(location), location
-      short_url = Bitly.new_from_config.shorten_url "http://maps.google.com/?q=#{coords.join ','}"
+      short_url = Googl.shorten "http://maps.google.com/?q=#{coords.join ','}"
     end
 
     current_user.location = place

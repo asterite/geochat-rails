@@ -10,7 +10,7 @@ class LocationTest < PipelineTest
     send_message 2..4, "join Group1"
 
     expect_locate 'Paris', 48.856667, 2.350987, 'Paris, France'
-    expect_bitly_google_maps 'Paris, France', 'http://short.url'
+    expect_shorten_google_maps 'Paris, France', 'http://short.url'
 
     send_message 1, "at Paris"
     assert_messages_sent_to 1, "Your location was successfully updated to Paris, France (lat: 48.856667, lon: 2.350987, url: http://short.url)"
@@ -26,7 +26,7 @@ class LocationTest < PipelineTest
     send_message 2..4, "join Group1"
 
     expect_locate 'Paris', 48.856667, 2.350987, 'Paris, France'
-    expect_bitly_google_maps 'Paris, France', 'http://short.url'
+    expect_shorten_google_maps 'Paris, France', 'http://short.url'
 
     send_message 1, "/Paris/ Hello!"
     assert_messages_sent_to 1, "Your location was successfully updated to Paris, France (lat: 48.856667, lon: 2.350987, url: http://short.url)"
@@ -43,7 +43,7 @@ class LocationTest < PipelineTest
       send_message 2..4, "join Group1"
 
       expect_reverse 48.856667, 2.350987, 'Paris'
-      expect_bitly_google_maps 48.856667, 2.350987, 'http://short.url'
+      expect_shorten_google_maps 48.856667, 2.350987, 'http://short.url'
 
       send_message 1, msg
       assert_messages_sent_to 1, "Your location was successfully updated to Paris (lat: 48.856667, lon: 2.350987, url: http://short.url)"
@@ -59,7 +59,7 @@ class LocationTest < PipelineTest
       send_message 2..4, "join Group1"
 
       expect_reverse 48.856667, 2.350987, 'Paris'
-      expect_bitly_google_maps 48.856667, 2.350987, 'http://short.url'
+      expect_shorten_google_maps 48.856667, 2.350987, 'http://short.url'
 
       send_message 1, "#{msg} Hello!"
       assert_messages_sent_to 1, "Your location was successfully updated to Paris (lat: 48.856667, lon: 2.350987, url: http://short.url)"
@@ -75,7 +75,7 @@ class LocationTest < PipelineTest
       send_message 2..4, "join Group1"
 
       expect_reverse 48.856667, 2.350987, 'Paris'
-      expect_bitly_google_maps 48.856667, 2.350987, 'http://short.url'
+      expect_shorten_google_maps 48.856667, 2.350987, 'http://short.url'
 
       send_message 1, "Group1 #{msg}"
       assert_messages_sent_to 1, "Your location was successfully updated to Paris (lat: 48.856667, lon: 2.350987, url: http://short.url)"
@@ -91,7 +91,7 @@ class LocationTest < PipelineTest
       send_message 2..4, "join Group1"
 
       expect_reverse 48.856667, 2.350987, 'Paris'
-      expect_bitly_google_maps 48.856667, 2.350987, 'http://short.url'
+      expect_shorten_google_maps 48.856667, 2.350987, 'http://short.url'
 
       send_message 1, "Group1 #{msg} Hello!"
       assert_messages_sent_to 1, "Your location was successfully updated to Paris (lat: 48.856667, lon: 2.350987, url: http://short.url)"
@@ -134,7 +134,7 @@ class LocationTest < PipelineTest
     send_message 1, "create Group1"
 
     expect_locate 'Paris', 48.856667, 2.350987, 'Paris, France'
-    expect_bitly_google_maps 'Paris, France', 'http://short.url'
+    expect_shorten_google_maps 'Paris, France', 'http://short.url'
 
     send_message 1, "at Paris"
     send_message 1, "Hello"

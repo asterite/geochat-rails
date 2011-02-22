@@ -32,7 +32,7 @@ class WhereIsTest < PipelineTest
     send_message 2, "join Group1"
 
     expect_reverse 10.2, 20.4, 'Paris'
-    expect_bitly_google_maps 10.2, 20.4, 'http://short.url'
+    expect_shorten_google_maps 10.2, 20.4, 'http://short.url'
 
     send_message 2, "at 10.2, 20.4"
 
@@ -49,7 +49,7 @@ class WhereIsTest < PipelineTest
     Time.stubs :now => (now - 1.hour)
 
     expect_reverse 10.2, 20.4, 'Paris'
-    expect_bitly_google_maps 10.2, 20.4, 'http://short.url'
+    expect_shorten_google_maps 10.2, 20.4, 'http://short.url'
 
     send_message 2, "at 10.2, 20.4"
 

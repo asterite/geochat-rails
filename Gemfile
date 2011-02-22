@@ -9,7 +9,7 @@ gem 'sqlite3-ruby', :require => 'sqlite3'
 gem 'mysql2'
 gem 'nuntium_api', :require => 'nuntium'
 gem 'json'
-gem 'bitly'
+gem 'httparty'
 
 group :test do
   gem 'machinist'
