@@ -58,7 +58,7 @@ module T
       if users.one?
         "Could not find a registered user '#{users.first}' for your invitation."
       else
-        "Could not find registered users #{users.join ','} for your invitation."
+        "Could not find registered users #{users.join ', '} for your invitation."
       end
     end
 
