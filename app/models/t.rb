@@ -336,17 +336,17 @@ module T
       if others.empty?
         "#{from} only to you: #{text}"
       else
-        "#{from} only to #{others.join ','} and you: #{text}"
+        "#{from} only to #{others.join ', '} and you: #{text}"
       end
     end
 
     def message_only_to_user(from, to, text)
       to = *to
-      "#{from} only to #{to.join ','}: #{text}"
+      "#{from} only to #{to.join ', '}: #{text}"
     end
 
     def message_only_to_others_and_you(from, others, text)
-      "#{from} only to #{others.join ','} and you: #{text}"
+      "#{from} only to #{others.join ', '} and you: #{text}"
     end
 
     def device_belongs_to_another_user
@@ -396,7 +396,7 @@ module T
 
     def you_already_invited_user(user, group)
       user = *user
-      "You already invited #{user.join ','} to group #{group}"
+      "You already invited #{user.join ', '} to group #{group}"
     end
 
     def user_already_belongs_to_group(user, group)
@@ -404,7 +404,7 @@ module T
       if user.length == 1
         "The user #{user.first} already belongs to group #{group}"
       else
-        "The users #{user.join ','} already belong to group #{group}"
+        "The users #{user.join ', '} already belong to group #{group}"
       end
     end
 
