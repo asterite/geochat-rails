@@ -252,4 +252,14 @@ class InviteTest < PipelineTest
     assert_messages_sent_to 1, T.you_already_invited_user('User2', 'Group1')
     assert_no_messages_sent_to 2
   end
+
+  test "invite user that already belongs to group" do
+    create_users 1..2
+    send_message 1, "create group Group1"
+    send_message 2, "join Group1"
+
+    send_message 1, "invite User2"
+    assert_messages_sent_to 1, T.user_already_belongs_to_group('User2', 'Group1')
+    assert_no_messages_sent_to 2
+  end
 end

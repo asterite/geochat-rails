@@ -399,6 +399,15 @@ module T
       "You already invited #{user.join ','} to group #{group}"
     end
 
+    def user_already_belongs_to_group(user, group)
+      user = *user
+      if user.length == 1
+        "The user #{user.first} already belongs to group #{group}"
+      else
+        "The users #{user.join ','} already belong to group #{group}"
+      end
+    end
+
     def help_help
       "GeoChat help center. Send help followed by a topic. Topics: signup, login, logout, create, join, leave, invite, on, off, my, whereis, whois, owner."
     end

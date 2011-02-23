@@ -64,6 +64,7 @@ class InviteNode < Node
     joined = []
     not_found = []
     already_invited = []
+    already_belongs = []
     invited_self = false
 
     @users.each do |name|
@@ -85,6 +86,11 @@ class InviteNode < Node
       # If the user is itself
       if user == current_user
         invited_self = true
+        next
+      end
+
+      if user.belongs_to group
+        already_belongs << user.login
         next
       end
 
@@ -124,6 +130,7 @@ class InviteNode < Node
     reply T.could_not_find_users_for_invitation(not_found) if not_found.present?
     reply T.you_cant_invite_yourself if invited_self
     reply T.you_already_invited_user(already_invited, group) if already_invited.present?
+    reply T.user_already_belongs_to_group(already_belongs, group) if already_belongs.present?
     reply T.invitations_sent_to_users(sent) if sent.present?
   end
 end
