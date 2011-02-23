@@ -1,10 +1,5 @@
 class HelpNode < Node
-  command
-  Help = T.help_general
-
-  attr_accessor :node
-
-  Command = ::Command.new self do
+  command do
     name 'help', 'h', '\?'
     args :node, :optional => true
   end
@@ -14,7 +9,6 @@ class HelpNode < Node
   end
 
   def process
-    node = @node || HelpNode
-    reply node::Help
+    reply (@node || HelpNode)::Help
   end
 end

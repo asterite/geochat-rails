@@ -1,10 +1,5 @@
 class WhereIsNode < Node
-  command
-  Help = T.help_whereis
-
-  attr_accessor :user
-
-  Command = ::Command.new self do
+  command do
     name 'whereis', 'wh', 'w'
     args :user, :spaces_in_args => false
   end

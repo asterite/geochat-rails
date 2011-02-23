@@ -1,10 +1,5 @@
 class LeaveNode < Node
-  command
-  Help = T.help_leave
-
-  attr_accessor :group
-
-  Command = ::Command.new self do
+  command do
     name 'leave group'
     name 'leave', 'leavegroup'
     name 'l', :prefix => :required

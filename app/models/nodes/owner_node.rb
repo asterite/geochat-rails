@@ -1,12 +1,5 @@
 class OwnerNode < Node
-  command
-  command_without_group
-  Help = T.help_owner
-
-  attr_accessor :user
-  attr_accessor :group
-
-  Command = ::Command.new self do
+  command_after_group do
     name 'owner group', :spaces_in_args => false
     name 'owner', 'ow', 'group owner', :spaces_in_args => false
     name '\$', :prefix => :none, :space_after_command => false, :spaces_in_args => false

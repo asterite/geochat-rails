@@ -394,7 +394,7 @@ module T
       "#{user}'s display name is: #{user.display_name}."
     end
 
-    def help_general
+    def help_help
       "GeoChat help center. Send help followed by a topic. Topics: signup, login, logout, create, join, leave, invite, on, off, my, whereis, whois, owner."
     end
 
@@ -454,11 +454,11 @@ module T
       "To signup in GeoChat send: name YOUR_NAME"
     end
 
-    def help_whereis
+    def help_where_is
       "To find out the location of a user send: .whereis USER_LOGIN"
     end
 
-    def help_whois
+    def help_who_is
       "To find out the display name of a user send: .whois USER_LOGIN"
     end
   end

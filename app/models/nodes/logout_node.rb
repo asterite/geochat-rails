@@ -1,8 +1,5 @@
 class LogoutNode < Node
-  command
-  Help = T.help_logout
-
-  Command = ::Command.new self do
+  command do
     name 'logout', 'log out', 'logoff', 'log off', 'bye'
     name 'lo', :prefix => :required
     name '\)', :prefix => :none

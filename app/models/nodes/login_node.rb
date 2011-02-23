@@ -1,11 +1,5 @@
 class LoginNode < Node
-  command
-  Help = T.help_login
-
-  attr_accessor :login
-  attr_accessor :password
-
-  Command = ::Command.new self do
+  command do
     name 'login', 'log in', 'li', 'iam', 'i am', "i'm", 'im'
     name '\(', :space_after_command => false
     name 'li', :prefix => :required

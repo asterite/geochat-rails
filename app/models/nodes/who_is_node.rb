@@ -1,10 +1,5 @@
 class WhoIsNode < Node
-  command
-  Help = T.help_whois
-
-  attr_accessor :user
-
-  Command = ::Command.new self do
+  command do
     name 'whois', 'wi'
     args :user, :spaces_in_args => false
   end

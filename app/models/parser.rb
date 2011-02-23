@@ -31,7 +31,7 @@ class Parser < StringScanner
 
         # Check command for when a group is specified first
         unless target.is_a? UserTarget
-          Node::CommandsWithoutGroup.each do |node_class|
+          Node::CommandsAfterGroup.each do |node_class|
             node = node_class.scan rest
             if node
               node.group = group

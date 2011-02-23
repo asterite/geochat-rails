@@ -1,7 +1,4 @@
 class MyNode < Node
-  command
-  Help = T.help_my
-
   attr_accessor :key
   attr_accessor :value
 
@@ -14,7 +11,7 @@ class MyNode < Node
   Number = :number
   Location = :location
 
-  def self.scan(strscan)
+  command do |strscan|
     if strscan.scan /^\.*\s*my\s*$/i
       return HelpNode.new :node => MyNode
     elsif strscan.scan /^\.*\s*my(?:\s+|_*)(help|\?)\s*$/i

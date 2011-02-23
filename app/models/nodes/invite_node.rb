@@ -1,12 +1,5 @@
 class InviteNode < Node
-  command
-  command_without_group
-  Help = T.help_invite
-
-  attr_accessor :group
-  attr_accessor :users
-
-  Command = ::Command.new self do
+  command_after_group do
     name 'invite'
     name 'i', :prefix => :required
     name '\+', :prefix => :none, :space_after_command => false

@@ -1,8 +1,5 @@
 class OnNode < Node
-  command
-  Help = T.help_on
-
-  Command = ::Command.new self do
+  command do
     name 'on', 'start'
     name '\!', :prefix => :none
   end
@@ -10,10 +7,7 @@ class OnNode < Node
   def process
     return reply_not_logged_in unless current_user
 
-    if current_channel.status != :on
-      current_channel.status = :on
-      current_channel.save!
-    end
+    current_channel.turn :on
 
     reply T.you_sent_on_and_we_have_turned_on_udpated_on_this_channel(message[:body].strip, current_channel)
   end

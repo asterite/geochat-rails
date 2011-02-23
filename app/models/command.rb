@@ -1,6 +1,7 @@
 class Command
   attr_reader :node
   attr_reader :names
+  attr_accessor :args_optional
 
   def initialize(node, &block)
     @node = node
@@ -32,12 +33,21 @@ class Command
     })
   end
 
-  def args(*options)
-    if options.length == 0
-      @args
+  def args(*args)
+    return @args if args.length == 0
+
+    args_options = args.last
+    if args_options.is_a?(Hash)
+      args = args[0 .. -2]
     else
-      @args << options
+      args_options = {}
     end
+
+    self.args_optional = true if args_options.has_key?(:optional) && args_options[:optional]
+    spaces_in_args = !args_options.has_key?(:spaces_in_args) || args_options[:spaces_in_args]
+    the_args = command_args args.length, spaces_in_args
+
+    @args << {:args => args, :regex => the_args, :spaces => spaces_in_args}
   end
 
   def help(option = nil)
@@ -49,11 +59,9 @@ class Command
   end
 
   def scan(strscan)
-    no_args = self.args.length == 0 || self.args.any?{|x| x.last == {:optional => true}}
+    no_args = self.args.length == 0 || self.args_optional
 
     self.names.each do |name|
-      old_pos = strscan.pos
-
       old_pos = strscan.pos
 
       # If the string doesn't start with the command name, abort
@@ -87,19 +95,9 @@ class Command
 
       # Now check arguments
       self.args.each do |args|
-        args_options = args.last
-        if args_options.is_a?(Hash)
-          args = args[0 .. -2]
-        else
-          args_options = {}
-        end
-
-        spaces_in_args = !args_options.has_key?(:spaces_in_args) || args_options[:spaces_in_args]
-        the_args = command_args args.length, spaces_in_args
-
-        if strscan.scan the_args
+        if strscan.scan args[:regex]
           hash = {:matched_name => matched_name}
-          args.each_with_index do |name, i|
+          args[:args].each_with_index do |name, i|
             hash[name.to_sym] = strscan[i + 1]
           end
           return self.node.new hash
@@ -107,12 +105,10 @@ class Command
 
         # This is in case less then the required arguments were provided => show command help
         if self.args.length == 1
-          1.upto(args.length - 1) do |new_length|
-            the_args = command_args new_length, spaces_in_args
+          1.upto(args[:args].length - 1) do |new_length|
+            the_args = command_args new_length, args[:spaces]
 
-            if strscan.scan the_args
-              return HelpNode.new :node => node
-            end
+            return HelpNode.new :node => node if strscan.scan the_args
           end
         end
       end

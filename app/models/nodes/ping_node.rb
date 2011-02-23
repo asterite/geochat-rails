@@ -1,10 +1,5 @@
 class PingNode < Node
-  command
-  Help = T.help_ping
-
-  attr_accessor :text
-
-  Command = ::Command.new self do
+  command do
     name 'ping'
     args :text, :optional => true
     help :no

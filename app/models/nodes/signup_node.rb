@@ -1,22 +1,18 @@
 class SignupNode < Node
-  command
-  Help = T.help_signup
-
-  attr_accessor :display_name
   attr_accessor :suggested_login
   attr_accessor :group
+
+  command do
+    name 'name', 'signup'
+    name 'n', :prefix => :required
+    name "'", :prefix => :none, :space_after_command => false
+    args :display_name
+  end
 
   def initialize(attributes = {})
     super
 
     @suggested_login = @display_name.without_spaces if @display_name
-  end
-
-  Command = ::Command.new self do
-    name 'name', 'signup'
-    name 'n', :prefix => :required
-    name "'", :prefix => :none, :space_after_command => false
-    args :display_name
   end
 
   def after_scan

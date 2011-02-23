@@ -1,17 +1,41 @@
 class Node
   Commands = []
-  CommandsWithoutGroup = []
+  CommandsAfterGroup = []
 
-  def self.command
+  def self.command(&block)
+    # Insert into Commands array
     if Commands.last.try(:name) == 'UnknownNode'
       Commands.insert(Commands.length - 1, self)
     else
       Commands << self
     end
+
+    if block_given?
+      if block.arity == 0
+        # Delcare Command constant
+        self.const_set :Command, ::Command.new(self, &block)
+
+        # Declare attr_accessors for the parameters
+        self::Command.args.each do |args|
+          args[:args].each do |arg|
+            attr_accessor arg
+          end
+        end
+      else
+        metaclass = class << self; self; end
+        metaclass.send :define_method, :scan, &block
+      end
+    end
+
+    # Declare the Help constant
+    self.const_set :Help, T.send("help_#{name.underscore[0 .. -6]}") unless self.name == 'UnknownNode'
   end
 
-  def self.command_without_group
-    CommandsWithoutGroup << self
+  def self.command_after_group(&block)
+    CommandsAfterGroup << self
+    command(&block)
+
+    attr_accessor :group
   end
 
   def self.names

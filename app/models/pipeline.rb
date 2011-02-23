@@ -122,8 +122,7 @@ class Pipeline
   def turn_on_current_channel_if_needed(node)
     return if node.is_a?(OnNode) || node.is_a?(OffNode) || current_channel.try(:status) != :off
 
-    current_channel.status = :on
-    current_channel.save!
+    current_channel.turn :on
 
     reply T.we_have_turned_on_updates_on_this_channel(current_channel)
   end

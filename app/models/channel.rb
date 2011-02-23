@@ -23,4 +23,12 @@ class Channel < ActiveRecord::Base
   def protocol_name
     Channel::ProtocolNames[self.protocol]
   end
+
+  def turn(status)
+    return false if self.status == status
+
+    self.status = status
+    self.save!
+    true
+  end
 end

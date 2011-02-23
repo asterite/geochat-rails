@@ -1,10 +1,5 @@
 class JoinNode < Node
-  command
-  Help = T.help_join
-
-  attr_accessor :group
-
-  Command = ::Command.new self do
+  command do
     name 'join group'
     name 'join', 'joingroup'
     name 'j', :prefix => :required
