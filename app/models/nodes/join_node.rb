@@ -11,16 +11,13 @@ class JoinNode < Node
     return reply_not_logged_in unless current_user
 
     group = Group.find_by_alias @group
-    if !group
-      return reply_group_does_not_exist @group
-    end
+    return reply_group_does_not_exist @group unless group
 
-    if current_user.belongs_to group
-      return reply T.you_already_belong_to_group(group)
-    end
+    return reply T.you_already_belong_to_group(group) if current_user.belongs_to group
+
+    invite = Invite.find_by_group_and_user group, current_user
 
     if group.requires_aproval_to_join
-      invite = Invite.find_by_group_and_user group, current_user
       if invite
         if invite.admin_accepted
           invite.destroy
@@ -37,7 +34,6 @@ class JoinNode < Node
         notify_join_request group
       end
     else
-      invite = Invite.find_by_group_and_user group, current_user
       if invite
         if invite.requestor
           send_message_to_user invite.requestor, T.user_has_accepted_your_invitation(current_user, group)

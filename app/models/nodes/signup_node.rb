@@ -25,14 +25,8 @@ class SignupNode < Node
 
   def process
     return reply T.device_belongs_to_another_user if current_channel
-
-    if @suggested_login.length < 2
-      return reply T.cannot_signup_name_too_short(@suggested_login)
-    end
-
-    if @suggested_login.command?
-      return reply T.cannot_signup_name_reserved(@suggested_login)
-    end
+    return reply T.cannot_signup_name_too_short(@suggested_login) if @suggested_login.length < 2
+    return reply T.cannot_signup_name_reserved(@suggested_login) if @suggested_login.command?
 
     login = User.find_suitable_login @suggested_login
     password = PasswordGenerator.new_password

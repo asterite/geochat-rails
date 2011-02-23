@@ -105,18 +105,14 @@ class MessageNode < Node
         end
       end
 
-      if !group && !users.present?
-        return reply_group_does_not_exist self.target.name
-      end
+      return reply_group_does_not_exist self.target.name if !group && !users.present?
     end
 
     # This is needed here and also bellow. Here because if there is an explicit
     # target group we don't want to allow sending even location updates.
     # Below because if an explicit group is not found then it is the default group
     # and it might be disabled.
-    if group && !group.enabled
-      return reply T.cant_send_messages_to_disabled_group(group)
-    end
+    return reply T.cant_send_messages_to_disabled_group(group) if group && !group.enabled
 
     text_to_send = @body
     text_to_save = @body
@@ -149,9 +145,7 @@ class MessageNode < Node
     end
     return unless group
 
-    if group && !group.enabled
-      return reply T.cant_send_messages_to_disabled_group(group)
-    end
+    return reply T.cant_send_messages_to_disabled_group(group) if group && !group.enabled
 
     users.each do |user|
       if explicit_group && !user.belongs_to(group)

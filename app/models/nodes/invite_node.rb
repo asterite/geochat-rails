@@ -108,17 +108,9 @@ class InviteNode < Node
       end
     end
 
-    if joined.present?
-      reply T.users_are_now_members_of_group(joined, group)
-    end
-    if not_found.present?
-      reply T.could_not_find_users_for_invitation(not_found)
-    end
-    if invited_self
-      reply T.you_cant_invite_yourself
-    end
-    if sent.present?
-      reply T.invitations_sent_to_users(sent)
-    end
+    reply T.users_are_now_members_of_group(joined, group) if joined.present?
+    reply T.could_not_find_users_for_invitation(not_found) if not_found.present?
+    reply T.you_cant_invite_yourself if invited_self
+    reply T.invitations_sent_to_users(sent) if sent.present?
   end
 end

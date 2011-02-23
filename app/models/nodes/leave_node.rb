@@ -11,18 +11,11 @@ class LeaveNode < Node
     return reply_not_logged_in unless current_user
 
     group = Group.find_by_alias @group
-    if !group
-      return reply_group_does_not_exist(@group)
-    end
+    return reply_group_does_not_exist(@group) unless group
 
     membership = current_user.membership_in(group)
-    if !membership
-      return reply T.you_cant_leave_group_because_you_dont_belong_to_it(group)
-    end
-
-    if group.owners == [current_user]
-      return reply T.you_cant_leave_group_because_you_are_its_only_owner(group)
-    end
+    return reply T.you_cant_leave_group_because_you_dont_belong_to_it(group) unless membership
+    return reply T.you_cant_leave_group_because_you_are_its_only_owner(group) if group.owners == [current_user]
 
     membership.destroy
 

@@ -69,9 +69,7 @@ class MyNode < Node
 
   def process_my_login=(value)
     new_login = value.gsub(' ', '')
-    if ::User.find_by_login(new_login)
-      return reply T.login_taken(new_login)
-    end
+    return reply T.login_taken(new_login) if ::User.find_by_login(new_login)
 
     current_user.login = value.gsub(' ', '')
     current_user.save!
@@ -131,7 +129,7 @@ class MyNode < Node
     groups = current_user.groups.map(&:alias).sort
     case groups.count
     when 0
-      return reply_dont_belong_to_any_group
+      reply_dont_belong_to_any_group
     when 1
       reply T.your_only_group_is(groups.first)
     else
@@ -150,26 +148,22 @@ class MyNode < Node
 
   def process_my_group=(value)
     group = ::Group.find_by_alias value
-    if !group
-      return reply_group_does_not_exist value
-    end
+    return reply_group_does_not_exist value unless group
 
-    if !current_user.belongs_to(group)
-      return reply T.you_cant_set_group_as_default_group_dont_belong(group)
-    end
+    return reply T.you_cant_set_group_as_default_group_dont_belong(group) unless current_user.belongs_to(group)
 
     current_user.default_group_id = group.id
     current_user.save!
 
-    return reply T.your_new_default_group_is(group.alias)
+    reply T.your_new_default_group_is(group.alias)
   end
 
   def process_my_location
-    if !current_user.location_known?
-      return reply T.you_never_reported_your_location
+    if current_user.location_known?
+      reply T.you_said_you_was_in(current_user.location, current_user_location_info, current_user.location_reported_at)
+    else
+      reply T.you_never_reported_your_location unless current_user.location_known?
     end
-
-    return reply T.you_said_you_was_in(current_user.location, current_user_location_info, current_user.location_reported_at)
   end
 
   def process_my_location=(value)

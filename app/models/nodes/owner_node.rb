@@ -31,9 +31,7 @@ class OwnerNode < Node
       end
     end
 
-    if !user
-      return reply_user_does_not_exist @user
-    end
+    return reply_user_does_not_exist @user unless user
 
     if not group
       group = default_group({
@@ -43,14 +41,10 @@ class OwnerNode < Node
     return unless group
 
     membership = user.membership_in group
-    if !membership
-      return reply T.user_does_not_belong_to_group(user, group)
-    end
+    return reply T.user_does_not_belong_to_group(user, group) unless membership
 
     if current_user.is_owner_of(group)
-      if user == current_user
-        return reply T.you_are_already_an_owner_of_group(group)
-      end
+      return reply T.you_are_already_an_owner_of_group(group) if user == current_user
     else
       if user == current_user
         return reply T.nice_try
@@ -59,9 +53,7 @@ class OwnerNode < Node
       end
     end
 
-    if membership.role == :owner
-      return reply T.user_already_an_owner(user, group)
-    end
+    return reply T.user_already_an_owner(user, group) if membership.role == :owner
 
     membership.role = :owner
     membership.save!
