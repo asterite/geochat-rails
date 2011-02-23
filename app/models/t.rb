@@ -394,6 +394,11 @@ module T
       "#{user}'s display name is: #{user.display_name}."
     end
 
+    def you_already_invited_user(user, group)
+      user = *user
+      "You already invited #{user.join ','} to group #{group}"
+    end
+
     def help_help
       "GeoChat help center. Send help followed by a topic. Topics: signup, login, logout, create, join, leave, invite, on, off, my, whereis, whois, owner."
     end

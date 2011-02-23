@@ -242,4 +242,14 @@ class InviteTest < PipelineTest
     assert_messages_sent_to 3, T.welcome_to_group('User3', 'Group1')
     assert_no_invite_exists
   end
+
+  test "invite many times same user" do
+    create_users 1..2
+    send_message 1, "create group Group1"
+    send_message 1, "invite User2"
+    send_message 1, "invite User2"
+
+    assert_messages_sent_to 1, T.you_already_invited_user('User2', 'Group1')
+    assert_no_messages_sent_to 2
+  end
 end

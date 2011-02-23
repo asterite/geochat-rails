@@ -63,47 +63,15 @@ class InviteNode < Node
     sent = []
     joined = []
     not_found = []
+    already_invited = []
     invited_self = false
 
     @users.each do |name|
       user = User.find_by_login_or_mobile_number name
 
-      if user
-        if user == current_user
-          invited_self = true
-          next
-        end
-
-        invites = Invite.find_all_by_group_id_and_user_id group.id, user.id
-        if invites.present?
-          if current_user.is_owner_of(group)
-            if invites.any?{|x| x.user_accepted}
-              join user, group
-              invites.each &:destroy
-              joined << user.login
-            else
-              invites.each do |invite|
-                invite.admin_accepted = true
-                invite.save!
-              end
-              sent << name
-            end
-          else
-            if invites.all?{|x| x.requestor_id != current_user.id}
-              current_user.invite user, :to => group
-              send_message_to_user user, T.user_has_invited_you(current_user, group)
-              sent << user.login
-            else
-              # User is already invited... should we resend the invitation?
-              # TOOD: at least tell the user that he was invited?
-            end
-          end
-        else
-          current_user.invite user, :to => group
-          send_message_to_user user, T.user_has_invited_you(current_user, group)
-          sent << name
-        end
-      else
+      # If the invited user is not found
+      if !user
+        # It might be a mobile number => invite that number
         if name.integer?
           current_user.invite name, :to => group
           send_message :to => "sms://#{name}", :body => T.welcome_to_group_signup_and_join(group)
@@ -111,12 +79,51 @@ class InviteNode < Node
         else
           not_found << name unless not_found.include? name
         end
+        next
       end
+
+      # If the user is itself
+      if user == current_user
+        invited_self = true
+        next
+      end
+
+      invites = Invite.find_all_by_group_id_and_user_id group.id, user.id
+
+      # If already invited
+      if invites.any?{|x| x.requestor_id == current_user.id}
+        already_invited << user.login
+        next
+      end
+
+      # If no invite exist or user is not an owner, create the invite
+      if invites.empty? || !current_user.is_owner_of(group)
+        current_user.invite user, :to => group
+        send_message_to_user user, T.user_has_invited_you(current_user, group)
+        sent << name
+        next
+      end
+
+      # If the user accepted the invite, join him to the group
+      if invites.any?{|x| x.user_accepted}
+        join user, group
+        invites.each &:destroy
+        joined << user.login
+        next
+      end
+
+      # Otherwise, mark invites as accepted by the admin
+      invites.each do |invite|
+        invite.admin_accepted = true
+        invite.save!
+      end
+      sent << name
     end
 
     reply T.users_are_now_members_of_group(joined, group) if joined.present?
     reply T.could_not_find_users_for_invitation(not_found) if not_found.present?
     reply T.you_cant_invite_yourself if invited_self
+    reply T.you_already_invited_user(already_invited, group) if already_invited.present?
     reply T.invitations_sent_to_users(sent) if sent.present?
   end
 end
