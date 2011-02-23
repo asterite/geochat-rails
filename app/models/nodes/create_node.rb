@@ -19,7 +19,7 @@ class CreateNode < Node
     in_name = false
     name = nil
     self.options.split.each do |piece|
-      case piece.downcase
+      case piece
       when 'name'
         in_name = true
         name = ''
@@ -46,7 +46,7 @@ class CreateNode < Node
     return reply T.cannot_create_group_name_reserved(@alias) if @alias.command?
     return reply T.group_already_exists(@alias) if Group.find_by_alias @alias
 
-    group = current_user.create_group :alias => @alias, :name => (@name || @alias), :chatroom => !@nochat
+    current_user.create_group :alias => @alias, :name => (@name || @alias), :chatroom => !@nochat
     reply T.group_created(@alias)
   end
 end

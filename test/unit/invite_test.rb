@@ -172,6 +172,7 @@ class InviteTest < PipelineTest
 
     send_message 2, "join Group1"
     assert_group_exists "Group1", "User1", "User2"
+    assert_messages_sent_to 1, T.user_has_accepted_your_invitation('User2', 'Group1')
     assert_messages_sent_to 2, T.welcome_to_group('User2', 'Group1')
   end
 
@@ -228,5 +229,17 @@ class InviteTest < PipelineTest
 
     assert_no_invite_exists
     assert_messages_sent_to 1, T.you_cant_invite_yourself
+  end
+
+  test "invite from many requestors" do
+    create_users 1..3
+    send_message 1, "create group Group1"
+    send_message 2, "join Group1"
+    send_message 1..2, "invite User3"
+
+    send_message 3, "join Group1"
+    assert_messages_sent_to 1..2, T.user_has_accepted_your_invitation('User3', 'Group1')
+    assert_messages_sent_to 3, T.welcome_to_group('User3', 'Group1')
+    assert_no_invite_exists
   end
 end

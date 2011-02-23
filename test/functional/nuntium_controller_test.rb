@@ -10,7 +10,7 @@ class NuntiumControllerTest < ActionController::TestCase
 
     message = {'from' => 'sms://1', 'body' => "@User2 Hello!"}
 
-    @request.env['HTTP_AUTHORIZATION'] = http_auth(NuntiumConfig['incoming_username'], NuntiumConfig['incoming_password'])
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(Nuntium::Config['incoming_username'], Nuntium::Config['incoming_password'])
     get :receive_at, message
 
     assert_response :ok
@@ -43,7 +43,7 @@ class NuntiumControllerTest < ActionController::TestCase
     Pipeline.expects(:new).returns(pipeline)
     pipeline.expects(:process).with(message).raises(Exception.new 'the bug description')
 
-    @request.env['HTTP_AUTHORIZATION'] = http_auth(NuntiumConfig['incoming_username'], NuntiumConfig['incoming_password'])
+    @request.env['HTTP_AUTHORIZATION'] = http_auth(Nuntium::Config['incoming_username'], Nuntium::Config['incoming_password'])
     get :receive_at, message
 
     assert_response :ok

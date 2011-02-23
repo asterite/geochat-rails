@@ -138,7 +138,7 @@ class JoinTest < PipelineTest
     send_message 3, "join Group1"
     send_message 2, "invite User3"
     assert_messages_sent_to 2, T.invitations_sent_to_users('User3')
-    assert_no_messages_sent_to 3
+    assert_messages_sent_to 3, T.user_has_invited_you('User2', 'Group1')
     assert_group_exists "Group1", "User1", "User2"
 
     send_message 1, "invite User3"

@@ -74,23 +74,29 @@ class InviteNode < Node
           next
         end
 
-        invite = Invite.find_by_group_and_user group, user
-        if invite
-          if invite.user_accepted
-            if current_user.is_owner_of(group)
+        invites = Invite.find_all_by_group_id_and_user_id group.id, user.id
+        if invites.present?
+          if current_user.is_owner_of(group)
+            if invites.any?{|x| x.user_accepted}
               join user, group
-              invite.destroy
-
+              invites.each &:destroy
               joined << user.login
             else
+              invites.each do |invite|
+                invite.admin_accepted = true
+                invite.save!
+              end
               sent << name
             end
-          elsif current_user.is_owner_of(group)
-            invite.admin_accepted = true
-            invite.save!
-            sent << name
           else
-            # Invite was already sent... should we resend it?
+            if invites.all?{|x| x.requestor_id != current_user.id}
+              current_user.invite user, :to => group
+              send_message_to_user user, T.user_has_invited_you(current_user, group)
+              sent << user.login
+            else
+              # User is already invited... should we resend the invitation?
+              # TOOD: at least tell the user that he was invited?
+            end
           end
         else
           current_user.invite user, :to => group

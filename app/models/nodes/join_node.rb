@@ -15,33 +15,35 @@ class JoinNode < Node
 
     return reply T.you_already_belong_to_group(group) if current_user.belongs_to group
 
-    invite = Invite.find_by_group_and_user group, current_user
+    # Get all the invites for this user
+    invites = Invite.find_all_by_group_id_and_user_id group, current_user
 
-    if group.requires_aproval_to_join
-      if invite
-        if invite.admin_accepted
-          invite.destroy
+    # If it doesn't require approval or if any invite is already approved by an admin,
+    # just join the group, notify the requestors and destroy the invites
+    if !group.requires_aproval_to_join || invites.any?{|x| x.admin_accepted}
+      join current_user, group
 
-          join current_user, group
-        else
-          invite.user_accepted = true
-          invite.save!
-
-          notify_join_request group
-        end
-      else
-        current_user.request_join group
-        notify_join_request group
-      end
-    else
-      if invite
-        if invite.requestor
-          send_message_to_user invite.requestor, T.user_has_accepted_your_invitation(current_user, group)
-        end
+      invites.each do |invite|
+        send_message_to_user invite.requestor, T.user_has_accepted_your_invitation(current_user, group) if invite.requestor
         invite.destroy
       end
-
-      join current_user, group
+      return
     end
+
+    # If it requires approval...
+
+    # If no invite exists yet, request join
+    if invites.empty?
+      current_user.request_join group
+    else
+      # Otherwise, mark each invite as accepted by the user
+      # (so when an admin approves it we can join the user)
+      invites.each do |invite|
+        invite.user_accepted = true
+        invite.save!
+      end
+    end
+
+    notify_join_request group
   end
 end

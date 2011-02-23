@@ -23,7 +23,7 @@ class NuntiumController < ApplicationController
 
   def authenticate
     authenticate_or_request_with_http_basic do |username, password|
-      username == NuntiumConfig['incoming_username'] && password == NuntiumConfig['incoming_password']
+      username == Nuntium::Config['incoming_username'] && password == Nuntium::Config['incoming_password']
     end
   end
 end
