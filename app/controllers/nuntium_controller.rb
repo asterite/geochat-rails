@@ -2,7 +2,9 @@ class NuntiumController < ApplicationController
   before_filter :authenticate
 
   def receive_at
-    render :json => Node.process(params)
+    User.transaction do
+      render :json => Node.process(params)
+    end
   end
 
   private
