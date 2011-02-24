@@ -186,7 +186,8 @@ class MessageNode < Node
       send_message_to_group_owners group, "#{current_user.login}: #{text_to_send}"
     end
 
-    self.saved_message = {
+    # Save the message
+    saved_message = {
       :sender => current_user,
       :group => group,
       :text => text_to_save,
@@ -195,6 +196,7 @@ class MessageNode < Node
       :location => current_user.location,
       :location_short_url => current_user.location_short_url
     }
-    self.saved_message[:receivers] = users.map(&:id) if users.present?
+    saved_message[:receivers] = users.map(&:id) if users.present?
+    Message.create_from_hash saved_message
   end
 end

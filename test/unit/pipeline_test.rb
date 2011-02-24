@@ -9,6 +9,7 @@ class PipelineTest < ActiveSupport::TestCase
   end
 
   def send_message(address, message)
+    Message.delete_all
     address = address.to_a if address.is_a?(Range)
     address = *address
     address.each do |a|
@@ -87,7 +88,7 @@ class PipelineTest < ActiveSupport::TestCase
   end
 
   def assert_no_messages_saved
-    assert_nil @pipeline.saved_message
+    assert_equal 0, Message.count
   end
 
   def assert_is_not_group_owner(group, user)
@@ -168,20 +169,21 @@ class PipelineTest < ActiveSupport::TestCase
   end
 
   def assert_message_saved(user, group, text)
-    message = @pipeline.saved_message
-    assert_not_nil message
-    assert_equal user, message[:sender].login
-    assert_equal group, message[:group].alias
-    assert_equal text, message[:text]
+    messages = Message.all
+    assert_equal 1, messages.length
+    message = messages.first
+    assert_equal user, message.sender.login
+    assert_equal group, message.group.alias
+    assert_equal text, message.text
     message
   end
 
   def assert_message_saved_with_location(user, group, text, location, lat, lon, short_url)
     message = assert_message_saved(user, group, text)
-    assert_equal location, message[:location]
-    assert_in_delta lat, message[:lat], 1e-07
-    assert_in_delta lon, message[:lon], 1e-07
-    assert_equal short_url, message[:location_short_url]
+    assert_equal location, message.location
+    assert_in_delta lat, message.lat, 1e-07
+    assert_in_delta lon, message.lon, 1e-07
+    assert_equal short_url, message.location_short_url
   end
 
   def create_users(*args)

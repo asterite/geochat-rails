@@ -32,21 +32,4 @@ class NuntiumControllerTest < ActionController::TestCase
 
     assert_response :unauthorized
   end
-
-  test "receive at spots bug" do
-    sender = User.make
-    group = Group.make
-    receiver = User.make
-    message = {'from' => 'sms://1', 'body' => "Hello!"}
-
-    pipeline = mock('pipeline')
-    Pipeline.expects(:new).returns(pipeline)
-    pipeline.expects(:process).with(message).raises(Exception.new 'the bug description')
-
-    @request.env['HTTP_AUTHORIZATION'] = http_auth(Nuntium::Config['incoming_username'], Nuntium::Config['incoming_password'])
-    get :receive_at, message
-
-    assert_response :ok
-    assert_equal "You've just spotted a bug: the bug description", @response.body
-  end
 end

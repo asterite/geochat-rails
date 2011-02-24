@@ -4,20 +4,14 @@ class Pipeline
   attr_accessor :protocol
   attr_accessor :message
   attr_accessor :messages
-  attr_accessor :saved_message
 
   # Processes a message, which is a hash.
   #
   # :from => who sent the message (i.e.: sms://1234)
   # :body => the content of the message
   #
-  # After processing a message you can see the results by
-  # accessing Pipeline#messages, which is an array of hashes
-  # with keys :to, :body and so on, which are messages
+  # Returns an array of hashes with keys :to, :body and so on, which are messages
   # that were generated from the input message.
-  #
-  # Pipeline#saved_message will be a hash containing the description
-  # of the message just sent (if it wasn't a command).
   def process(message = {})
     message = message.with_indifferent_access
 
@@ -27,7 +21,6 @@ class Pipeline
     @channel_initialized = false
     @message = message
     @messages = []
-    @saved_message = nil
 
     node = Parser.parse(message[:body], self, :parse_signup_and_join => !current_user)
 
@@ -35,6 +28,8 @@ class Pipeline
 
     node.pipeline = self
     node.process
+
+    @messages
   end
 
   def get_target(name)

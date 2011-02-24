@@ -2,17 +2,7 @@ class NuntiumController < ApplicationController
   before_filter :authenticate
 
   def receive_at
-    pipeline = Pipeline.new
-
-    begin
-      pipeline.process params.reject{|k, v| k == 'action' || k == 'controller'}
-
-      Message.create_from_hash pipeline.saved_message
-
-      render :json => pipeline.messages
-    rescue Exception => e
-      render :text => "You've just spotted a bug: #{e.message}"
-    end
+    render :json => Pipeline.new.process(params)
   end
 
   private
