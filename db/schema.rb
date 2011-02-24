@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110222200223) do
+ActiveRecord::Schema.define(:version => 20110224152009) do
 
   create_table "channels", :force => true do |t|
     t.string   "protocol"
@@ -34,6 +34,7 @@ ActiveRecord::Schema.define(:version => 20110222200223) do
     t.boolean  "enabled",                  :default => true
     t.boolean  "forward_owners",           :default => false
     t.string   "alias_downcase"
+    t.text     "data"
   end
 
   add_index "groups", ["alias_downcase"], :name => "index_groups_on_alias_downcase"

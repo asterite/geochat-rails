@@ -41,4 +41,27 @@ class GroupTest < ActiveSupport::TestCase
       :updated => group.updated_at,
     }.to_json, group.to_json)
   end
+
+  test "block user" do
+    user = User.make
+    group = Group.make
+    user.join group
+    group.block user
+
+    group.reload
+
+    assert user.is_blocked_in?(group)
+    assert_equal 0, Membership.count
+  end
+
+  test "unblock user" do
+    user = User.make
+    group = Group.make
+    group.block user
+    group.unblock user
+
+    group.reload
+
+    assert !user.is_blocked_in?(group)
+  end
 end

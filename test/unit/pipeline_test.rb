@@ -96,6 +96,18 @@ class PipelineTest < ActiveSupport::TestCase
     assert !user.is_owner_of(group)
   end
 
+  def assert_is_not_blocked(group, user)
+    user = User.find_by_login(user)
+    group = Group.find_by_alias group
+    assert !user.is_blocked_in?(group)
+  end
+
+  def assert_is_blocked(group, user)
+    user = User.find_by_login(user)
+    group = Group.find_by_alias group
+    assert user.is_blocked_in?(group)
+  end
+
   def assert_group_exists(group_alias, *users)
     group = Group.find_by_alias group_alias
     assert_not_nil "Expected group with alias #{group_alias} to exist"

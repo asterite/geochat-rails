@@ -123,6 +123,10 @@ class User < ActiveRecord::Base
     end
   end
 
+  def is_blocked_in?(group)
+    group.data.try(:[], :blocked_users).try(:include?, self.id)
+  end
+
   def as_json(options = {})
     hash = {:login => self.login}
     hash[:displayName] = self.display_name if self.display_name.present?

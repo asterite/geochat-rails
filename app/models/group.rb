@@ -8,12 +8,39 @@ class Group < ActiveRecord::Base
 
   before_validation :update_alias_downcase
 
+  serialize :data
+
   def self.find_by_alias(talias)
     self.find_by_alias_downcase talias.downcase
   end
 
   def owners
     User.joins(:memberships).where('memberships.group_id = ? AND (role = ? OR role = ?)', self.id, :admin, :owner)
+  end
+
+  def block(user)
+    self.data ||= {}
+    blocked_users = self.data[:blocked_users]
+    self.data[:blocked_users] = blocked_users = [] unless blocked_users
+
+    was_blocked = if blocked_users.include?(user.id)
+      false
+    else
+      blocked_users << user.id
+      membership = user.membership_in(self)
+      membership.destroy if membership
+      true
+    end
+    save!
+
+    was_blocked
+  end
+
+  def unblock(user)
+    return false unless self.data && self.data[:blocked_users] && self.data[:blocked_users].include?(user.id)
+    self.data[:blocked_users].delete user.id
+    save!
+    true
   end
 
   def as_json(options = {})

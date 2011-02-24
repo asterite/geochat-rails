@@ -8,9 +8,7 @@ class Channel < ActiveRecord::Base
 
   belongs_to :user
 
-  def status
-    self.attributes['status'].try(:to_sym)
-  end
+  attr_reader_as_symbol :status
 
   def active?
     self.status == :on

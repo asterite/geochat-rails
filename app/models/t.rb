@@ -22,6 +22,10 @@ module T
       "You must specify a group to invite the users to, or set a default group."
     end
 
+    def you_must_specify_a_group_to_block(user)
+      "You must specify a group to block #{user}, or set a default group."
+    end
+
     def user_has_invited_you(inviter, group)
       "#{inviter} has invited you to group #{group}. You can join by sending: join #{group}"
     end
@@ -300,12 +304,20 @@ module T
       "Nice try :-P"
     end
 
+    def you_cant_block_yourself
+      "You can't block yourself"
+    end
+
     def you_cant_set_owner_you_are_not_owner(user, group)
       "You can't set #{user} as an owner of #{group} because you are not an owner."
     end
 
     def user_already_an_owner(user, group)
-      "#{user} is already an owner in group #{group}."
+      "User #{user} is already an owner in group #{group}."
+    end
+
+    def user_already_blocked(user, group)
+      "#{user} is already blocked in group #{group}."
     end
 
     def user_set_as_owner(user, group)
@@ -406,6 +418,14 @@ module T
       else
         "The users #{user.join ', '} already belong to group #{group}"
       end
+    end
+
+    def user_blocked(user, group)
+      "User #{user} is now blocked in group #{group}"
+    end
+
+    def you_cant_block_you_are_not_owner(user, group)
+      "You can't block #{user} in group #{group} because you are not an owner."
     end
 
     def help_help
