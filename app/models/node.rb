@@ -95,15 +95,10 @@ class Node
   end
 
   def method_missing(name, *args)
-    if @pipeline && @pipeline.respond_to?(name)
+    if @pipeline.respond_to?(name)
       @pipeline.send name, *args
     else
       super
     end
   end
-end
-
-# Load all nodes
-Dir["#{Rails.root}/app/models/nodes/*"].each do |file|
-  eval(ActiveSupport::Inflector.camelize(file[file.rindex('/') + 1 .. -4]))
 end

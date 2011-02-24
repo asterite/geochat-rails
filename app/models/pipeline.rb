@@ -8,7 +8,7 @@ class Pipeline
 
   # Processes a message, which is a hash.
   #
-  # :from => who send the message (i.e.: sms://1234)
+  # :from => who sent the message (i.e.: sms://1234)
   # :body => the content of the message
   #
   # After processing a message you can see the results by
