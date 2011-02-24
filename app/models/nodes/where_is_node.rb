@@ -19,7 +19,7 @@ class WhereIsNode < Node
     end
 
     if user.location_known?
-      reply T.user_said_she_was_in(user, user.location, user_location_info(user), user.location_reported_at)
+      reply T.user_said_she_was_in(user, user.location, user.location_info, user.location_reported_at)
     else
       reply T.user_never_reported_location(user)
     end

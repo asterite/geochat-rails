@@ -217,25 +217,13 @@ class Node
     current_user.location_short_url = short_url
     current_user.save!
 
-    reply T.location_successfuly_updated(place, current_user_location_info)
+    reply T.location_successfuly_updated(place, current_user.location_info)
 
     true
   end
 
   def create_channel_for(user)
     Channel.create! :protocol => @context[:protocol], :address => @context[:address], :user => user, :status => :on
-  end
-
-  def current_user_location_info
-    user_location_info current_user
-  end
-
-  def user_location_info(user)
-    str = "lat: #{user.lat}, lon: #{user.lon}"
-    if user.location_short_url.present?
-      str << ", url: #{user.location_short_url}"
-    end
-    str
   end
 
   def default_group(options = {})

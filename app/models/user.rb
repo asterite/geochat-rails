@@ -107,6 +107,14 @@ class User < ActiveRecord::Base
     self.lat && self.lon
   end
 
+  def location_info
+    str = "lat: #{self.lat}, lon: #{self.lon}"
+    if self.location_short_url.present?
+      str << ", url: #{self.location_short_url}"
+    end
+    str
+  end
+
   def sms_channel
     self.channels.where(:protocol => 'sms').first
   end

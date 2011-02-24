@@ -160,7 +160,7 @@ class MyNode < Node
 
   def process_my_location
     if current_user.location_known?
-      reply T.you_said_you_was_in(current_user.location, current_user_location_info, current_user.location_reported_at)
+      reply T.you_said_you_was_in(current_user.location, current_user.location_info, current_user.location_reported_at)
     else
       reply T.you_never_reported_your_location unless current_user.location_known?
     end

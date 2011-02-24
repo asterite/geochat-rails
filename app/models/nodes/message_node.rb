@@ -119,7 +119,7 @@ class MessageNode < Node
 
     if self.location.present?
       if update_current_user_location_to self.location
-        at_place = T.at_place(current_user.location, current_user_location_info)
+        at_place = T.at_place(current_user.location, current_user.location_info)
         if text_to_send.blank?
           text_to_send = at_place
         else
