@@ -62,38 +62,6 @@ class Node
     after_scan
   end
 
-  def current_channel
-    @pipeline.current_channel
-  end
-
-  def current_user
-    @pipeline.current_user
-  end
-
-  def channel=(chan)
-    @pipeline.channel = chan
-  end
-
-  def message
-    @pipeline.message
-  end
-
-  def saved_message=(msg)
-    @pipeline.saved_message = msg
-  end
-
-  def reply(msg)
-    @pipeline.reply(msg)
-  end
-
-  def address2
-    @pipeline.address2
-  end
-
-  def create_channel_for(user)
-    @pipeline.create_channel_for user
-  end
-
   def method_missing(name, *args)
     if @pipeline.respond_to?(name)
       @pipeline.send name, *args
