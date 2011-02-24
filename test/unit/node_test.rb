@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class PipelineTest < ActiveSupport::TestCase
+class NodeTest < ActiveSupport::TestCase
   setup do
     PasswordGenerator.stubs(:new_password => 'MockPassword')
   end

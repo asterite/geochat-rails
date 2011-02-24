@@ -1,8 +1,8 @@
 # coding: utf-8
 
-require 'unit/pipeline_test'
+require 'unit/node_test'
 
-class MessagingTest < PipelineTest
+class MessagingTest < NodeTest
   test "send message to group" do
     create_users 1..4
 

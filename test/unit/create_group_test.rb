@@ -1,8 +1,8 @@
 # coding: utf-8
 
-require 'unit/pipeline_test'
+require 'unit/node_test'
 
-class CreateGroupTest < PipelineTest
+class CreateGroupTest < NodeTest
   test "create group" do
     create_users 1
 

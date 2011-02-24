@@ -1,8 +1,8 @@
 # coding: utf-8
 
-require 'unit/pipeline_test'
+require 'unit/node_test'
 
-class SignupAndJoinTest < PipelineTest
+class SignupAndJoinTest < NodeTest
   test "signup and join group that does not require approval" do
     create_users 1
 

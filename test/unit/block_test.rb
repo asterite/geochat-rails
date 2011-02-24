@@ -1,8 +1,8 @@
 # coding: utf-8
 
-require 'unit/pipeline_test'
+require 'unit/node_test'
 
-class BlockTest < PipelineTest
+class BlockTest < NodeTest
   ["2", "User2"].each do |user|
     ["block #{user}", "Group1 block #{user}", "block Group1 #{user}", "block #{user} Group1"].each do |msg|
       test "block #{msg}" do

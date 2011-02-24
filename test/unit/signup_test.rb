@@ -1,8 +1,8 @@
 # coding: utf-8
 
-require 'unit/pipeline_test'
+require 'unit/node_test'
 
-class SignupTest < PipelineTest
+class SignupTest < NodeTest
   test "signup" do
     assert_user_doesnt_exist "JohnDoe"
 

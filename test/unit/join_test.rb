@@ -1,8 +1,8 @@
 # coding: utf-8
 
-require 'unit/pipeline_test'
+require 'unit/node_test'
 
-class JoinTest < PipelineTest
+class JoinTest < NodeTest
   test "accept invite" do
     create_users 1, 2
 

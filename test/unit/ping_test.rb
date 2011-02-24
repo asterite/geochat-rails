@@ -1,8 +1,8 @@
 # coding: utf-8
 
-require 'unit/pipeline_test'
+require 'unit/node_test'
 
-class PingTest < PipelineTest
+class PingTest < NodeTest
   test "ping" do
     send_message 1, 'ping'
     assert_messages_sent_to 1, "pong (#{T.received_at Time.now.utc})"

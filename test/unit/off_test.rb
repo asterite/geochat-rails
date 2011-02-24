@@ -1,8 +1,8 @@
 # coding: utf-8
 
-require 'unit/pipeline_test'
+require 'unit/node_test'
 
-class OffTest < PipelineTest
+class OffTest < NodeTest
   test "turn off" do
     create_users 1
 

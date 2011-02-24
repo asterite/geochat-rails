@@ -1,8 +1,8 @@
 # coding: utf-8
 
-require 'unit/pipeline_test'
+require 'unit/node_test'
 
-class LocationTest < PipelineTest
+class LocationTest < NodeTest
   test "place" do
     create_users 1..4
 

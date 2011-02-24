@@ -1,8 +1,8 @@
 # coding: utf-8
 
-require 'unit/pipeline_test'
+require 'unit/node_test'
 
-class WhereIsTest < PipelineTest
+class WhereIsTest < NodeTest
   test "whereis not a user" do
     create_users 1
 

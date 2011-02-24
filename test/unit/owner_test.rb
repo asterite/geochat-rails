@@ -1,8 +1,8 @@
 # coding: utf-8
 
-require 'unit/pipeline_test'
+require 'unit/node_test'
 
-class OwnerTest < PipelineTest
+class OwnerTest < NodeTest
   ["2", "User2"].each do |user|
     ["owner #{user}", "Group1 owner #{user}", "owner Group1 #{user}", "owner #{user} Group1"].each do |msg|
       test "add group owner #{msg}" do

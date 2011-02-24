@@ -1,8 +1,8 @@
 # coding: utf-8
 
-require 'unit/pipeline_test'
+require 'unit/node_test'
 
-class LogoutTest < PipelineTest
+class LogoutTest < NodeTest
   test "logout" do
     send_message 1, ".name John Doe"
     send_message 1, "bye"

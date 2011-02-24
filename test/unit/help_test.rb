@@ -1,8 +1,8 @@
 # coding: utf-8
 
-require 'unit/pipeline_test'
+require 'unit/node_test'
 
-class HelpTest < PipelineTest
+class HelpTest < NodeTest
   test "help" do
     send_message 1, "help"
     assert_messages_sent_to 1, T.help_help
