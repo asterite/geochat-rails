@@ -441,7 +441,7 @@ module T
     end
 
     def help_block
-      "TODO"
+      "To prevent a user from sending and receiving messages in a group send: block GROUP_ALIAS USER_LOGIN"
     end
 
     def help_create
