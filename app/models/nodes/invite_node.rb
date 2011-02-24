@@ -6,6 +6,8 @@ class InviteNode < Node
     args :users
   end
 
+  requires_user_to_be_logged_in
+
   def after_scan
     users = self.users.split
     if users.length == 1 || self.matched_name == '+'
@@ -53,8 +55,6 @@ class InviteNode < Node
   end
 
   def process
-    return reply_not_logged_in unless current_user
-
     group = fix_group || default_group({
       :no_default_group_message => T.you_must_specify_a_group_to_invite
     })

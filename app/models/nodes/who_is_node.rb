@@ -10,7 +10,7 @@ class WhoIsNode < Node
 
   def process
     user = User.find_by_login_or_mobile_number @user
-    return reply_user_does_not_exist @user unless user
+    return reply T.user_does_not_exist(@user) unless user
 
     reply T.user_display_name_is(user)
   end

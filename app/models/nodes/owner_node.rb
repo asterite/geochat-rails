@@ -7,13 +7,13 @@ class OwnerNode < Node
     args :user, :group, :spaces_in_args => false
   end
 
+  requires_user_to_be_logged_in
+
   def after_scan
     self.group, self.user = self.user, self.group if self.group && self.group.integer?
   end
 
   def process
-    return reply_not_logged_in unless current_user
-
     user = User.find_by_login_or_mobile_number @user
     if @group
       group = Group.find_by_alias @group
@@ -23,15 +23,15 @@ class OwnerNode < Node
         user = User.find_by_login_or_mobile_number @user
         if !group
           if user
-            return reply_group_does_not_exist @group
+            return reply T.group_does_not_exist(@group)
           else
-            return reply_group_does_not_exist(T.a_or_b(@group, @user))
+            return reply T.group_does_not_exist(T.a_or_b(@group, @user))
           end
         end
       end
     end
 
-    return reply_user_does_not_exist @user unless user
+    return reply T.user_does_not_exist(@user) unless user
 
     if not group
       group = default_group({

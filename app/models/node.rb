@@ -42,6 +42,17 @@ class Node
     self::Command.names
   end
 
+  def self.requires_user_to_be_logged_in
+    metaclass = class << self; self; end
+    metaclass.send :define_method, :requires_user_to_be_logged_in? do
+      true
+    end
+  end
+
+  def self.requires_user_to_be_logged_in?
+    false
+  end
+
   attr_accessor :matched_name
   attr_accessor :context
   attr_accessor :messages
@@ -89,7 +100,13 @@ class Node
     node = Parser.parse(message[:body], context, :parse_signup_and_join => !context[:user])
     node.context = context
     node.turn_on_channel_if_needed
-    node.process
+
+    if !node.current_user && node.class.requires_user_to_be_logged_in?
+      node.reply T.you_are_not_signed_in
+    else
+      node.process
+    end
+
     node.messages
   end
 
@@ -127,22 +144,6 @@ class Node
   def join_and_welcome(user, group)
     user.join group
     send_message_to_user user, T.welcome_to_group(user, group)
-  end
-
-  def reply_not_logged_in
-    reply T.you_are_not_signed_in
-  end
-
-  def reply_user_does_not_exist(user)
-    reply T.user_does_not_exist(user)
-  end
-
-  def reply_group_does_not_exist(group)
-    reply T.group_does_not_exist(group)
-  end
-
-  def reply_dont_belong_to_any_group
-    reply T.you_dont_belong_to_any_group_yet
   end
 
   def reply(message)
@@ -243,7 +244,7 @@ class Node
 
     groups = current_user.groups.to_a
     if groups.empty?
-      reply_dont_belong_to_any_group
+      reply T.you_dont_belong_to_any_group_yet
     elsif groups.length == 1
       return groups.first
     else

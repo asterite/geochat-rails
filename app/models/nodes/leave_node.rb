@@ -7,11 +7,11 @@ class LeaveNode < Node
     args :group, :spaces_in_args => false
   end
 
-  def process
-    return reply_not_logged_in unless current_user
+  requires_user_to_be_logged_in
 
+  def process
     group = Group.find_by_alias @group
-    return reply_group_does_not_exist(@group) unless group
+    return reply T.group_does_not_exist(@group) unless group
 
     membership = current_user.membership_in(group)
     return reply T.you_cant_leave_group_because_you_dont_belong_to_it(group) unless membership

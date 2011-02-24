@@ -49,13 +49,13 @@ class MyNode < Node
     end
   end
 
+  requires_user_to_be_logged_in
+
   def self.names
     [{:regex_end => /^\s*my\s*$/i}]
   end
 
   def process
-    return reply_not_logged_in unless current_user
-
     if @value
       send "process_my_#{@key}=", @value
     else
@@ -129,7 +129,7 @@ class MyNode < Node
     groups = current_user.groups.map(&:alias).sort
     case groups.count
     when 0
-      reply_dont_belong_to_any_group
+      reply T.you_dont_belong_to_any_group_yet
     when 1
       reply T.your_only_group_is(groups.first)
     else
@@ -148,7 +148,7 @@ class MyNode < Node
 
   def process_my_group=(value)
     group = ::Group.find_by_alias value
-    return reply_group_does_not_exist value unless group
+    return reply T.group_does_not_exist(value) unless group
 
     return reply T.you_cant_set_group_as_default_group_dont_belong(group) unless current_user.belongs_to(group)
 

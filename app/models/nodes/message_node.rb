@@ -6,6 +6,8 @@ class MessageNode < Node
   attr_accessor :tags
   attr_accessor :blast
 
+  requires_user_to_be_logged_in
+
   def initialize(attributes = {})
     super
 
@@ -65,8 +67,6 @@ class MessageNode < Node
   end
 
   def process
-    return reply T.you_are_not_signed_in unless current_user
-
     users = []
 
     if self.target.present?
@@ -105,7 +105,7 @@ class MessageNode < Node
         end
       end
 
-      return reply_group_does_not_exist self.target.name if !group && !users.present?
+      return reply T.group_does_not_exist(self.target.name) unless group || users.present?
     end
 
     # This is needed here and also bellow. Here because if there is an explicit

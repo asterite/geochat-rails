@@ -7,11 +7,11 @@ class JoinNode < Node
     args :group, :spaces_in_args => false
   end
 
-  def process
-    return reply_not_logged_in unless current_user
+  requires_user_to_be_logged_in
 
+  def process
     group = Group.find_by_alias @group
-    return reply_group_does_not_exist @group unless group
+    return reply T.group_does_not_exist(@group) unless group
 
     return reply T.you_already_belong_to_group(group) if current_user.belongs_to group
 

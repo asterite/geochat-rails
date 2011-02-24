@@ -5,9 +5,9 @@ class LogoutNode < Node
     name '\)', :prefix => :none
   end
 
-  def process
-    return reply_not_logged_in unless current_channel
+  requires_user_to_be_logged_in
 
+  def process
     current_channel.destroy
 
     reply T.device_removed_from_your_account(current_user)

@@ -11,6 +11,8 @@ class CreateNode < Node
     args :alias
   end
 
+  requires_user_to_be_logged_in
+
   def after_scan
     self.public = false
     self.nochat = false
@@ -41,7 +43,6 @@ class CreateNode < Node
   end
 
   def process
-    return reply_not_logged_in unless current_user
     return reply T.cannot_create_group_name_too_short(@alias) if @alias.length < 2
     return reply T.cannot_create_group_name_reserved(@alias) if @alias.command?
     return reply T.group_already_exists(@alias) if Group.find_by_alias @alias
