@@ -2,11 +2,10 @@ require 'test_helper'
 
 class NuntiumControllerTest < ActionController::TestCase
   test "receive at" do
-    pipeline = Pipeline.new
-    pipeline.process :from => 'sms://1', :body => '.name User1'
-    pipeline.process :from => 'sms://1', :body => 'create Group1'
-    pipeline.process :from => 'sms://2', :body => '.name User2'
-    pipeline.process :from => 'sms://2', :body => 'join Group1'
+    Node.process :from => 'sms://1', :body => '.name User1'
+    Node.process :from => 'sms://1', :body => 'create Group1'
+    Node.process :from => 'sms://2', :body => '.name User2'
+    Node.process :from => 'sms://2', :body => 'join Group1'
 
     message = {'from' => 'sms://1', 'body' => "@User2 Hello!"}
 

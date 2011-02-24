@@ -2,7 +2,7 @@ class NuntiumController < ApplicationController
   before_filter :authenticate
 
   def receive_at
-    render :json => Pipeline.new.process(params)
+    render :json => Node.process(params)
   end
 
   private

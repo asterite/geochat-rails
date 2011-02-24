@@ -31,8 +31,8 @@ class SignupNode < Node
     login = User.find_suitable_login @suggested_login
     password = PasswordGenerator.new_password
 
-    if address2.integer?
-      user = User.find_by_login_and_created_from_invite address2, true
+    if address.integer?
+      user = User.find_by_login_and_created_from_invite address, true
       if user
         user.attributes = {:login => login, :display_name => @display_name, :password => password, :created_from_invite => false}
         user.save!
@@ -43,14 +43,15 @@ class SignupNode < Node
       user = User.create! :login => login, :password => password, :display_name => @display_name
     end
 
-    self.channel = create_channel_for user
+    self.current_channel = create_channel_for user
+    self.current_user = user
     reply T.welcome_to_geochat(user)
     reply T.remember_you_can_log_in(login, password)
 
     if @group
-      join = JoinNode.new :group => @group
-      join.pipeline = @pipeline
+      join = JoinNode.new :group => @group, :context => @context
       join.process
+      @messages += join.messages
     else
       reply T.to_send_message_to_a_group_you_must_first_join_one
     end

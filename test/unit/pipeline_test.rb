@@ -4,7 +4,6 @@ require 'test_helper'
 
 class PipelineTest < ActiveSupport::TestCase
   setup do
-    @pipeline = Pipeline.new
     PasswordGenerator.stubs(:new_password => 'MockPassword')
   end
 
@@ -14,7 +13,7 @@ class PipelineTest < ActiveSupport::TestCase
     address = *address
     address.each do |a|
       a = "sms://#{a}" if a.is_a?(Integer)
-      @pipeline.process :from => a, :body => message
+      @messages = Node.process :from => a, :body => message
     end
   end
 
@@ -68,7 +67,7 @@ class PipelineTest < ActiveSupport::TestCase
     address = *address
     address.each do |a|
       a = "sms://#{a}" if a.is_a?(Integer)
-      actual = @pipeline.messages.select{|x| x[:to] == a}
+      actual = @messages.select{|x| x[:to] == a}
       msgs = *msgs
       expected = msgs.map{|x| {:to => a, :body => x}}
       assert_equal expected, actual, "Mismatched messages to #{a}"
@@ -78,13 +77,13 @@ class PipelineTest < ActiveSupport::TestCase
   def assert_no_messages_sent_to(*address)
     address.each do |a|
       a = "sms://#{a}" if a.is_a?(Integer)
-      actual = @pipeline.messages.select{|x| x[:to] == a}
+      actual = @messages.select{|x| x[:to] == a}
       assert actual.empty?
     end
   end
 
   def assert_no_messages_sent
-    assert @pipeline.messages.empty?, "Expected no messages sent but there are these messages: #{@pipeline.messages}"
+    assert @messages.empty?, "Expected no messages sent but there are these messages: #{@messages}"
   end
 
   def assert_no_messages_saved

@@ -112,7 +112,7 @@ class InviteNode < Node
 
       # If the user accepted the invite, join him to the group
       if invites.any?{|x| x.user_accepted}
-        join user, group
+        join_and_welcome user, group
         invites.each &:destroy
         joined << user.login
         next

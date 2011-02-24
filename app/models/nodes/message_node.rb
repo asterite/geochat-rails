@@ -157,7 +157,7 @@ class MessageNode < Node
 
     if invite
       if invite.admin_accepted || !group.requires_aproval_to_join
-        join current_user, group
+        join_and_welcome current_user, group
         invite.destroy
       else
         return reply T.cant_send_message_to_group_invitation_not_approved(group)
@@ -168,7 +168,7 @@ class MessageNode < Node
       if group.requires_aproval_to_join
         return reply T.cant_send_message_to_group_not_a_member(group)
       else
-        join current_user, group
+        join_and_welcome current_user, group
       end
     end
 
