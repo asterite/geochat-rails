@@ -308,6 +308,10 @@ module T
       "You can't block yourself"
     end
 
+    def you_cant_set_owner_you_dont_belong_to_group(user, group)
+      "You can't set #{user} as an owner of #{group} because you don't belnog to that group."
+    end
+
     def you_cant_set_owner_you_are_not_owner(user, group)
       "You can't set #{user} as an owner of #{group} because you are not an owner."
     end

@@ -119,7 +119,7 @@ class OwnerTest < PipelineTest
     assert_messages_sent_to 1, T.user_already_an_owner('User2', 'Group1')
   end
 
-  test "add group self owner" do
+  test "add group owner self owner" do
     create_users 1
 
     send_message 1, "create Group1"
@@ -127,12 +127,19 @@ class OwnerTest < PipelineTest
     assert_messages_sent_to 1, T.you_are_already_an_owner_of_group('Group1')
   end
 
-  test "add group self not owner" do
+  test "add group owner self not owner" do
     create_users 1, 2
 
     send_message 1, "create Group1"
     send_message 2, "join Group1"
     send_message 2, "owner User2"
     assert_messages_sent_to 2, T.nice_try
+  end
+
+  test "add group owner does not belong to group" do
+    create_users 1, 2
+    send_message 1, "create Group1"
+    send_message 2, "owner Group1 User1"
+    assert_messages_sent_to 2, T.you_cant_set_owner_you_dont_belong_to_group('User1', 'Group1')
   end
 end
