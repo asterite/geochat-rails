@@ -9,10 +9,6 @@ class NuntiumController < ApplicationController
 
       Message.create_from_hash pipeline.saved_message
 
-      pipeline.messages.each do |message|
-        message[:from] = 'geochat://system'
-      end
-
       render :json => pipeline.messages
     rescue Exception => e
       render :text => "You've just spotted a bug: #{e.message}"

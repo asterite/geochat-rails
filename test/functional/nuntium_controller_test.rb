@@ -15,7 +15,7 @@ class NuntiumControllerTest < ActionController::TestCase
 
     assert_response :ok
 
-    assert_equal [{:to => 'sms://2', :body => 'User1 only to you: Hello!', :from => 'geochat://system'}].to_json, @response.body
+    assert_equal [{:to => 'sms://2', :body => 'User1 only to you: Hello!'}].to_json, @response.body
 
     messages = Message.all
     assert_equal 1, messages.count
