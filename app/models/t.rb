@@ -312,6 +312,10 @@ module T
       "You can't set #{user} as an owner of #{group} because you don't belnog to that group."
     end
 
+    def you_cant_block_you_dont_belong_to_group(user, group)
+      "You can't block #{user} in #{group} because you don't belnog to that group."
+    end
+
     def you_cant_set_owner_you_are_not_owner(user, group)
       "You can't set #{user} as an owner of #{group} because you are not an owner."
     end

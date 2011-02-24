@@ -117,4 +117,11 @@ class BlockTest < PipelineTest
     send_message 1, "block User1"
     assert_messages_sent_to 1, T.you_cant_block_yourself
   end
+
+  test "block does not belong to group" do
+    create_users 1, 2
+    send_message 1, "create Group1"
+    send_message 2, "block Group1 User1"
+    assert_messages_sent_to 2, T.you_cant_block_you_dont_belong_to_group('User1', 'Group1')
+  end
 end
