@@ -192,6 +192,7 @@ class Node
   end
 
   def send_message(options = {})
+    options[:from] = 'geochat://system'
     @messages << options
   end
 

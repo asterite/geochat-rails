@@ -69,7 +69,7 @@ class NodeTest < ActiveSupport::TestCase
       a = "sms://#{a}" if a.is_a?(Integer)
       actual = @messages.select{|x| x[:to] == a}
       msgs = *msgs
-      expected = msgs.map{|x| {:to => a, :body => x}}
+      expected = msgs.map{|x| {:from => 'geochat://system', :to => a, :body => x}}
       assert_equal expected, actual, "Mismatched messages to #{a}"
     end
   end
