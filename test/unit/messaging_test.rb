@@ -114,7 +114,7 @@ class MessagingTest < NodeTest
     send_message 2, "invite 1"
 
     send_message 1, "Group2 Hello"
-    assert_messages_sent_to 1, T.welcome_to_group('User1', 'Group2', 2)
+    assert_messages_sent_to 1, T.welcome_to_non_first_group('User1', 'Group2')
     assert_messages_sent_to 2, "User1: Hello"
     assert_group_exists "Group2", "User1", "User2"
     assert_no_invite_exists
@@ -126,7 +126,7 @@ class MessagingTest < NodeTest
     send_message 1, "invite 2"
 
     send_message 2, "Group1 Hello"
-    assert_messages_sent_to 2, T.welcome_to_group('User2', 'Group1')
+    assert_messages_sent_to 2, T.welcome_to_first_group('User2', 'Group1')
     assert_messages_sent_to 1, "User2: Hello"
     assert_group_exists "Group1", "User1", "User2"
     assert_no_invite_exists
@@ -141,7 +141,7 @@ class MessagingTest < NodeTest
     send_message 3, "invite 1"
 
     send_message 1, "Group2 Hello"
-    assert_messages_sent_to 1, T.welcome_to_group('User1', 'Group2', 2)
+    assert_messages_sent_to 1, T.welcome_to_non_first_group('User1', 'Group2')
     assert_messages_sent_to 2..3, "User1: Hello"
     assert_group_exists "Group2", "User1", "User2", "User3"
     assert_no_invite_exists
@@ -180,7 +180,7 @@ class MessagingTest < NodeTest
     create_group 2, "Group2"
 
     send_message 1, "@Group2 Hello!"
-    assert_messages_sent_to 1, T.welcome_to_group('User1', 'Group2', 2)
+    assert_messages_sent_to 1, T.welcome_to_non_first_group('User1', 'Group2')
     assert_messages_sent_to 2, "User1: Hello!"
     assert_group_exists "Group2", "User1", "User2"
   end

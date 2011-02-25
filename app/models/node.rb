@@ -170,7 +170,7 @@ class Node
   end
 
   def send_message_to_user_in_group(user, group, msg)
-    if group.id == user.default_group_id || user.memberships.count == 1
+    if group.id == user.default_group_id || user.groups_count == 1
       send_message_to_user user, msg
     else
       send_message_to_user user, "[#{group.alias}] #{msg}"
@@ -231,11 +231,11 @@ class Node
     group = current_user.default_group
     return group if group
 
-    groups = current_user.groups.to_a
-    if groups.empty?
+    case current_user.groups_count
+    when 0
       reply T.you_dont_belong_to_any_group_yet
-    elsif groups.length == 1
-      return groups.first
+    when 1
+      return current_user.groups.all.first
     else
       reply options[:no_default_group_message]
     end

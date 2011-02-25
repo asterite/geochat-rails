@@ -34,18 +34,22 @@ module T
       "Welcome to GeoChat's group #{group}. Tell us your name and join the group by sending: YOUR_NAME join #{group}"
     end
 
-    def welcome_to_group(user, group, memberships_count = 1)
-      if user.is_a?(User)
-        display_name = user.display_name
-        memberships_count = user.memberships.count
+    def welcome_to_group(user, group)
+      if user.groups_count > 1
+        welcome_to_non_first_group user, group
       else
-        display_name = user
+        welcome_to_first_group user, group
       end
-      if memberships_count > 1
-        "Welcome #{display_name} to #{group}. Send '#{group} Hello group!'"
-      else
-        "Welcome #{display_name} to group #{group}. Reply with 'at TOWN NAME' or with any message to say hi to your group!"
-      end
+    end
+
+    def welcome_to_first_group(user, group)
+      user = user.display_name if user.is_a? User
+      "Welcome #{user} to group #{group}. Reply with 'at TOWN NAME' or with any message to say hi to your group!"
+    end
+
+    def welcome_to_non_first_group(user, group)
+      user = user.display_name if user.is_a? User
+      "Welcome #{user} to #{group}. Send '#{group} Hello group!'"
     end
 
     def users_are_now_members_of_group(users, group)

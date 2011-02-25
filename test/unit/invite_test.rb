@@ -154,7 +154,7 @@ class InviteTest < NodeTest
     assert_messages_sent_to 5591112345678, [
       T.welcome_to_geochat('John Doe'),
       T.remember_you_can_log_in('JohnDoe', 'MockPassword'),
-      T.welcome_to_group('John Doe', 'Group1')
+      T.welcome_to_first_group('John Doe', 'Group1')
     ]
   end
 
@@ -173,7 +173,7 @@ class InviteTest < NodeTest
     send_message 2, "join Group1"
     assert_group_exists "Group1", "User1", "User2"
     assert_messages_sent_to 1, T.user_has_accepted_your_invitation('User2', 'Group1')
-    assert_messages_sent_to 2, T.welcome_to_group('User2', 'Group1')
+    assert_messages_sent_to 2, T.welcome_to_first_group('User2', 'Group1')
   end
 
   test "invite existing mobile number but user does signup" do
@@ -239,7 +239,7 @@ class InviteTest < NodeTest
 
     send_message 3, "join Group1"
     assert_messages_sent_to 1..2, T.user_has_accepted_your_invitation('User3', 'Group1')
-    assert_messages_sent_to 3, T.welcome_to_group('User3', 'Group1')
+    assert_messages_sent_to 3, T.welcome_to_first_group('User3', 'Group1')
     assert_no_invite_exists
   end
 

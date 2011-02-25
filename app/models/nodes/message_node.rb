@@ -142,6 +142,9 @@ class MessageNode < Node
       group = default_group({
         :no_default_group_message => T.you_dont_have_a_default_group_prefix_messages
       })
+
+      # This saves us a query because we know the group came from the user memberships
+      current_user_belongs_to_group = true
     end
     return unless group
 
@@ -164,7 +167,7 @@ class MessageNode < Node
       end
     end
 
-    if !current_user.belongs_to(group)
+    if !current_user_belongs_to_group && !current_user.belongs_to(group)
       if group.requires_aproval_to_join
         return reply T.cant_send_message_to_group_not_a_member(group)
       else

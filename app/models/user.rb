@@ -6,13 +6,15 @@ class User < ActiveRecord::Base
   has_many :groups, :through => :memberships
 
   validates :login, :presence => true
-  validates :login_downcase, :presence => true, :uniqueness => true
+  validates :login_downcase, :presence => true, :uniqueness => true, :if => proc{|u| u.login_changed?}
   validates :password, :presence => true, :if => proc {|u| !u.created_from_invite?}
 
   belongs_to :default_group, :class_name => 'Group'
   before_validation :update_login_downcase
   before_save :update_location_reported_at
   before_save :encode_password, :if => proc{|u| u.password_changed?}
+
+  data_accessor :groups_count, :default => 0
 
   def self.find_by_login(login)
     self.find_by_login_downcase login.downcase
@@ -132,7 +134,7 @@ class User < ActiveRecord::Base
   end
 
   def is_blocked_in?(group)
-    group.data.try(:[], :blocked_users).try(:include?, self.id)
+    group.blocked_users.try(:include?, self.id)
   end
 
   def as_json(options = {})

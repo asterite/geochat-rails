@@ -10,7 +10,7 @@ class JoinTest < NodeTest
     send_message 1, "invite User2"
 
     send_message 2, "join Group1"
-    assert_messages_sent_to 2, T.welcome_to_group('User2', 'Group1')
+    assert_messages_sent_to 2, T.welcome_to_first_group('User2', 'Group1')
     assert_messages_sent_to 1, T.user_has_accepted_your_invitation('User2', 'Group1')
     assert_group_exists "Group1", "User1", "User2"
   end
@@ -29,7 +29,7 @@ class JoinTest < NodeTest
 
     send_message 1, "invite User2"
     assert_no_invite_exists
-    assert_messages_sent_to 2, T.welcome_to_group('User2', 'Group1')
+    assert_messages_sent_to 2, T.welcome_to_first_group('User2', 'Group1')
     assert_messages_sent_to 1, T.users_are_now_members_of_group('User2', 'Group1')
     assert_group_exists "Group1", "User1", "User2"
   end
@@ -52,7 +52,7 @@ class JoinTest < NodeTest
     assert_messages_sent_to 2, T.group_requires_approval('Group1')
 
     send_message 3, "invite User2"
-    assert_messages_sent_to 2, T.welcome_to_group('User2', 'Group1')
+    assert_messages_sent_to 2, T.welcome_to_first_group('User2', 'Group1')
     assert_messages_sent_to 3, T.users_are_now_members_of_group('User2', 'Group1')
     assert_group_exists "Group1", "User1", "User2", "User3"
   end
@@ -63,7 +63,7 @@ class JoinTest < NodeTest
     send_message 1, "create group Group1"
 
     send_message 2, "join Group1"
-    assert_messages_sent_to 2, T.welcome_to_group('User2', 'Group1')
+    assert_messages_sent_to 2, T.welcome_to_first_group('User2', 'Group1')
     assert_group_exists "Group1", "User1", "User2"
     assert_no_invite_exists
   end
@@ -92,7 +92,7 @@ class JoinTest < NodeTest
 
     send_message 1, "invite User3"
     assert_group_exists "Group1", "User1", "User2", "User3"
-    assert_messages_sent_to 3, T.welcome_to_group('User3', 'Group1')
+    assert_messages_sent_to 3, T.welcome_to_first_group('User3', 'Group1')
     assert_messages_sent_to 1, T.users_are_now_members_of_group('User3', 'Group1')
     assert_no_invite_exists
   end
@@ -120,7 +120,7 @@ class JoinTest < NodeTest
 
     send_message 3, "join Group1"
     assert_group_exists "Group1", "User1", "User2", "User3"
-    assert_messages_sent_to 3, T.welcome_to_group('User3', 'Group1')
+    assert_messages_sent_to 3, T.welcome_to_first_group('User3', 'Group1')
     assert_no_invite_exists
   end
 
@@ -142,7 +142,7 @@ class JoinTest < NodeTest
     assert_group_exists "Group1", "User1", "User2"
 
     send_message 1, "invite User3"
-    assert_messages_sent_to 3, T.welcome_to_group('User3', 'Group1')
+    assert_messages_sent_to 3, T.welcome_to_first_group('User3', 'Group1')
     assert_messages_sent_to 1, T.users_are_now_members_of_group('User3', 'Group1')
     assert_no_invite_exists
     assert_group_exists "Group1", "User1", "User2", "User3"
@@ -156,7 +156,7 @@ class JoinTest < NodeTest
     send_message 1, "invite Group2 2"
 
     send_message 2, "join Group2"
-    assert_messages_sent_to 2, T.welcome_to_group('User2', 'Group2', 2)
+    assert_messages_sent_to 2, T.welcome_to_non_first_group('User2', 'Group2')
   end
 
   test "join not logged in" do

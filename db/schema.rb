@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110224152009) do
+ActiveRecord::Schema.define(:version => 20110225211251) do
 
   create_table "channels", :force => true do |t|
     t.string   "protocol"
@@ -92,6 +92,7 @@ ActiveRecord::Schema.define(:version => 20110224152009) do
     t.datetime "location_reported_at"
     t.string   "login_downcase"
     t.string   "location_short_url"
+    t.text     "data"
   end
 
   add_index "users", ["login_downcase", "created_from_invite"], :name => "index_users_on_login_downcase_and_created_from_invite"

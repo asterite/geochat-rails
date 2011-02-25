@@ -8,7 +8,7 @@ class Group < ActiveRecord::Base
 
   before_validation :update_alias_downcase
 
-  serialize :data
+  data_accessor :blocked_users, :default => []
 
   def self.find_by_alias(talias)
     self.find_by_alias_downcase talias.downcase
@@ -19,27 +19,26 @@ class Group < ActiveRecord::Base
   end
 
   def block(user)
-    self.data ||= {}
-    blocked_users = self.data[:blocked_users]
-    self.data[:blocked_users] = blocked_users = [] unless blocked_users
+    return false if self.blocked_users.include?(user.id)
 
-    was_blocked = if blocked_users.include?(user.id)
-      false
-    else
-      blocked_users << user.id
-      membership = user.membership_in(self)
-      membership.destroy if membership
-      true
-    end
+    # Block it
+    self.blocked_users << user.id
+
     save!
 
-    was_blocked
+    # Remove user from group
+    membership = user.membership_in(self)
+    membership.destroy if membership
+
+    true
   end
 
   def unblock(user)
-    return false unless self.data && self.data[:blocked_users] && self.data[:blocked_users].include?(user.id)
-    self.data[:blocked_users].delete user.id
+    return false unless self.blocked_users && self.blocked_users.include?(user.id)
+
+    self.blocked_users.delete user.id
     save!
+
     true
   end
 

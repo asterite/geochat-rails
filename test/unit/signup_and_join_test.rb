@@ -12,7 +12,7 @@ class SignupAndJoinTest < NodeTest
     assert_messages_sent_to 2, [
       T.welcome_to_geochat('User2'),
       T.remember_you_can_log_in('User2', 'MockPassword'),
-      T.welcome_to_group('User2', 'Group1')
+      T.welcome_to_first_group('User2', 'Group1')
     ]
     assert_group_exists "Group1", "User1", "User2"
   end
@@ -27,7 +27,7 @@ class SignupAndJoinTest < NodeTest
     assert_messages_sent_to 2, [
       T.welcome_to_geochat('User2'),
       T.remember_you_can_log_in('User2', 'MockPassword'),
-      T.welcome_to_group('User2', 'Group1')
+      T.welcome_to_first_group('User2', 'Group1')
     ]
     assert_group_exists "Group1", "User1", "User2"
 
@@ -46,7 +46,7 @@ class SignupAndJoinTest < NodeTest
     assert_group_exists "Group1", "1234"
 
     send_message 2, "join Group1"
-    assert_messages_sent_to 2, T.welcome_to_group('2345', 'Group1')
+    assert_messages_sent_to 2, T.welcome_to_first_group('2345', 'Group1')
     assert_group_exists "Group1", "1234", "2345"
   end
 

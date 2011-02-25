@@ -26,6 +26,13 @@ Group.blueprint do
   name
 end
 
+
+Membership.blueprint do
+  group
+  user
+  role { :owner }
+end
+
 Channel.blueprint do
   user
   protocol { 'sms' }
