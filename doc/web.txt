@@ -1,4 +1,3 @@
-Login
 Register (login, email, password)
 Manage channels (email, sms, twitter, xmpp)
 Listado de grupos y mandar mensajes

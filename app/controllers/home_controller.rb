@@ -5,6 +5,8 @@ class HomeController < ApplicationController
   end
 
   def login
+    return redirect_to root_path unless params[:user]
+
     @user = User.authenticate params[:user][:login], params[:user][:password]
     if @user
       flash[:login_error] = nil
