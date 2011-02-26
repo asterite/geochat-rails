@@ -1,0 +1,13 @@
+<h3>Login to your account:</h3>
+
+- form_for :user, :url => { :controller => :home, :action => :login }, :html => {:id => :login} do |f|
+  %p
+    = f.label :login
+    %br
+    = f.text_field :login
+  %p
+    = f.label :password
+    %br
+    = f.password_field :password
+  %p= flash[:login_error]
+  = submit_tag 'Login'

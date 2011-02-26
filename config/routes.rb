@@ -2,6 +2,11 @@ GeochatRails::Application.routes.draw do
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
+  root :to => "home#index"
+
+  match "/login" => "home#login", :as => 'login'
+  match "/logout" => "home#logout", :as => 'logout'
+
   match "/nuntium/receive_at" => "nuntium#receive_at"
 
   match "/api/users/create/:login" => "api#create_user"

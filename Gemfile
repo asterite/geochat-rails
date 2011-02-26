@@ -10,6 +10,7 @@ gem 'mysql2'
 gem 'nuntium_api', :require => 'nuntium'
 gem 'json'
 gem 'httparty'
+gem 'haml'
 
 group :test do
   gem 'machinist'

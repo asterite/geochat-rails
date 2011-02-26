@@ -90,6 +90,7 @@ ActiveRecord::Schema.define(:version => 20110225211251) do
     t.decimal  "lon",                  :precision => 10, :scale => 6
     t.string   "location"
     t.datetime "location_reported_at"
+    t.string   "language"
     t.string   "login_downcase"
     t.string   "location_short_url"
     t.text     "data"
