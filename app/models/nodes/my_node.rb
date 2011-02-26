@@ -147,6 +147,13 @@ class MyNode < Node
   end
 
   def process_my_group=(value)
+    if value =~ /^none$/i
+      current_user.default_group_id = nil
+      current_user.save!
+
+      return reply T.now_you_dont_have_a_default_group
+    end
+
     group = ::Group.find_by_alias value
     return reply T.group_does_not_exist(value) unless group
 

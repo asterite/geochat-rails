@@ -109,6 +109,17 @@ class MyTest < NodeTest
     assert_messages_sent_to 1, T.your_new_default_group_is('Group2')
   end
 
+  test "set my group to none" do
+    send_message 1, ".name John Doe"
+    send_message 1, "create Group1"
+    send_message 1, "create Group2"
+    send_message 1, ".my group none"
+    assert_messages_sent_to 1, T.now_you_dont_have_a_default_group
+
+    send_message 1, ".my group"
+    assert_messages_sent_to 1, T.you_dont_have_a_default_group_choose_one
+  end
+
   test "set my group does not exist" do
     send_message 1, ".name John Doe"
     send_message 1, "create Group1"

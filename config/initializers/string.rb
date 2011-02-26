@@ -54,7 +54,7 @@ class String
       end
     end
 
-    nil
+    self =~ /^none$/i
   end
 
   alias_method :command?, :command

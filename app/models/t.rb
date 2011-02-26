@@ -437,7 +437,11 @@ module T
     end
 
     def you_cant_block_you_are_not_owner(user, group)
-      "You can't block #{user} in group #{group} because you are not an owner."
+      "You can't block #{user} in group #{group} because you are not an owner"
+    end
+
+    def now_you_dont_have_a_default_group
+      "Now you don't have a default group"
     end
 
     def help_help
