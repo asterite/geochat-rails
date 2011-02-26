@@ -9,5 +9,5 @@
     = f.label :password
     %br
     = f.password_field :password
-  %p= flash[:login_error]
+  %p.error= flash[:login_error]
   = submit_tag 'Login'
