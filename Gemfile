@@ -16,6 +16,9 @@ group :test do
   gem 'machinist'
   gem 'ffaker'
   gem 'mocha', :require => false
+  gem 'cucumber-rails'
+  gem 'capybara'
+  gem 'database_cleaner'
 end
 
 # Use unicorn as the web server

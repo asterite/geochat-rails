@@ -25,14 +25,16 @@ class OwnerNode < Node
     user_membership = user.membership_in group
     return reply T.user_does_not_belong_to_group(user, group) unless user_membership
 
-    if current_user_membership.role == :owner
-      return reply T.you_are_already_an_owner_of_group(group) if user == current_user
-    else
+    if current_user_membership.role != :owner
       if user == current_user
         return reply T.nice_try
       else
         return reply T.you_cant_set_owner_you_are_not_owner(user, group)
       end
+    end
+
+    if user == current_user
+      return reply T.you_are_already_an_owner_of_group(group)
     end
 
     if user_membership.change_role_to :owner
