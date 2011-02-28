@@ -196,7 +196,7 @@ class MyTest < NodeTest
     expect_locate 'Paris', 10.2, 30.4, 'Paris, France'
     expect_shorten_google_maps 'Paris, France', 'http://short.url'
 
-    send_message 1, "at Paris"
+    send_message 1, ".my location Paris"
     send_message 1, ".my location"
     assert_messages_sent_to 1, T.you_said_you_was_in('Paris, France', "lat: 10.2, lon: 30.4, url: http://short.url", Time.now)
   end

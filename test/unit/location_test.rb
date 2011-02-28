@@ -141,6 +141,49 @@ class LocationTest < NodeTest
     assert_message_saved_with_location "User1", "Group1", "Hello", "Paris, France", 48.856667, 2.350987, "http://short.url"
   end
 
+  test "place with message too long to sms sends two messages" do
+    create_users 1..4
+
+    send_message 1, "create Group1"
+    send_message 2..4, "join Group1"
+
+    expect_locate 'Paris', 48.856667, 2.350987, 'Paris, France'
+    expect_shorten_google_maps 'Paris, France', 'http://short.url'
+
+    without_message_length = "User1:  (#{T.at_place 'Paris, France', 'lat: 48.856667, lon: 2.350987, url: http://short.url'})".length
+    gap_filler = "x" * (141 - without_message_length)
+
+    send_message 1, "/Paris/ #{gap_filler}"
+    assert_messages_sent_to 1, T.location_successfuly_updated('Paris, France', "lat: 48.856667, lon: 2.350987, url: http://short.url")
+    assert_messages_sent_to 2..4, [
+      "User1: #{T.at_place 'Paris, France', 'lat: 48.856667, lon: 2.350987, url: http://short.url'}",
+      "User1: #{gap_filler}"
+    ]
+    assert_user_location "User1", "Paris, France", 48.856667, 2.350987, "http://short.url"
+    assert_message_saved_with_location "User1", "Group1", gap_filler, "Paris, France", 48.856667, 2.350987, "http://short.url"
+  end
+
+  test "place with message too long to email sends one message" do
+    @protocol = 'mailto'
+
+    create_users 1..4
+
+    send_message 1, "create Group1"
+    send_message 2..4, "join Group1"
+
+    expect_locate 'Paris', 48.856667, 2.350987, 'Paris, France'
+    expect_shorten_google_maps 'Paris, France', 'http://short.url'
+
+    without_message_length = "User1:  (#{T.at_place 'Paris, France', 'lat: 48.856667, lon: 2.350987, url: http://short.url'})".length
+    gap_filler = "x" * (141 - without_message_length)
+
+    send_message 1, "/Paris/ #{gap_filler}"
+    assert_messages_sent_to 1, T.location_successfuly_updated('Paris, France', "lat: 48.856667, lon: 2.350987, url: http://short.url")
+    assert_messages_sent_to 2..4, "User1: #{gap_filler} (#{T.at_place 'Paris, France', 'lat: 48.856667, lon: 2.350987, url: http://short.url'})"
+    assert_user_location "User1", "Paris, France", 48.856667, 2.350987, "http://short.url"
+    assert_message_saved_with_location "User1", "Group1", gap_filler, "Paris, France", 48.856667, 2.350987, "http://short.url"
+  end
+
   # TODO USNG
 
   # TODO custom locations

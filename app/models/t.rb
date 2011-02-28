@@ -356,17 +356,17 @@ module T
       end
     end
 
-    def message_only_to_you(from, others, text)
+    def message_only_to_you(from, others)
       if others.empty?
-        "#{from} only to you: #{text}"
+        "#{from} only to you"
       else
-        "#{from} only to #{others.join ', '} and you: #{text}"
+        "#{from} only to #{others.join ', '} and you"
       end
     end
 
-    def message_only_to_user(from, to, text)
+    def message_only_to_users(from, to)
       to = *to
-      "#{from} only to #{to.join ', '}: #{text}"
+      "#{from} only to #{to.join ', '}"
     end
 
     def message_only_to_others_and_you(from, others, text)

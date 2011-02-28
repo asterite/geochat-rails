@@ -5,6 +5,7 @@ require 'test_helper'
 class NodeTest < ActiveSupport::TestCase
   setup do
     PasswordGenerator.stubs(:new_password => 'MockPassword')
+    @protocol = 'sms'
   end
 
   def send_message(address, message)
@@ -12,7 +13,7 @@ class NodeTest < ActiveSupport::TestCase
     address = address.to_a if address.is_a?(Range)
     address = *address
     address.each do |a|
-      a = "sms://#{a}" if a.is_a?(Integer)
+      a = "#{@protocol}://#{a}" if a.is_a?(Integer)
       @messages = Node.process :from => a, :body => message
     end
   end
@@ -32,7 +33,7 @@ class NodeTest < ActiveSupport::TestCase
   end
 
   def assert_user_is_logged_in(address, login, display_name = nil)
-    address = "sms://#{address}" if address.is_a?(Integer)
+    address = "#{@protocol}://#{address}" if address.is_a?(Integer)
     protocol, address2 = address.split "://"
     channel = Channel.find_by_protocol_and_address protocol, address2
     assert_not_nil channel, "Expected channel with address #{address} to exist"
@@ -44,7 +45,7 @@ class NodeTest < ActiveSupport::TestCase
   end
 
   def assert_user_is_logged_off(address, login, display_name = nil)
-    address = "sms://#{address}" if address.is_a?(Integer)
+    address = "#{@protocol}://#{address}" if address.is_a?(Integer)
     protocol, address2 = address.split "://"
     channel = Channel.find_by_protocol_and_address protocol, address2
     assert_not_nil channel, "Expected channel with address #{address} to exist"
@@ -56,7 +57,7 @@ class NodeTest < ActiveSupport::TestCase
   end
 
   def assert_channel_does_not_exist(address)
-    address = "sms://#{address}" if address.is_a?(Integer)
+    address = "#{@protocol}://#{address}" if address.is_a?(Integer)
     protocol, address2 = address.split "://"
     channel = Channel.find_by_protocol_and_address protocol, address2
     assert_nil channel, "Expected channel with address #{address} not to exist"
@@ -66,7 +67,7 @@ class NodeTest < ActiveSupport::TestCase
     address = address.to_a if address.is_a?(Range)
     address = *address
     address.each do |a|
-      a = "sms://#{a}" if a.is_a?(Integer)
+      a = "#{@protocol}://#{a}" if a.is_a?(Integer)
       actual = @messages.select{|x| x[:to] == a}
       msgs = *msgs
       expected = msgs.map{|x| {:from => 'geochat://system', :to => a, :body => x}}
@@ -76,7 +77,7 @@ class NodeTest < ActiveSupport::TestCase
 
   def assert_no_messages_sent_to(*address)
     address.each do |a|
-      a = "sms://#{a}" if a.is_a?(Integer)
+      a = "#{@protocol}://#{a}" if a.is_a?(Integer)
       actual = @messages.select{|x| x[:to] == a}
       assert actual.empty?
     end
@@ -188,7 +189,7 @@ class NodeTest < ActiveSupport::TestCase
   def create_users(*args)
     args = args.first.to_a if args.first.is_a?(Range)
     args.each do |num|
-      send_message "sms://#{num}", ".name User#{num}"
+      send_message "#{@protocol}://#{num}", ".name User#{num}"
     end
   end
 

@@ -155,39 +155,78 @@ class Node
     reply T.group_requires_approval(group)
   end
 
-  def send_message_to_group(group, msg)
+  def send_message_to_group(group, msg, options = {})
+    options = options.merge :group => group
+
     group.users.includes(:channels).reject{|x| x.id == current_user.id}.each do |user|
-      send_message_to_user_in_group user, group, msg
+      send_message_to_user user, msg, options
     end
   end
 
   def send_message_to_group_owners(group, msg, options = {})
+    options = options.merge :group => group
+
     targets = group.owners
-    targets.reject!{|x| x == options[:except]} if options[:except]
+    targets.reject!{|x| options[:except].include?(x)} if options[:except]
     targets.each do |user|
-      send_message_to_user_in_group user, group, msg
+      send_message_to_user user, msg, options
     end
   end
 
-  def send_message_to_user_in_group(user, group, msg)
-    if group.id == user.default_group_id || user.groups_count == 1
-      send_message_to_user user, msg
-    else
-      send_message_to_user user, "[#{group.alias}] #{msg}"
-    end
-  end
-
-  def send_message_to_user(user, msg)
+  def send_message_to_user(user, msg, options = {})
     if user == current_user
       reply msg
     else
       user.active_channels.each do |channel|
-        send_message_to_channel channel, msg
+        send_message_to_channel user, channel, msg, options
       end
     end
   end
 
-  def send_message_to_channel(channel, msg)
+  def send_message_to_channel(user, channel, msg, options = {})
+    prefix = ""
+
+    if options[:group]
+      group = options[:group]
+      if group.id != user.default_group_id && user.groups_count > 1
+        prefix << "[#{group.alias}] "
+      end
+    end
+
+    if options[:sender]
+      if options[:receivers]
+        if options[:private]
+          prefix << T.message_only_to_you(options[:sender], options[:receivers])
+        else
+          prefix << T.message_only_to_users(options[:sender], options[:receivers])
+        end
+      else
+        prefix << options[:sender].login
+      end
+    end
+
+    prefix << ": " if prefix.present?
+
+    if options[:location]
+      msg_with_location = "#{msg} (#{options[:location]})"
+
+      # If we are sending a message to a mobile phone and it contains a location update,
+      # check if it fits in 140 characters including the location update. If not, split
+      # in two messages: the location update and the message.
+      if channel.protocol == 'sms'
+        full_msg = "#{prefix}#{msg_with_location}"
+        if full_msg.length > 140
+          send_message_to_channel user, channel, "#{prefix}#{options[:location]}"
+          send_message_to_channel user, channel, "#{prefix}#{msg}"
+          return
+        end
+      end
+
+      msg = msg_with_location
+    end
+
+    msg = "#{prefix}#{msg}"
+
     send_message :to => channel.full_address, :body => msg
   end
 

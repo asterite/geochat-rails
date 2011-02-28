@@ -114,30 +114,6 @@ class MessageNode < Node
     # and it might be disabled.
     return reply T.cant_send_messages_to_disabled_group(group) if group && !group.enabled
 
-    text_to_send = @body
-    text_to_save = @body
-
-    if self.location.present?
-      if update_current_user_location_to self.location
-        at_place = T.at_place(current_user.location, current_user.location_info)
-        if text_to_send.blank?
-          text_to_send = at_place
-        else
-          text_to_send = "#{text_to_send} (#{at_place})"
-        end
-      else
-        text_to_send = message[:body]
-      end
-
-      if text_to_save.blank?
-        if self.location.is_a?(String)
-          text_to_save = T.at_place(self.location)
-        else
-          text_to_save = T.at_place(self.location.join ', ')
-        end
-      end
-    end
-
     if not group
       group = default_group({
         :no_default_group_message => T.you_dont_have_a_default_group_prefix_messages
@@ -175,18 +151,40 @@ class MessageNode < Node
       end
     end
 
+    text_to_send = @body
+    text_to_save = @body
+    location_info = nil
+
+    if self.location.present?
+      if update_current_user_location_to self.location
+        at_place = T.at_place(current_user.location, current_user.location_info)
+        if text_to_send.blank?
+          text_to_send = at_place
+        else
+          location_info = at_place
+          #text_to_send = "#{text_to_send} (#{at_place})"
+        end
+      else
+        text_to_send = message[:body]
+      end
+
+      if text_to_save.blank?
+        text_to_save = T.at_place(self.location.is_a?(String) ? self.location : self.location.join(', '))
+      end
+    end
+
     if users.present?
       users.each do |user|
         others = users.reject{|x| x == user}
-        send_message_to_user_in_group user, group, T.message_only_to_you(current_user, others, text_to_send)
+        send_message_to_user user, text_to_send, :sender => current_user, :group => group, :private => true, :receivers => others, :location => location_info
       end
       if group.forward_owners
-        send_message_to_group_owners group, T.message_only_to_user(current_user, users, text_to_send), :except => user
+        send_message_to_group_owners group, text_to_send, :sender => current_user, :receivers => users, :location => location_info, :except => users
       end
     elsif group.chatroom || @blast
-      send_message_to_group group, "#{current_user.login}: #{text_to_send}"
+      send_message_to_group group, text_to_send, :sender => current_user, :location => location_info
     elsif group.forward_owners
-      send_message_to_group_owners group, "#{current_user.login}: #{text_to_send}"
+      send_message_to_group_owners group, text_to_send, :sender => current_user, :location => location_info
     end
 
     # Save the message
