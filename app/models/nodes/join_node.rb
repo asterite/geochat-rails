@@ -13,7 +13,7 @@ class JoinNode < Node
     group = Group.find_by_alias @group
     return reply T.group_does_not_exist(@group) unless group
 
-    return reply T.you_already_belong_to_group(group) if current_user.belongs_to group
+    return reply T.you_already_belong_to_group(group) if current_user.belongs_to? group
 
     # Get all the invites for this user
     invites = Invite.find_all_by_group_id_and_user_id group, current_user

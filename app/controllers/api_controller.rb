@@ -49,6 +49,6 @@ class ApiController < ApplicationController
   def check_group
     @group = Group.find_by_alias params[:alias]
     return head :not_found unless @group
-    return head :unauthorized unless @user.belongs_to(@group)
+    return head :unauthorized unless @user.belongs_to? @group
   end
 end

@@ -96,7 +96,7 @@ class User < ActiveRecord::Base
     Membership.where('user_id = ? and group_id = ?', self.id, group.id).first
   end
 
-  def belongs_to(group)
+  def belongs_to?(group)
     Membership.where('user_id = ? and group_id = ?', self.id, group.id).exists?
   end
 
@@ -111,9 +111,7 @@ class User < ActiveRecord::Base
 
   def location_info
     str = "lat: #{self.lat}, lon: #{self.lon}"
-    if self.location_short_url.present?
-      str << ", url: #{self.location_short_url}"
-    end
+    str << ", url: #{self.location_short_url}" if self.location_short_url.present?
     str
   end
 

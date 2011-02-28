@@ -89,7 +89,7 @@ class InviteNode < Node
         next
       end
 
-      if user.belongs_to group
+      if user.belongs_to? group
         already_belongs << user.login
         next
       end

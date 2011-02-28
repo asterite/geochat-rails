@@ -151,7 +151,7 @@ class MessageNode < Node
     return reply T.cant_send_messages_to_disabled_group(group) if group && !group.enabled
 
     users.each do |user|
-      if explicit_group && !user.belongs_to(group)
+      if explicit_group && !user.belongs_to?(group)
         return reply T.cant_send_message_to_user_via_group_does_not_belong(user, group)
       elsif !current_user.shares_a_common_group_with(user)
         return reply T.cant_send_message_to_user_no_common_group(user)
@@ -167,7 +167,7 @@ class MessageNode < Node
       end
     end
 
-    if !current_user_belongs_to_group && !current_user.belongs_to(group)
+    if !current_user_belongs_to_group && !current_user.belongs_to?(group)
       if group.requires_aproval_to_join
         return reply T.cant_send_message_to_group_not_a_member(group)
       else

@@ -157,7 +157,7 @@ class MyNode < Node
     group = ::Group.find_by_alias value
     return reply T.group_does_not_exist(value) unless group
 
-    return reply T.you_cant_set_group_as_default_group_dont_belong(group) unless current_user.belongs_to(group)
+    return reply T.you_cant_set_group_as_default_group_dont_belong(group) unless current_user.belongs_to? group
 
     current_user.default_group_id = group.id
     current_user.save!
