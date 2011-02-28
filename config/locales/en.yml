@@ -1,4 +1,7 @@
 en:
+  i18n:
+    language:
+      name: "English"
   group_created: "Group '%{name}' created. To require users your approval to join, go to geochat.instedd.org. Invite users by sending: %{name} +PHONE_NUMBER"
   group_already_exists: "The group %{name} already exists. Please specify another alias."
   cannot_create_group_name_too_short: "You cannot create a group named '%{name}' because it is too short (minimum is 2 characters)."
