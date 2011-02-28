@@ -13,7 +13,7 @@ class ParserTest < ActiveSupport::TestCase
     Parser.parse(string, lookup, options)
   end
 
-  def self.it_parses_node(string, clazz, options = {})
+  def self.it_parses_node(clazz, string, options = {})
     test "parses #{clazz} #{string}" do
       node = parse(string)
       assert node.is_a?(clazz), "expected to be #{clazz} but was #{node.class}"
@@ -43,52 +43,12 @@ class ParserTest < ActiveSupport::TestCase
     end
   end
 
-  def self.it_parses_login(string, options = {})
-    it_parses_node string, LoginNode, options
-  end
-
-  def self.it_parses_logout(string)
-    it_parses_node string, LogoutNode
-  end
-
-  def self.it_parses_on(string)
-    it_parses_node string, OnNode
-  end
-
-  def self.it_parses_off(string)
-    it_parses_node string, OffNode
-  end
-
-  def self.it_parses_create(string, options = {})
-    it_parses_node string, CreateNode, options
-  end
-
-  def self.it_parses_invite(string, options = {})
-    it_parses_node string, InviteNode, options
-  end
-
-  def self.it_parses_join(string, options = {})
-    it_parses_node string, JoinNode, options
-  end
-
-  def self.it_parses_leave(string, options = {})
-    it_parses_node string, LeaveNode, options
-  end
-
-  def self.it_parses_block(string, options = {})
-    it_parses_node string, BlockNode, options
-  end
-
-  def self.it_parses_owner(string, options = {})
-    it_parses_node string, OwnerNode, options
-  end
-
-  def self.it_parses_ping(string, options = {})
-    it_parses_node string, PingNode, options
-  end
-
-  def self.it_parses_unknown(string, options = {})
-    it_parses_node string, UnknownNode, options
+  def self.method_missing(name, *args)
+    if name =~ /^it_parses_(\S+)$/
+      it_parses_node "#{$1.camelize}Node".constantize, *args
+    else
+      super
+    end
   end
 
   def self.it_parses_message(string, options = {})
@@ -106,26 +66,6 @@ class ParserTest < ActiveSupport::TestCase
         assert_equal expected, actual, "expected #{k} to be #{expected} but was #{actual}"
       end
     end
-  end
-
-  def self.it_parses_help(string, options = {})
-    it_parses_node string, HelpNode, options
-  end
-
-  def self.it_parses_my(string, options = {})
-    it_parses_node string, MyNode, options
-  end
-
-  def self.it_parses_whois(string, options = {})
-    it_parses_node string, WhoIsNode, options
-  end
-
-  def self.it_parses_whereis(string, options = {})
-    it_parses_node string, WhereIsNode, options
-  end
-
-  def self.it_parses_language(string, options = {})
-    it_parses_node string, LanguageNode, options
   end
 
   def self.location(*args)
@@ -324,17 +264,17 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_my ".my password something", :key => MyNode::Password, :value => 'something'
   # TODO set multiple things at once
 
-  it_parses_whois "whois someuser", :user => 'someuser'
-  it_parses_whois "whois someuser?", :user => 'someuser'
-  it_parses_whois ".wi someuser", :user => 'someuser'
-  it_parses_whois ".wi someuser?", :user => 'someuser'
+  it_parses_who_is "whois someuser", :user => 'someuser'
+  it_parses_who_is "whois someuser?", :user => 'someuser'
+  it_parses_who_is ".wi someuser", :user => 'someuser'
+  it_parses_who_is ".wi someuser?", :user => 'someuser'
 
-  it_parses_whereis "whereis someuser", :user => 'someuser'
-  it_parses_whereis "whereis someuser?", :user => 'someuser'
-  it_parses_whereis ".wh someuser", :user => 'someuser'
-  it_parses_whereis ".wh someuser?", :user => 'someuser'
-  it_parses_whereis ".w someuser", :user => 'someuser'
-  it_parses_whereis ".w someuser?", :user => 'someuser'
+  it_parses_where_is "whereis someuser", :user => 'someuser'
+  it_parses_where_is "whereis someuser?", :user => 'someuser'
+  it_parses_where_is ".wh someuser", :user => 'someuser'
+  it_parses_where_is ".wh someuser?", :user => 'someuser'
+  it_parses_where_is ".w someuser", :user => 'someuser'
+  it_parses_where_is ".w someuser?", :user => 'someuser'
 
   it_parses_language "lang en", :name => 'en'
   it_parses_language ".lang en", :name => 'en'
