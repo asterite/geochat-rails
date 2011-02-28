@@ -1,7 +1,7 @@
-en:
+es:
   i18n:
     language:
-      names: "English, Inglés, Ingles"
+      names: "Español, Espanol, Spanish"
   group_created: "Group '%{name}' created. To require users your approval to join, go to geochat.instedd.org. Invite users by sending: %{name} +PHONE_NUMBER"
   group_already_exists: "The group %{name} already exists. Please specify another alias."
   cannot_create_group_name_too_short: "You cannot create a group named '%{name}' because it is too short (minimum is 2 characters)."
@@ -103,8 +103,8 @@ en:
   user_blocked: "User %{user} is now blocked in group %{group}"
   you_cant_block_you_are_not_owner: "You can't block %{user} in group %{group} because you are not an owner"
   now_you_dont_have_a_default_group: "Now you don't have a default group"
-  language_changed: "Language successfully changed to English."
-  geochat_is_not_available_in_language: "GeoChat is not avaialble in %{name}."
+  language_changed: "Idioma cambiado con éxito a español."
+  geochat_is_not_available_in_language: "GeoChat no está disponible en %{name}."
   help_help: "GeoChat help center. Send help followed by a topic. Topics: signup, login, logout, create, join, leave, invite, on, off, my, whereis, whois, owner."
   help_block: "To prevent a user from sending and receiving messages in a group send: block GROUP_ALIAS USER_LOGIN"
   help_create: "To create a group send: create GROUP_ALIAS"

@@ -15,6 +15,7 @@ class User < ActiveRecord::Base
   before_save :encode_password, :if => proc{|u| u.password_changed?}
 
   data_accessor :groups_count, :default => 0
+  data_accessor :language, :default => :en
 
   def self.find_by_login(login)
     self.find_by_login_downcase login.downcase
