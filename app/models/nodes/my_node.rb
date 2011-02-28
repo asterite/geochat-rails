@@ -89,7 +89,7 @@ class MyNode < Node
   end
 
   def process_my_password
-    reply T.forgot_your_password?
+    reply T.forgot_your_password
   end
 
   def process_my_password=(value)

@@ -141,7 +141,7 @@ class MyTest < NodeTest
     create_users 1
 
     send_message 1, ".my password"
-    assert_messages_sent_to 1, T.forgot_your_password?
+    assert_messages_sent_to 1, T.forgot_your_password
   end
 
   test "set my password" do

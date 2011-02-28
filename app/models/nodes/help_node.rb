@@ -9,6 +9,6 @@ class HelpNode < Node
   end
 
   def process
-    reply (@node || HelpNode)::Help
+    reply (@node || HelpNode).help
   end
 end

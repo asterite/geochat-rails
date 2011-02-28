@@ -27,8 +27,12 @@ class Node
       end
     end
 
-    # Declare the Help constant
-    self.const_set :Help, T.send("help_#{name.underscore[0 .. -6]}") unless self.name == 'UnknownNode'
+    # Declare the help method
+    class << self;
+      def help
+        T.send("help_#{name.underscore[0 .. -6]}")
+      end
+    end
   end
 
   def self.command_after_group(&block)
