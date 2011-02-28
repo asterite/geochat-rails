@@ -38,7 +38,7 @@ class Command
 
     args_options = args.last
     if args_options.is_a?(Hash)
-      args = args[0 .. -2]
+      args.pop
     else
       args_options = {}
     end
@@ -114,19 +114,18 @@ class Command
 
   def command_args(num, spaces_in_args)
     if spaces_in_args
-      existing = ArgsWithSpaces[num]
-      return existing if existing
-
-      the_args = Array.new(num, '(.+?)').join('\s+')
-      the_args = /^#{the_args}\s*$/i
-      ArgsWithSpaces[num] = the_args
+      cache = ArgsWithSpaces
+      match = '(.+?)'
     else
-      existing = ArgsWithoutSpaces[num]
-      return existing if existing
-
-      the_args = Array.new(num, '(\S+?)').join('\s+')
-      the_args = /^#{the_args}\s*$/i
-      ArgsWithoutSpaces[num] = the_args
+      cache = ArgsWithoutSpaces
+      match = '(\S+?)'
     end
+
+    existing = cache[num]
+    return existing if existing
+
+    the_args = Array.new(num, match).join('\s+')
+    the_args = /^#{the_args}\s*$/i
+    cache[num] = the_args
   end
 end
