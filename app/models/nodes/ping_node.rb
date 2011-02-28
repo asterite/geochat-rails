@@ -2,7 +2,6 @@ class PingNode < Node
   command do
     name 'ping'
     args :text, :optional => true
-    help :no
   end
 
   def process

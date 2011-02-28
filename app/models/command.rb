@@ -50,14 +50,6 @@ class Command
     @args << {:args => args, :regex => the_args, :spaces => spaces_in_args}
   end
 
-  def help(option = nil)
-    if option
-      @help = option
-    else
-      @help
-    end
-  end
-
   def scan(strscan)
     no_args = self.args.length == 0 || self.args_optional
 
@@ -79,11 +71,8 @@ class Command
           return HelpNode.new :node => node
         end
       else
-        # Check if help follows
-        if self.help != :no
-          if strscan.scan /^(\s+(help|\?))?\s*$/i
-            return HelpNode.new :node => node
-          end
+        if strscan.scan /^(\s+(help|\?))?\s*$/i
+          return HelpNode.new :node => node
         end
       end
 
