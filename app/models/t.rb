@@ -12,8 +12,8 @@ module T
       end
     end
 
-    def user_has_invited_you(inviter, group)
-      I18n.t! :user_has_invited_you, :inviter => inviter, :group => group
+    def user_has_invited_you(user, group)
+      I18n.t! :user_has_invited_you, :user => user, :group => group
     end
 
     def welcome_to_group(user, group)

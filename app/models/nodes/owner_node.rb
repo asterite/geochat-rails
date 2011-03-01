@@ -39,7 +39,7 @@ class OwnerNode < Node
 
     if user_membership.change_role_to :owner
       reply T.user_set_as_owner(user, group)
-      send_message_to_user user, T.user_has_made_you_owner(current_user, group)
+      send_message_to_user user, :user_has_made_you_owner, :args => [current_user, group]
     else
       reply T.user_already_an_owner(user, group)
     end

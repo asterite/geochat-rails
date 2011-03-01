@@ -103,15 +103,18 @@ class Node
 
     node = Parser.parse(message[:body], context, :parse_signup_and_join => !context[:user])
     node.context = context
-    node.turn_on_channel_if_needed
 
-    if !node.current_user && node.class.requires_user_to_be_logged_in?
-      node.reply T.you_are_not_signed_in
-    else
-      node.process
+    I18n.with_locale node.current_locale do
+      node.turn_on_channel_if_needed
+
+      if !node.current_user && node.class.requires_user_to_be_logged_in?
+        node.reply T.you_are_not_signed_in
+      else
+        node.process
+      end
+
+      node.messages
     end
-
-    node.messages
   end
 
   def turn_on_channel_if_needed
@@ -137,6 +140,10 @@ class Node
     @context[:current_channel] = channel
   end
 
+  def current_locale
+    current_user.try(:locale) || :en
+  end
+
   def address
     @context[:address]
   end
@@ -147,15 +154,28 @@ class Node
 
   def join_and_welcome(user, group)
     user.join group
-    send_message_to_user user, T.welcome_to_group(user, group)
+    send_message_to_user user, :welcome_to_group, :args => [user, group]
   end
 
-  def reply(message)
-    send_message :to => @context[:from], :body => message
+  def reply(msg, options = {})
+    msg = check_symbol_message msg, options
+    send_message :to => @context[:from], :body => msg
+  end
+
+  def check_symbol_message(message, options)
+    if message.is_a? Symbol
+      if options[:args]
+        T.send message, *options[:args]
+      else
+        T.send message
+      end
+    else
+      message
+    end
   end
 
   def notify_join_request(group)
-    send_message_to_group_owners group, T.invitation_pending_for_approval(current_user, group)
+    send_message_to_group_owners group, :invitation_pending_for_approval, :args => [current_user, group]
     reply T.group_requires_approval(group)
   end
 
@@ -178,9 +198,16 @@ class Node
   end
 
   def send_message_to_user(user, msg, options = {})
-    if user == current_user
-      reply msg
-    else
+    return reply msg, options if user == current_user
+
+    # This check is here so that we don't forget to translate messages that are sent to
+    # others users that are not the current user.
+    if !msg.is_a?(Symbol) && !options[:dont_translate]
+      raise "Message must be a symbol in order to be internationalized for the user"
+    end
+
+    I18n.with_locale user.locale do
+      msg = check_symbol_message msg, options
       user.active_channels.each do |channel|
         send_message_to_channel user, channel, msg, options
       end
@@ -212,7 +239,12 @@ class Node
     prefix << ": " if prefix.present?
 
     if options[:location]
-      msg_with_location = "#{msg} (#{options[:location]})"
+      location_info = T.at_place current_user.location, current_user.location_info
+      if msg.blank?
+        msg_with_location = "#{location_info}"
+      else
+        msg_with_location = "#{msg} (#{location_info})"
+      end
 
       # If we are sending a message to a mobile phone and it contains a location update,
       # check if it fits in 140 characters including the location update. If not, split
@@ -220,7 +252,7 @@ class Node
       if channel.protocol == 'sms'
         full_msg = "#{prefix}#{msg_with_location}"
         if full_msg.length > 140
-          send_message_to_channel user, channel, "#{prefix}#{options[:location]}"
+          send_message_to_channel user, channel, "#{prefix}#{location_info}"
           send_message_to_channel user, channel, "#{prefix}#{msg}"
           return
         end

@@ -24,7 +24,7 @@ class JoinNode < Node
       join_and_welcome current_user, group
 
       invites.each do |invite|
-        send_message_to_user invite.requestor, T.user_has_accepted_your_invitation(current_user, group) if invite.requestor
+        send_message_to_user invite.requestor, :user_has_accepted_your_invitation, :args => [current_user, group] if invite.requestor
         invite.destroy
       end
       return

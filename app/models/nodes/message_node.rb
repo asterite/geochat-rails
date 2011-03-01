@@ -157,13 +157,7 @@ class MessageNode < Node
 
     if self.location.present?
       if update_current_user_location_to self.location
-        at_place = T.at_place(current_user.location, current_user.location_info)
-        if text_to_send.blank?
-          text_to_send = at_place
-        else
-          location_info = at_place
-          #text_to_send = "#{text_to_send} (#{at_place})"
-        end
+        location_info = true
       else
         text_to_send = message[:body]
       end
@@ -176,15 +170,15 @@ class MessageNode < Node
     if users.present?
       users.each do |user|
         others = users.reject{|x| x == user}
-        send_message_to_user user, text_to_send, :sender => current_user, :group => group, :private => true, :receivers => others, :location => location_info
+        send_message_to_user user, text_to_send, :sender => current_user, :group => group, :private => true, :receivers => others, :location => location_info, :dont_translate => true
       end
       if group.forward_owners
-        send_message_to_group_owners group, text_to_send, :sender => current_user, :receivers => users, :location => location_info, :except => users
+        send_message_to_group_owners group, text_to_send, :sender => current_user, :receivers => users, :location => location_info, :except => users, :dont_translate => true
       end
     elsif group.chatroom || @blast
-      send_message_to_group group, text_to_send, :sender => current_user, :location => location_info
+      send_message_to_group group, text_to_send, :sender => current_user, :location => location_info, :dont_translate => true
     elsif group.forward_owners
-      send_message_to_group_owners group, text_to_send, :sender => current_user, :location => location_info
+      send_message_to_group_owners group, text_to_send, :sender => current_user, :location => location_info, :dont_translate => true
     end
 
     # Save the message

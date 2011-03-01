@@ -12,7 +12,7 @@ module ActiveRecord
       serialize :data
 
       define_method symbol do
-        self.data ? self.data[symbol] : options[:default]
+        self.data && self.data[symbol] ? self.data[symbol] : options[:default]
       end
 
       define_method "#{symbol}=" do |value|

@@ -105,7 +105,7 @@ class InviteNode < Node
       # If no invite exist or user is not an owner, create the invite
       if invites.empty? || !current_user.is_owner_of(group)
         current_user.invite user, :to => group
-        send_message_to_user user, T.user_has_invited_you(current_user, group)
+        send_message_to_user user, :user_has_invited_you, :args => [current_user, group]
         sent << name
         next
       end

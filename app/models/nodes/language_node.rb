@@ -9,12 +9,12 @@ class LanguageNode < Node
 
   def process
     locale = I18n.locale_for_language_name @name
-    return reply T.geochat_is_not_available_in_language(@name) unless locale
+    return reply :geochat_is_not_available_in_language, :args => @name unless locale
 
-    current_user.language = locale
-    current_user.save!
+    I18n.with_locale locale do
+      current_user.locale = locale
+      current_user.save!
 
-    I18n.with_locale current_user.language do
       reply T.language_changed
     end
   end
