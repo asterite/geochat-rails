@@ -340,7 +340,7 @@ es:
   you_cant_change_your_email: "No puedes cambiar tu email."
   your_only_group_is: "Tu único grupo es: %{name}"
   your_groups_are: "Tus grupos son: %{name}"
-  you_dont_have_a_default_group_choose_one: "No tiene un grupo por defecto. Para elegir uno envía: .my group NOMBRE_GRUPO"
+  you_dont_have_a_default_group_choose_one: "No tienes un grupo por defecto. Para elegir uno envía: .my group NOMBRE_GRUPO"
   your_default_group_is: "Tu grupo por defecto es: %{name}"
   you_cant_set_group_as_default_group_dont_belong: "No puedes elegir a %{name} como tu grupo por defecto porque no pertences a él."
   your_new_default_group_is: "Tu nuevo grupo por defecto es: %{name}"
