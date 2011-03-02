@@ -1,5 +1,5 @@
 # For others locales, check: https://github.com/svenfuchs/rails-i18n/tree/master/rails/locale
-es:
+es_ar:
   i18n:
     language:
       names: "Español Argentina, Espanol Argentina, es ar"
