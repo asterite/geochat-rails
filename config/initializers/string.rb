@@ -58,4 +58,13 @@ class String
   end
 
   alias_method :command?, :command
+
+  def shorten_urls!
+    gsub! /http:\/\/[^\s,]+/i do |url|
+      last_index = url.length - 1
+      last_index -= 1 while ['.', ','].include?(url[last_index .. last_index])
+      short = Googl.shorten url[0 .. last_index]
+      "#{short}#{url[last_index + 1 .. -1]}"
+    end
+  end
 end
