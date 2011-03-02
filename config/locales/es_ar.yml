@@ -381,7 +381,7 @@ es_ar:
   user_blocked: "El usuario %{user} ya está bloqueado en el grupo %{group}"
   you_cant_block_you_are_not_owner: "No podés bloquear a %{user} en el grupo %{group} porque no sos un dueño."
   now_you_dont_have_a_default_group: "Ahora no tenés un grupo por defecto"
-  language_changed: "Idioma cambiado con éxito a español."
+  language_changed: "Idioma cambiado con éxito a español argentino."
   geochat_is_not_available_in_language: "GeoChat no está disponible en %{name}."
   help_help: "Ayuda de GeoChat. Enviá help seguido de un tópico. Tópicos: signup, login, logout, create, join, leave, invite, on, off, my, whereis, whois, owner."
   help_block: "Para impedir a un usuario enviar y recibir mensajes en un grupo, enviá: block GRUPO USUARIO"
