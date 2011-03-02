@@ -388,7 +388,7 @@ es_ar:
   help_create: "Para crear un grupo enviá: create NOMBRE_GRUPO"
   help_invite: "Para invitar a alguien a un grupo enviá: NOMBRE_GRUPO +NUMER_DE_TELEFONO_O_USUARIO"
   help_join: "Para unirte a un grupo enviá: join NOMBRE_GRUPO"
-  help_language: "Para cambiar el lenguaje en el cual recibís mensajes de GeoChat, enviá: lang IDIOMA"
+  help_language: "Para cambiar el idioma en el cual recibís mensajes de GeoChat, enviá: lang IDIOMA"
   help_leave: "Para abandonar un grupo enviá: leave NOMBRE_GRUPO"
   help_login: "Para ingresar a GeoChat desde este canal enviá: login USUARIO CLAVE"
   help_logout: "Para salir de GeoChat enviá: logout"
