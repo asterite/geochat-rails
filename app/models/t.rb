@@ -208,8 +208,8 @@ module T
       I18n.t! :unknown_command, :command => command, :suggestion => suggestion
     end
 
-    def user_said_she_was_in(user, place, location_info, time)
-      I18n.t! :user_said_she_was_in, :user => user, :place => place, :location_info => location_info, :time => time_ago_in_words(time)
+    def user_is(user, place, location_info, time)
+      I18n.t! :user_is, :user => user, :name => user.display_name, :place => place, :location_info => location_info, :time => time_ago_in_words(time)
     end
 
     def user_display_name_is(user)

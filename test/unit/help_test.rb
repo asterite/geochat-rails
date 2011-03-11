@@ -17,7 +17,7 @@ class HelpTest < NodeTest
 
   test "help whereis" do
     send_message 1, "help whereis"
-    assert_messages_sent_to 1, T.help_where_is
+    assert_messages_sent_to 1, T.help_who_is
   end
 
   test "help whois" do

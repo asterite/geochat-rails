@@ -268,13 +268,12 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_who_is "whois someuser?", :user => 'someuser'
   it_parses_who_is ".wi someuser", :user => 'someuser'
   it_parses_who_is ".wi someuser?", :user => 'someuser'
-
-  it_parses_where_is "whereis someuser", :user => 'someuser'
-  it_parses_where_is "whereis someuser?", :user => 'someuser'
-  it_parses_where_is ".wh someuser", :user => 'someuser'
-  it_parses_where_is ".wh someuser?", :user => 'someuser'
-  it_parses_where_is ".w someuser", :user => 'someuser'
-  it_parses_where_is ".w someuser?", :user => 'someuser'
+  it_parses_who_is "whereis someuser", :user => 'someuser'
+  it_parses_who_is "whereis someuser?", :user => 'someuser'
+  it_parses_who_is ".wh someuser", :user => 'someuser'
+  it_parses_who_is ".wh someuser?", :user => 'someuser'
+  it_parses_who_is ".w someuser", :user => 'someuser'
+  it_parses_who_is ".w someuser?", :user => 'someuser'
 
   it_parses_language "lang en", :name => 'en'
   it_parses_language ".lang en", :name => 'en'
@@ -530,10 +529,10 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "help whois", :node => WhoIsNode
   it_parses_help "whois help", :node => WhoIsNode
   it_parses_help "? whois", :node => WhoIsNode
-  it_parses_help "whereis ?", :node => WhereIsNode
-  it_parses_help "help whereis", :node => WhereIsNode
-  it_parses_help "whereis help", :node => WhereIsNode
-  it_parses_help "? whereis", :node => WhereIsNode
+  it_parses_help "whereis ?", :node => WhoIsNode
+  it_parses_help "help whereis", :node => WhoIsNode
+  it_parses_help "whereis help", :node => WhoIsNode
+  it_parses_help "? whereis", :node => WhoIsNode
   it_parses_help "my help", :node => MyNode
   it_parses_help "help my", :node => MyNode
 

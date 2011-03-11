@@ -111,7 +111,7 @@ class User < ActiveRecord::Base
   end
 
   def location_info
-    str = "lat: #{self.lat}, lon: #{self.lon}"
+    str = "lat: #{self.lat.to_lat}, lon: #{self.lon.to_lon}"
     str << ", url: #{self.location_short_url}" if self.location_short_url.present?
     str
   end

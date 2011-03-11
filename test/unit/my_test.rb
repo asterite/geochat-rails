@@ -198,7 +198,7 @@ class MyTest < NodeTest
 
     send_message 1, ".my location Paris"
     send_message 1, ".my location"
-    assert_messages_sent_to 1, T.you_said_you_was_in('Paris, France', "lat: 10.2, lon: 30.4, url: http://short.url", Time.now)
+    assert_messages_sent_to 1, T.you_said_you_was_in('Paris, France', "lat: 10.2 N, lon: 30.4 E, url: http://short.url", Time.now)
   end
 
   test "set my location with place" do
@@ -208,7 +208,7 @@ class MyTest < NodeTest
     expect_shorten_google_maps 'Paris, France', 'http://short.url'
 
     send_message 1, ".my location Paris"
-    assert_messages_sent_to 1, T.location_successfuly_updated('Paris, France', "lat: 10.2, lon: 30.4, url: http://short.url")
+    assert_messages_sent_to 1, T.location_successfuly_updated('Paris, France', "lat: 10.2 N, lon: 30.4 E, url: http://short.url")
     assert_user_location "User1", "Paris, France", 10.2, 30.4, "http://short.url"
   end
 
@@ -219,7 +219,7 @@ class MyTest < NodeTest
     expect_shorten_google_maps 10.2, 30.4, 'http://short.url'
 
     send_message 1, ".my location 10.2, 30.4"
-    assert_messages_sent_to 1, T.location_successfuly_updated('Paris', "lat: 10.2, lon: 30.4, url: http://short.url")
+    assert_messages_sent_to 1, T.location_successfuly_updated('Paris', "lat: 10.2 N, lon: 30.4 E, url: http://short.url")
     assert_user_location "User1", "Paris", 10.2, 30.4, "http://short.url"
   end
 

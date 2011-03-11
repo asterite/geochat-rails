@@ -25,8 +25,8 @@ class MessagingTest < NodeTest
 
     send_message 1, "@Group1 at santiago de chile"
 
-    assert_messages_sent_to 1, T.location_successfuly_updated('Santiago, Chile', 'lat: -33.42536, lon: -70.566466, url: http://short.url')
-    assert_messages_sent_to 2..4, "User1: #{T.at_place 'Santiago, Chile', 'lat: -33.42536, lon: -70.566466, url: http://short.url'}"
+    assert_messages_sent_to 1, T.location_successfuly_updated('Santiago, Chile', 'lat: 33.42536 S, lon: 70.56647 W, url: http://short.url')
+    assert_messages_sent_to 2..4, "User1: #{T.at_place 'Santiago, Chile', 'lat: 33.42536 S, lon: 70.56647 W, url: http://short.url'}"
     assert_message_saved "User1", "Group1", "at santiago de chile"
   end
 
