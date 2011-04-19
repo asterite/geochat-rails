@@ -1,4 +1,4 @@
-body { background-color: #fff; color: #333; }
+body { background-color: #fff; color: #333; margin: 0px; padding: 10px; height: 100%;}
 
 body, p, ol, ul, td {
   font-family: verdana, arial, helvetica, sans-serif;
@@ -57,4 +57,45 @@ div.field, div.actions {
 
 .error {
   color: red;
+}
+
+#title {
+  color: #041;
+  font-weight:bold;
+  font-size: 20px;
+  text-decoration: none;
+}
+
+#main {
+  padding: 8px;
+}
+
+#header {
+  padding: 8px;
+}
+
+#toolbar {
+  font-size: 14px;
+  float:right;
+  clear:both;
+}
+
+#container {
+  min-height: 100%;
+  position: relative;
+}
+
+#version_separator {
+  height: 20px;
+}
+
+#version {
+  position: absolute;
+  bottom: 0px;
+  right: 4px;
+  height: 20px;
+  width: 100%;
+  color: #666;
+  text-align: right;
+  font-size: 8pt;
 }

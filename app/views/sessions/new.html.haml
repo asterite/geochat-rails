@@ -1,4 +1,4 @@
-<h3>Login to your account:</h3>
+%h3 Login to your account:
 
 = form_for @user, :url => session_path, :html => {:id => :login} do |f|
   %p
@@ -12,7 +12,7 @@
   %p.error= flash[:login_error]
   = submit_tag 'Login'
 
-<h3>Or create a new account:</h3>
+%h3 Or create a new account:
 
 = form_for @new_user, :url => register_session_path, :html => {:id => :register} do |f|
   - if @new_user.errors.any?
