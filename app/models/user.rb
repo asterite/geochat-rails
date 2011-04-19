@@ -9,10 +9,14 @@ class User < ActiveRecord::Base
   validates :login_downcase, :presence => true, :uniqueness => true, :if => proc{|u| u.login_changed?}
   validates :password, :presence => true, :if => proc {|u| !u.created_from_invite?}
 
+  attr_accessor :password_confirmation
+  validates_confirmation_of :password, :if => proc {|u| !u.password_confirmation.nil?}
+
   belongs_to :default_group, :class_name => 'Group'
   before_validation :update_login_downcase
   before_save :update_location_reported_at
   before_save :encode_password, :if => proc{|u| u.password_changed?}
+
 
   data_accessor :groups_count, :default => 0
   data_accessor :locale, :default => :en

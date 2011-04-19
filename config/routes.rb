@@ -4,7 +4,9 @@ GeochatRails::Application.routes.draw do
 
   root :to => "home#index"
 
-  resource :session, :only => [:new, :create, :destroy]
+  resource :session, :only => [:new, :create, :destroy] do
+    post 'register', :on => :member
+  end
 
   match "/nuntium/receive_at" => "nuntium#receive_at"
 

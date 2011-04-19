@@ -11,3 +11,26 @@
     = f.password_field :password
   %p.error= flash[:login_error]
   = submit_tag 'Login'
+
+<h3>Or create a new account:</h3>
+
+= form_for @new_user, :url => register_session_path, :html => {:id => :register} do |f|
+  - if @new_user.errors.any?
+    #error_explanation
+      %h2 #{pluralize(@new_user.errors.count, "error")} prohibited this application from being saved:
+      %ul
+        - @new_user.errors.full_messages.each do |msg|
+          %li= msg
+  %p
+    = f.label :login
+    %br
+    = f.text_field :login
+  %p
+    = f.label :password
+    %br
+    = f.password_field :password
+  %p
+    = f.label :password_confirmation
+    %br
+    = f.password_field :password_confirmation
+  = submit_tag 'Register'

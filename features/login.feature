@@ -4,9 +4,9 @@ Feature: User can login
     Given a user with login "john" and password "doe" exists
 
     When I go to the home page
-    And I fill in "Login" with "john"
-    And I fill in "Password" with "doe"
-    And I press "Login"
+      And I fill in "Login" with "john" within "#login"
+      And I fill in "Password" with "doe" within "#login"
+      And I press "Login"
 
     Then I should see "Logout"
 
@@ -14,8 +14,8 @@ Feature: User can login
     Given a user with login "john" and password "doe" exists
 
     When I go to the home page
-    And I fill in "Login" with "john"
-    And I fill in "Password" with "incorrect"
-    And I press "Login"
+      And I fill in "Login" with "john" within "#login"
+      And I fill in "Password" with "incorrect" within "#login"
+      And I press "Login"
 
     Then I should see "Invalid"
