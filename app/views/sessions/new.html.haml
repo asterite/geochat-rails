@@ -1,6 +1,6 @@
 <h3>Login to your account:</h3>
 
-= form_for :user, :url => { :controller => :home, :action => :login }, :html => {:id => :login} do |f|
+= form_for @user, :url => session_path, :html => {:id => :login} do |f|
   %p
     = f.label :login
     %br

@@ -4,8 +4,7 @@ GeochatRails::Application.routes.draw do
 
   root :to => "home#index"
 
-  match "/login" => "home#login", :as => 'login'
-  match "/logout" => "home#logout", :as => 'logout'
+  resource :session, :only => [:new, :create, :destroy]
 
   match "/nuntium/receive_at" => "nuntium#receive_at"
 
