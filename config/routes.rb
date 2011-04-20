@@ -10,14 +10,20 @@ GeochatRails::Application.routes.draw do
 
   match "/nuntium/receive_at" => "nuntium#receive_at"
 
-  match "/api/users/create/:login" => "api#create_user"
-  match "/api/users/:login" => "api#user"
-  match "/api/users/:login/verify" => "api#verify_user_credentials"
-  match "/api/users/:login/groups" => "api#user_groups"
+  scope "/api" do
+    scope "/users" do
+      match "/create/:login" => "api#create_user"
+      match "/:login" => "api#user"
+      match "/:login/verify" => "api#verify_user_credentials"
+      match "/:login/groups" => "api#user_groups"
+    end
 
-  match "/api/groups/:alias" => "api#group"
-  match "/api/groups/:alias/members" => "api#group_members"
-  match "/api/groups/:alias/messages" => "api#group_messages"
+    scope "/groups" do
+      match "/:alias" => "api#group"
+      match "/:alias/members" => "api#group_members"
+      match "/:alias/messages" => "api#group_messages"
+    end
+  end
 
   # Sample of regular route:
   #   match 'products/:id' => 'catalog#view'
