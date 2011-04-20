@@ -3,11 +3,17 @@ class Channel < ActiveRecord::Base
 
   belongs_to :user
   validates_presence_of :protocol, :address, :user, :status
+  validates_uniqueness_of :address, :scope => [:user_id, :protocol]
 
   attr_reader_as_symbol :status
 
   def active?
     self.status == :on
+  end
+  alias_method :on?, :active?
+
+  def off?
+    self.status == :off
   end
 
   def activation_pending?
@@ -20,6 +26,12 @@ class Channel < ActiveRecord::Base
 
   def protocol_name
     protocol
+  end
+
+  def activate(code)
+    return false if protocol != 'mailto' || confirmation_code != code
+    turn :on
+    true
   end
 
   def turn(status)
@@ -39,7 +51,7 @@ class Channel < ActiveRecord::Base
 
   # We want the SmsChannel class given the "sms" protocol
   def self.find_sti_class(type_name)
-    type_name.to_channel
+    type_name.try(:to_channel) || Channel
   end
 
   # We want the single table inheritance name (the protocol column) to be "sms", not "SmsChannel"

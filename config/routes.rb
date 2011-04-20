@@ -8,10 +8,16 @@ GeochatRails::Application.routes.draw do
     post 'register', :on => :member
   end
 
-  resources :channels, :only => [:index] do
-    get 'email' => 'channels#new_email', :on => :new
-    post 'email' => 'channels#create_email', :on => :new
-    get 'activate_email', :on => :member
+  resources :channels, :only => [:index, :destroy] do
+    new do
+      get 'email' => 'channels#new_email'
+      post 'email' => 'channels#create_email'
+    end
+    member do
+      get 'activate_email'
+      get 'turn_on'
+      get 'turn_off'
+    end
   end
 
   match "/nuntium/receive_at" => "nuntium#receive_at"

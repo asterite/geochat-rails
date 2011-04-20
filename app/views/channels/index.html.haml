@@ -1,3 +1,10 @@
 %h3 Your channels
 
 #{link_to 'Configure an email address', email_new_channel_path}
+
+%ul
+  - @channels.each do |channel|
+    %li #{channel.protocol_name}: #{channel.address} (#{channel.status})                        |
+    #{link_to 'turn on', turn_on_channel_path(channel) if channel.off?}                                 |
+    #{link_to 'turn off', turn_off_channel_path(channel) if channel.on?}                                 |
+    #{link_to 'delete', channel_path(channel), :method => :delete, :confirm => 'Are you sure?'} |

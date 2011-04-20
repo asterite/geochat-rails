@@ -4,9 +4,9 @@
 
 %p Enter your email address in the field below.
 
-= form_for :channel, :url => email_new_channel_path do |f|
+= form_for @channel, :url => email_new_channel_path do |f|
   %p
-    = f.label :email
+    = f.label :address, 'Email'
     %br
-    = f.text_field :email
+    = f.text_field :address
   = submit_tag 'Configure'
