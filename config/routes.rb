@@ -20,7 +20,7 @@ GeochatRails::Application.routes.draw do
     end
   end
 
-  scope '/users' do
+  scope '/user' do
     get '/password' => 'users#change_password', :as => 'change_user_password'
     post '/password' => 'users#update_password', :as => 'update_user_password'
   end
