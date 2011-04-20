@@ -2,5 +2,12 @@
 %p You don't belong to any group yet. In order to chat with others you need to #{link_to 'create a group'} or #{link_to 'join a group'}.
 
 %h3 Your channels
-%p You don't have any configured channels. If you want to receive messages in your phone, email, twitter or other ways you need to #{link_to 'configure a channel', channels_path}.
-%p You can still send and see messages on the website without configuring a channel.
+- if @channels.empty?
+  %p You don't have any configured channels. If you want to receive messages in your phone, email, twitter or other ways you need to #{link_to 'configure a channel', channels_path}.
+  %p You can still send and see messages on the website without configuring a channel.
+- else
+  - if @active_channels.empty?
+    %p You don't have any active channels.
+  - else
+    %p Your active channels are: #{@channels.select(&:active?).map{|c| "#{c.address} (#{c.protocol_name})"}.join ', '}
+  %p #{link_to 'Manage channels', channels_path}
