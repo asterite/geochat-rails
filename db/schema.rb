@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110225211251) do
+ActiveRecord::Schema.define(:version => 20110420041855) do
 
   create_table "channels", :force => true do |t|
     t.string   "protocol"
@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(:version => 20110225211251) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "status"
+    t.string   "confirmation_code"
   end
 
   add_index "channels", ["protocol", "address"], :name => "index_channels_on_protocol_and_address"

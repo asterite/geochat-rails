@@ -18,4 +18,9 @@ class ActiveSupport::TestCase
   def http_auth(user, pass)
     'Basic ' + Base64.encode64(user + ':' + pass)
   end
+
+  def login(user)
+    session[:user_id] = user.id
+    user
+  end
 end

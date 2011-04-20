@@ -299,7 +299,7 @@ class Node
   end
 
   def create_channel_for(user)
-    Channel.create! :protocol => @context[:protocol], :address => @context[:address], :user => user, :status => :on
+    @context[:protocol].to_channel.create! :address => @context[:address], :user => user, :status => :on
   end
 
   def default_group(options = {})

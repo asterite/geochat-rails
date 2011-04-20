@@ -30,6 +30,12 @@ class String
     gsub(/\s/, '')
   end
 
+  # Returns a channel class for this protocol
+  def to_channel
+    value = self == 'mailto' ? 'email' : self
+    "#{value}_channel".camelize.constantize
+  end
+
   NumericLocationNum = "(\\d+(?:(?:\\.|,)\\d+)?)"
   NumericLocationSep = "(?:\\s+|\\s*(?:,|\\.|\\*)\\s*)"
   NumericLocation = /^\s*#{NumericLocationNum}#{NumericLocationSep}#{NumericLocationNum}\s*$/

@@ -13,7 +13,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "destroy dependent channels" do
     user = User.make
-    channel = Channel.make :user => user
+    channel = SmsChannel.make :user => user
 
     user.destroy
 

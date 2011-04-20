@@ -1,0 +1,12 @@
+%h3 Your channels
+
+%h4 Configure an email channel
+
+%p Enter your email address in the field below.
+
+= form_for :channel, :url => email_new_channel_path do |f|
+  %p
+    = f.label :email
+    %br
+    = f.text_field :email
+  = submit_tag 'Configure'

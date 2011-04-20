@@ -11,6 +11,7 @@ gem 'nuntium_api', :require => 'nuntium'
 gem 'json'
 gem 'httparty'
 gem 'haml'
+gem 'guid'
 
 group :test do
   gem 'machinist'
@@ -19,6 +20,7 @@ group :test do
   gem 'cucumber-rails'
   gem 'capybara'
   gem 'database_cleaner'
+  gem 'email_spec'
 end
 
 # Use unicorn as the web server

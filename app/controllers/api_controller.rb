@@ -1,4 +1,5 @@
 class ApiController < ApplicationController
+  skip_before_filter :check_login
   before_filter :authenticate, :except => [:create_user, :user, :verify_user_credentials]
   before_filter :check_group, :only => [:group, :group_members, :group_messages]
 

@@ -8,6 +8,12 @@ GeochatRails::Application.routes.draw do
     post 'register', :on => :member
   end
 
+  resources :channels, :only => [:index] do
+    get 'email' => 'channels#new_email', :on => :new
+    post 'email' => 'channels#create_email', :on => :new
+    get 'activate_email', :on => :member
+  end
+
   match "/nuntium/receive_at" => "nuntium#receive_at"
 
   scope "/api" do

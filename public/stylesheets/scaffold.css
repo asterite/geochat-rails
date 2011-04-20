@@ -21,7 +21,15 @@ div.field, div.actions {
 }
 
 #notice {
-  color: green;
+  border-radius: 4px;
+  -moz-border-radius: 4px;
+  background:#FFF1A8;
+  padding:4px 10px 4px 10px;
+  font-weight:bold;
+  margin-left:35%;
+  display:inline-block;
+  text-align:center;
+  clear: both;
 }
 
 .field_with_errors {

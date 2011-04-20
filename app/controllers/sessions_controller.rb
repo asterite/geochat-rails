@@ -1,4 +1,6 @@
 class SessionsController < ApplicationController
+  skip_before_filter :check_login, :except => [:destroy]
+
   def new
     @user = User.new
     @new_user = User.new

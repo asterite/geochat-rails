@@ -5,6 +5,16 @@ class User < ActiveRecord::Base
   has_many :memberships, :dependent => :destroy
   has_many :groups, :through => :memberships
 
+  Channel::Protocols.each do |protocol|
+    has_many "#{protocol.to_channel.name.tableize}"
+
+    class_eval %Q(
+      def #{protocol.to_channel.name.tableize.singularize}
+        #{protocol.to_channel.name.tableize}.first
+      end
+    )
+  end
+
   validates :login, :presence => true
   validates :login_downcase, :presence => true, :uniqueness => true, :if => proc{|u| u.login_changed?}
   validates :password, :presence => true, :if => proc {|u| !u.created_from_invite?}
@@ -16,7 +26,6 @@ class User < ActiveRecord::Base
   before_validation :update_login_downcase
   before_save :update_location_reported_at
   before_save :encode_password, :if => proc{|u| u.password_changed?}
-
 
   data_accessor :groups_count, :default => 0
   data_accessor :locale, :default => :en
@@ -118,14 +127,6 @@ class User < ActiveRecord::Base
     str = "lat: #{self.lat.to_lat}, lon: #{self.lon.to_lon}"
     str << ", url: #{self.location_short_url}" if self.location_short_url.present?
     str
-  end
-
-  def sms_channel
-    self.channels.where(:protocol => 'sms').first
-  end
-
-  def email_channel
-    self.channels.where(:protocol => 'mailto').first
   end
 
   def active_channels
