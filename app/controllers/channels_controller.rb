@@ -12,7 +12,7 @@ class ChannelsController < ApplicationController
   def create_email
     @channel = @user.email_channels.new :address => params[:email_channel][:address], :status => :pending
     if !@channel.save
-      flash[:notice] = 'You already configured foo@bar.com as an email channel'
+      flash[:notice] = 'The email foo@bar.com is already being used by someone else'
       render 'new_email'
     else
       flash[:notice] = "An email has been sent to #{@channel.address}"

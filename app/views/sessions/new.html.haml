@@ -2,7 +2,7 @@
 
 = form_for @user, :url => session_path, :html => {:id => :login} do |f|
   %p
-    = f.label :login
+    = f.label :login, 'Login, email, phone number, twitter or jabber address'
     %br
     = f.text_field :login
   %p

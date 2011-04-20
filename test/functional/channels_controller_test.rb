@@ -6,7 +6,7 @@ class ChannelsControllerTest < ActionController::TestCase
   end
 
   test "create email" do
-    post :create_email, :channel => {:address => 'foo@bar.com'}
+    post :create_email, :email_channel => {:address => 'foo@bar.com'}
 
     channels = Channel.all
     assert_equal 1, channels.length
@@ -24,11 +24,11 @@ class ChannelsControllerTest < ActionController::TestCase
   test "can't create email if already exists one" do
     channel = @user.email_channels.create! :address => 'foo@bar.com', :status => :pending, :confirmation_code => '1234'
 
-    post :create_email, :channel => {:address => 'foo@bar.com'}
+    post :create_email, :email_channel => {:address => 'foo@bar.com'}
 
     assert_equal 1, Channel.count
 
-    assert_equal 'You already configured foo@bar.com as an email channel', flash[:notice]
+    assert_equal 'The email foo@bar.com is already being used by someone else', flash[:notice]
     assert_template 'new_email'
   end
 

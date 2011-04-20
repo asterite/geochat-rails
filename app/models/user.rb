@@ -59,12 +59,15 @@ class User < ActiveRecord::Base
   end
 
   def self.authenticate(login, password)
-    user = User.find_by_login login
-    return nil unless user
+    users = User.find_by_login login
+    users = users ? [users] : Channel.includes(:user).find_all_by_address(login).map(&:user)
+    users.each do |user|
+      salt = user.password[0 .. 24]
+      encoded_password = self.hash_password salt, password
+      return user if encoded_password == user.password[24 .. -1]
+    end
 
-    salt = user.password[0 .. 24]
-    encoded_password = self.hash_password salt, password
-    encoded_password == user.password[24 .. -1] ? user : nil
+    nil
   end
 
   def create_group(options = {})
