@@ -22,6 +22,8 @@ class User < ActiveRecord::Base
   attr_accessor :password_confirmation
   validates_confirmation_of :password, :if => proc {|u| !u.password_confirmation.nil?}
 
+  attr_accessor :old_password
+
   belongs_to :default_group, :class_name => 'Group'
   before_validation :update_login_downcase
   before_save :update_location_reported_at
@@ -62,12 +64,16 @@ class User < ActiveRecord::Base
     users = User.find_by_login login
     users = users ? [users] : Channel.includes(:user).find_all_by_address(login).map(&:user)
     users.each do |user|
-      salt = user.password[0 .. 24]
-      encoded_password = self.hash_password salt, password
-      return user if encoded_password == user.password[24 .. -1]
+      return user if user.authenticate password
     end
 
     nil
+  end
+
+  def authenticate(password)
+    salt = self.password[0 .. 24]
+    encoded_password = self.class.hash_password salt, password
+    encoded_password == self.password[24 .. -1] ? self : nil
   end
 
   def create_group(options = {})

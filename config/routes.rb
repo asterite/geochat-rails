@@ -20,6 +20,11 @@ GeochatRails::Application.routes.draw do
     end
   end
 
+  scope '/users' do
+    get '/password' => 'users#change_password', :as => 'change_user_password'
+    post '/password' => 'users#update_password', :as => 'update_user_password'
+  end
+
   match "/nuntium/receive_at" => "nuntium#receive_at"
 
   scope "/api" do

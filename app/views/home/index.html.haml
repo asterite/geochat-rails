@@ -11,3 +11,6 @@
   - else
     %p Your active channels are: #{@channels.select(&:active?).map{|c| "#{c.address} (#{c.protocol_name})"}.join ', '}
   %p #{link_to 'Manage channels', channels_path}
+
+%h3 Your password
+#{link_to 'Change your password', change_user_password_path}
