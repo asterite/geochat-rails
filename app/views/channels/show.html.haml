@@ -1,0 +1,20 @@
+%h3 Your channels
+
+%p In order to activate the #{@channel.protocol_name} channel for #{@channel.address}, please enter the code you received in your #{@channel.protocol_name}:
+
+= form_for @channel, :url => activate_channel_path(@channel), :method => :post do |f|
+  - if @channel.errors.any?
+    #error_explanation
+      %h2 #{pluralize(@channel.errors.count, "error")} prohibited you from activation this #{@channel.protocol_name}:
+      %ul
+        - @channel.errors.full_messages.each do |msg|
+          %li= msg
+  %p
+    = f.label :activation_code
+    %br
+    = f.text_field :activation_code, :value => '', :name => 'activation_code'
+  = submit_tag 'Activate'
+
+%br
+
+= link_to 'Send me the activation code one more time', send_activation_code_channel_path(@channel)

@@ -1,6 +1,6 @@
 development:
-  url: foo
-  account: foo
+  url: http://localhost:1234
+  account: a
   application: foo
   password: foo
   incoming_username: foo

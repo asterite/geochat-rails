@@ -19,6 +19,7 @@ class Channel < ActiveRecord::Base
   def activation_pending?
     self.status == :pending
   end
+  alias_method :pending?, :activation_pending?
 
   def full_address
     "#{protocol}://#{address}"
@@ -29,16 +30,20 @@ class Channel < ActiveRecord::Base
   end
 
   def activate(code)
-    return false if protocol != 'mailto' || confirmation_code != code
-    turn :on
-    true
+    if activation_code == code
+      turn :on
+      true
+    else
+      errors.add :activation_code, 'is not valid'
+      false
+    end
   end
 
   def turn(status)
     return false if self.status == status
 
     self.status = status
-    self.confirmation_code = nil if status == :on
+    self.activation_code = nil if status == :on
     self.save!
     true
   end

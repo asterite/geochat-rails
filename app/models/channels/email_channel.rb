@@ -1,18 +1,18 @@
 class EmailChannel < Channel
-  before_save :set_confirmation_code, :if => :activation_pending?
-  after_save :send_activation_email, :if => :activation_pending?
+  before_save :set_activation_code, :if => :activation_pending?
+  after_save :send_activation_code, :if => :activation_pending?
 
   def protocol_name
     "email"
   end
 
-  private
-
-  def set_confirmation_code
-    self.confirmation_code = Guid.new.to_s
+  def send_activation_code
+    ChannelMailer.activation_email(self).deliver
   end
 
-  def send_activation_email
-    ChannelMailer.activation_email(self).deliver
+  private
+
+  def set_activation_code
+    self.activation_code = Guid.new.to_s
   end
 end

@@ -5,10 +5,12 @@
 %p You can still send and see messages on the website without configuring a channel.
 
 #{link_to 'Configure an email address', email_new_channel_path}
+%br
+#{link_to 'Configure a mobile phone', mobile_phone_new_channel_path}
 
 %ul
   - @channels.each do |channel|
-    %li #{channel.protocol_name}: #{channel.address} (#{channel.status})                        |
+    %li #{channel.protocol_name}: #{channel.address} (#{channel.pending? ? link_to(channel.status, channel_path(channel)) : channel.status})                        |
     #{link_to 'turn on', turn_on_channel_path(channel) if channel.off?}                                 |
     #{link_to 'turn off', turn_off_channel_path(channel) if channel.on?}                                 |
     #{link_to 'delete', channel_path(channel), :method => :delete, :confirm => 'Are you sure?'} |

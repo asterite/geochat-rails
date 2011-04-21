@@ -12,6 +12,7 @@ gem 'json'
 gem 'httparty'
 gem 'haml'
 gem 'guid'
+gem 'jquery-rails'
 
 group :test do
   gem 'machinist'

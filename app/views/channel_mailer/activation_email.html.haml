@@ -1,5 +1,9 @@
 Hello #{@user.login},
 
-To activate this channel please click on the following link:
+To activate this #{@channel.protocol_name} please click on the following link:
 
-#{link_to activate_email_channel_url(@channel, :code => @channel.confirmation_code), activate_email_channel_url(@channel, :code => @channel.confirmation_code)}
+#{link_to activate_channel_url(@channel, :activation_code => @channel.activation_code), activate_channel_url(@channel, :activation_code => @channel.activation_code)}
+
+Alternatively, you can fill in the activation code:
+
+#{@channel.activation_code}

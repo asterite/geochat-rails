@@ -8,13 +8,16 @@ GeochatRails::Application.routes.draw do
     post 'register', :on => :member
   end
 
-  resources :channels, :only => [:index, :destroy] do
+  resources :channels, :only => [:index, :show, :destroy] do
     new do
-      get 'email' => 'channels#new_email'
-      post 'email' => 'channels#create_email'
+      ['email', 'mobile_phone'].each do |protocol|
+        get protocol => "channels#new_#{protocol}"
+        post protocol => "channels#create_#{protocol}"
+      end
     end
     member do
-      get 'activate_email'
+      get 'send_activation_code'
+      match 'activate'
       get 'turn_on'
       get 'turn_off'
     end
@@ -25,7 +28,10 @@ GeochatRails::Application.routes.draw do
     post '/password' => 'users#update_password', :as => 'update_user_password'
   end
 
-  match "/nuntium/receive_at" => "nuntium#receive_at"
+  scope "/nuntium" do
+    match "/receive_at" => "nuntium#receive_at"
+    get "/carriers/:iso2" => "nuntium#carriers"
+  end
 
   scope "/api" do
     scope "/users" do

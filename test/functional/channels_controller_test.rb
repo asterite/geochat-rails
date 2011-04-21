@@ -15,14 +15,14 @@ class ChannelsControllerTest < ActionController::TestCase
     assert_equal 'mailto', channel.protocol
     assert_equal @user, channel.user
     assert_equal :pending, channel.status
-    assert_not_nil channel.confirmation_code
+    assert_not_nil channel.activation_code
 
     assert_equal 'An email has been sent to foo@bar.com', flash[:notice]
-    assert_redirected_to channels_path
+    assert_redirected_to channel_path(channel)
   end
 
   test "can't create email if already exists one" do
-    channel = @user.email_channels.create! :address => 'foo@bar.com', :status => :pending, :confirmation_code => '1234'
+    channel = @user.email_channels.create! :address => 'foo@bar.com', :status => :pending, :activation_code => '1234'
 
     post :create_email, :email_channel => {:address => 'foo@bar.com'}
 
@@ -32,29 +32,28 @@ class ChannelsControllerTest < ActionController::TestCase
     assert_template 'new_email'
   end
 
-  test "activate email" do
-    channel = @user.email_channels.create! :address => 'foo@bar.com', :status => :pending, :confirmation_code => '1234'
+  test "activate" do
+    channel = @user.email_channels.create! :address => 'foo@bar.com', :status => :pending, :activation_code => '1234'
 
-    get :activate_email, :id => channel.id, :code => channel.confirmation_code
+    get :activate, :id => channel.id, :activation_code => channel.activation_code
 
     channel.reload
     assert_equal :on, channel.status
-    assert_nil channel.confirmation_code
+    assert_nil channel.activation_code
 
     assert_equal "Your email channel for foo@bar.com is now active", flash[:notice]
     assert_redirected_to channels_path
   end
 
-  test "activate email with wrong code" do
-    channel = @user.email_channels.create! :address => 'foo@bar.com', :status => :pending, :confirmation_code => '1234'
+  test "activate with wrong code" do
+    channel = @user.email_channels.create! :address => 'foo@bar.com', :status => :pending, :activation_code => '1234'
 
-    get :activate_email, :id => channel.id, :code => '5678'
+    get :activate, :id => channel.id, :code => '5678'
 
     channel.reload
     assert_equal :pending, channel.status
 
-    assert_equal "The confirmation code for activating the email is wrong", flash[:notice]
-    assert_redirected_to channels_path
+    assert_template 'show'
   end
 
   test "destroy channel" do

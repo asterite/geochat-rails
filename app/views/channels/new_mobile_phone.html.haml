@@ -1,0 +1,32 @@
+%h3 Your channels
+
+%h4 Configure a mobile phone
+
+:javascript
+  var countries = #{Hash[@countries.map{|c| [c['iso2'], c['phone_prefix']]}].to_json};
+  function country_changed(value) {
+    $("#prefix").html('+' + countries[value]);
+    $.get("/nuntium/carriers/" + value, function(data) {
+      var html = '';
+      for(var i = 0; i < data.length; i++) {
+        html += '<option value="' + data[i].guid + '">' + data[i].name + '</option>';
+      }
+      $("#sms_channel_carrier").html(html);
+    });
+  }
+
+= form_for @channel, :url => mobile_phone_new_channel_path do |f|
+  %p
+    = f.label :country
+    %br
+    = f.select :country, @countries.map{|c| [c['name'], c['iso2']] }, {}, :onchange => 'country_changed(this.value)'
+  %p
+    = f.label :carrier
+    %br
+    = f.select :carrier, @carriers.map{|c| [c['name'], c['guid']] }
+  %p
+    = f.label :address, 'Mobile number'
+    %br
+    %span#prefix +#{@countries.first['phone_prefix']}
+    = f.text_field :address
+  = submit_tag 'Configure'
