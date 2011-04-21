@@ -15,7 +15,6 @@ class ChannelsController < ApplicationController
   def create_email
     @channel = @user.email_channels.new :address => params[:email_channel][:address], :status => :pending
     if !@channel.save
-      flash[:notice] = 'The email foo@bar.com is already being used by someone else'
       render 'new_email'
     else
       flash[:notice] = "An email has been sent to #{@channel.address}"
@@ -36,8 +35,9 @@ class ChannelsController < ApplicationController
     @channel.country = params[:sms_channel][:country]
     @channel.carrier = params[:sms_channel][:carrier]
     if !@channel.save
-      render 'new_mobil_phone'
+      render 'new_mobile_phone'
     else
+      flash[:notice] = "A message has been sent to #{@channel.address}"
       redirect_to channel_path(@channel)
     end
   end

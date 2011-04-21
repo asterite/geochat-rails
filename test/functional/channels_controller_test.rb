@@ -28,8 +28,29 @@ class ChannelsControllerTest < ActionController::TestCase
 
     assert_equal 1, Channel.count
 
-    assert_equal 'The email foo@bar.com is already being used by someone else', flash[:notice]
     assert_template 'new_email'
+  end
+
+  test "create mobile phone" do
+    SmsChannel.any_instance.expects(:prepend_country_prefix_to_address)
+    SmsChannel.any_instance.expects(:send_activation_code)
+
+    post :create_mobile_phone, :sms_channel => {:address => '1234', :country => 'ar', :carrier => 'foo'}
+
+    channels = Channel.all
+    assert_equal 1, channels.length
+
+    channel = Channel.first
+
+    assert_equal 'sms', channel.protocol
+    assert_equal @user, channel.user
+    assert_equal :pending, channel.status
+    assert_equal 'ar', channel.country
+    assert_equal 'foo', channel.carrier
+    assert_not_nil channel.activation_code
+
+    assert_equal 'A message has been sent to 1234', flash[:notice]
+    assert_redirected_to channel_path(channel)
   end
 
   test "activate" do

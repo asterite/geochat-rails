@@ -1,4 +1,6 @@
 class EmailChannel < Channel
+  validates_uniqueness_of :address, :scope => :protocol
+
   before_save :set_activation_code, :if => :activation_pending?
   after_save :send_activation_code, :if => :activation_pending?
 

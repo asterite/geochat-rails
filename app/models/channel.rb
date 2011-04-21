@@ -3,7 +3,6 @@ class Channel < ActiveRecord::Base
 
   belongs_to :user
   validates_presence_of :protocol, :address, :user, :status
-  validates_uniqueness_of :address, :scope => :protocol
 
   attr_reader_as_symbol :status
 
