@@ -1,0 +1,18 @@
+%h3 Your channels
+
+%h4 Configure an xmpp channel
+
+%p Enter your xmpp address in the field below.
+
+= form_for @channel, :url => xmpp_new_channel_path do |f|
+  - if @channel.errors.any?
+    #error_explanation
+      %h2 #{pluralize(@channel.errors.count, "error")} prohibited you from configuring this #{@channel.protocol_name}:
+      %ul
+        - @channel.errors.full_messages.each do |msg|
+          %li= msg
+  %p
+    = f.label :address, 'Xmpp address'
+    %br
+    = f.text_field :address
+  = submit_tag 'Configure'

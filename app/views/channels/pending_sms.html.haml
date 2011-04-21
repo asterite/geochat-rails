@@ -1,0 +1,21 @@
+%h3 Your channels
+
+%p We need to verify that you are the owner of the number +#{@channel.address}.
+%p In some minutes you will receive an activation code in your phone. Just place it here to activate it.
+
+= form_for @channel, :url => activate_channel_path(@channel), :method => :post do |f|
+  - if @channel.errors.any?
+    #error_explanation
+      %h2 #{pluralize(@channel.errors.count, "error")} prohibited you from activation this #{@channel.protocol_name}:
+      %ul
+        - @channel.errors.full_messages.each do |msg|
+          %li= msg
+  %p
+    = f.label :activation_code
+    %br
+    = f.text_field :activation_code, :value => '', :name => 'activation_code'
+  = submit_tag 'Activate'
+
+%br
+
+= link_to 'Send me the activation code one more time', send_activation_code_channel_path(@channel)

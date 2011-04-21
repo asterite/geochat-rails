@@ -1,0 +1,22 @@
+%h3 Your channels
+
+%p We need to verify that you are the owner of the #{@channel.address} email.
+%p In some minutes you will receive an email with a link to activate that address.
+%p Alternatively, you can fill the activation code below with the one specified in the email we sent you.
+
+= form_for @channel, :url => activate_channel_path(@channel), :method => :post do |f|
+  - if @channel.errors.any?
+    #error_explanation
+      %h2 #{pluralize(@channel.errors.count, "error")} prohibited you from activation this #{@channel.protocol_name}:
+      %ul
+        - @channel.errors.full_messages.each do |msg|
+          %li= msg
+  %p
+    = f.label :activation_code
+    %br
+    = f.text_field :activation_code, :value => '', :name => 'activation_code'
+  = submit_tag 'Activate'
+
+%br
+
+= link_to 'Send me the activation code one more time', send_activation_code_channel_path(@channel)
