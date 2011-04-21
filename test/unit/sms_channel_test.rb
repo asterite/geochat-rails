@@ -6,7 +6,7 @@ class SmsChannelTest < ActiveSupport::TestCase
 
     nuntium = mock('nuntium')
     Nuntium.expects(:new_from_config).times(2).returns(nuntium)
-    nuntium.expects(:country).with('ar').returns({'phone_prefix' => '54'})
+    nuntium.expects(:country).with('ar').returns({'name' => 'Argentina', 'phone_prefix' => '54'})
     nuntium.expects(:send_ao).with(
       :from => 'geochat://system',
       :to => 'sms://541234',
@@ -17,12 +17,14 @@ class SmsChannelTest < ActiveSupport::TestCase
 
     user = User.make
     channel = user.sms_channels.make_unsaved :status => :pending, :address => '1234'
-    channel.country = 'ar'
-    channel.carrier = 'foo'
+    channel.country_iso2 = 'ar'
+    channel.carrier_guid = 'foo'
     channel.save!
 
     assert_equal 'abcd', channel.activation_code
     assert_equal '541234', channel.address
     assert_equal '1234', channel.mobile_number
+    assert_equal 'Argentina', channel.country_name
+    assert_equal '54', channel.country_prefix_number
   end
 end

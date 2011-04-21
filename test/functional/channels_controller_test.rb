@@ -35,7 +35,7 @@ class ChannelsControllerTest < ActionController::TestCase
     SmsChannel.any_instance.expects(:prepend_country_prefix_to_address)
     SmsChannel.any_instance.expects(:send_activation_code)
 
-    post :create_mobile_phone, :sms_channel => {:address => '1234', :country => 'ar', :carrier => 'foo'}
+    post :create_mobile_phone, :sms_channel => {:address => '1234', :country_iso2 => 'ar', :carrier_guid => 'foo'}
 
     channels = Channel.all
     assert_equal 1, channels.length
@@ -45,8 +45,7 @@ class ChannelsControllerTest < ActionController::TestCase
     assert_equal 'sms', channel.protocol
     assert_equal @user, channel.user
     assert_equal :pending, channel.status
-    assert_equal 'ar', channel.country
-    assert_equal 'foo', channel.carrier
+    assert_equal 'ar', channel.country_iso2
     assert_not_nil channel.activation_code
 
     assert_equal 'A message has been sent to 1234', flash[:notice]

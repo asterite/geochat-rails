@@ -35,8 +35,8 @@ class ChannelsController < ApplicationController
 
   def create_mobile_phone
     @channel = @user.sms_channels.new :address => params[:sms_channel][:address], :status => :pending
-    @channel.country = params[:sms_channel][:country]
-    @channel.carrier = params[:sms_channel][:carrier]
+    @channel.country_iso2 = params[:sms_channel][:country_iso2]
+    @channel.carrier_guid = params[:sms_channel][:carrier_guid]
     if @channel.save
       flash[:notice] = "A message has been sent to #{@channel.address}"
       redirect_to channel_path(@channel)

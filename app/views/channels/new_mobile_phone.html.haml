@@ -23,13 +23,13 @@
         - @channel.errors.full_messages.each do |msg|
           %li= msg
   %p
-    = f.label :country
+    = f.label :country_iso2, 'Country'
     %br
-    = f.select :country, @countries.map{|c| [c['name'], c['iso2']] }, {}, :onchange => 'country_changed(this.value)'
+    = f.select :country_iso2, @countries.map{|c| [c['name'], c['iso2']] }, {}, :onchange => 'country_changed(this.value)'
   %p
-    = f.label :carrier
+    = f.label :carrier_guid, 'Carrier'
     %br
-    = f.select :carrier, @carriers.map{|c| [c['name'], c['guid']] }
+    = f.select :carrier_guid, @carriers.map{|c| [c['name'], c['guid']] }
   %p
     = f.label :address, 'Mobile number'
     %br
