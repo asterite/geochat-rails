@@ -18,8 +18,6 @@ class User < ActiveRecord::Base
   validates :login, :presence => true
   validates :login_downcase, :presence => true, :uniqueness => true, :if => proc{|u| u.login_changed?}
   validates :password, :presence => true, :if => proc {|u| !u.created_from_invite?}
-
-  attr_accessor :password_confirmation
   validates_confirmation_of :password, :if => proc {|u| !u.password_confirmation.nil?}
 
   attr_accessor :old_password
