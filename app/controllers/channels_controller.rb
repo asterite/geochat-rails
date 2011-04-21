@@ -14,11 +14,11 @@ class ChannelsController < ApplicationController
 
   def create_email
     @channel = @user.email_channels.new :address => params[:email_channel][:address], :status => :pending
-    if !@channel.save
-      render 'new_email'
-    else
+    if @channel.save
       flash[:notice] = "An email has been sent to #{@channel.address}"
       redirect_to channel_path(@channel)
+    else
+      render 'new_email'
     end
   end
 
@@ -34,22 +34,22 @@ class ChannelsController < ApplicationController
     @channel = @user.sms_channels.new :address => params[:sms_channel][:address], :status => :pending
     @channel.country = params[:sms_channel][:country]
     @channel.carrier = params[:sms_channel][:carrier]
-    if !@channel.save
-      render 'new_mobile_phone'
-    else
+    if @channel.save
       flash[:notice] = "A message has been sent to #{@channel.address}"
       redirect_to channel_path(@channel)
+    else
+      render 'new_mobile_phone'
     end
   end
 
   def activate
-    if !@channel.activate params[:activation_code]
+    if ['mailto', 'sms'].include?(@channel.protocol) && @channel.activate(params[:activation_code])
+      @channel.turn :on
+      flash[:notice] = "Your #{@channel.protocol_name} channel for #{@channel.address} is now active"
+      redirect_to channels_path and return
+    else
       render 'show' and return
     end
-
-    @channel.turn :on
-    flash[:notice] = "Your #{@channel.protocol_name} channel for #{@channel.address} is now active"
-    redirect_to channels_path
   end
 
   def send_activation_code
