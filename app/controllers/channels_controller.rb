@@ -21,7 +21,7 @@ class ChannelsController < ApplicationController
       flash[:notice] = "An email has been sent to #{@channel.address}"
       redirect_to channel_path(@channel)
     else
-      render 'new_email'
+      render :new_email
     end
   end
 
@@ -41,7 +41,7 @@ class ChannelsController < ApplicationController
       flash[:notice] = "A message has been sent to #{@channel.address}"
       redirect_to channel_path(@channel)
     else
-      render 'new_mobile_phone'
+      render :new_mobile_phone
     end
   end
 
@@ -54,7 +54,7 @@ class ChannelsController < ApplicationController
     if @channel.save
       redirect_to channel_path(@channel)
     else
-      render 'new_xmpp'
+      render :new_xmpp
     end
   end
 
@@ -64,7 +64,7 @@ class ChannelsController < ApplicationController
       flash[:notice] = "Your #{@channel.protocol_name} channel for #{@channel.address} is now active"
       redirect_to channels_path and return
     else
-      render 'show' and return
+      render :show and return
     end
   end
 

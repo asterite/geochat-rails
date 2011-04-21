@@ -20,7 +20,7 @@ class User < ActiveRecord::Base
   validates :password, :presence => true, :if => proc {|u| !u.created_from_invite?}
   validates_confirmation_of :password, :if => proc {|u| !u.password_confirmation.nil?}
 
-  attr_accessor :old_password
+  attr_accessor :old_password # For changing the password
 
   belongs_to :default_group, :class_name => 'Group'
   before_validation :update_login_downcase
