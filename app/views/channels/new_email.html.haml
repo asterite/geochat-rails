@@ -7,7 +7,7 @@
 = form_for @channel, :url => email_new_channel_path do |f|
   - if @channel.errors.any?
     #error_explanation
-      %h2 #{pluralize(@channel.errors.count, "error")} prohibited you from configuring tivation this #{@channel.protocol_name}:
+      %h2 #{pluralize(@channel.errors.count, "error")} prohibited you from configuring this #{@channel.protocol_name}:
       %ul
         - @channel.errors.full_messages.each do |msg|
           %li= msg

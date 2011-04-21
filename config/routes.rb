@@ -10,7 +10,7 @@ GeochatRails::Application.routes.draw do
 
   resources :channels, :only => [:index, :show, :destroy] do
     new do
-      ['email', 'mobile_phone'].each do |protocol|
+      ['email', 'mobile_phone', 'xmpp'].each do |protocol|
         get protocol => "channels#new_#{protocol}"
         post protocol => "channels#create_#{protocol}"
       end

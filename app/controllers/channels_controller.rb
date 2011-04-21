@@ -6,6 +6,9 @@ class ChannelsController < ApplicationController
   end
 
   def show
+    if @channel.activation_pending?
+      render "pending_#{@channel.class.name[0 .. -8].downcase}"
+    end
   end
 
   def new_email
@@ -39,6 +42,19 @@ class ChannelsController < ApplicationController
       redirect_to channel_path(@channel)
     else
       render 'new_mobile_phone'
+    end
+  end
+
+  def new_xmpp
+    @channel = XmppChannel.new
+  end
+
+  def create_xmpp
+    @channel = @user.xmpp_channels.new :address => params[:xmpp_channel][:address], :status => :pending
+    if @channel.save
+      redirect_to channel_path(@channel)
+    else
+      render 'new_xmpp'
     end
   end
 
