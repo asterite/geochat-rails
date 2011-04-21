@@ -1,4 +1,5 @@
 class Channel < ActiveRecord::Base
+  Addresses = YAML.load_file(File.expand_path('../../../config/channels.yml', __FILE__))[Rails.env]
   Protocols = %w(mailto sms twitter xmpp)
 
   belongs_to :user
@@ -29,7 +30,7 @@ class Channel < ActiveRecord::Base
   end
 
   def activate(code)
-    if activation_code == code
+    if activation_code == code.strip
       turn :on
       true
     else

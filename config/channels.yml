@@ -1,0 +1,14 @@
+development:
+  email: geochat.rails.dev@gmail.com
+  twitter: geochat_rails_dev@gmail.com
+  xmpp: geochat.rails.dev@gmail.com
+
+production:
+  email: geochat.rails.dev@gmail.com
+  twitter: geochat_rails_dev@gmail.com
+  xmpp: geochat.rails.dev@gmail.com
+
+test:
+  email: geochat.rails.dev@gmail.com
+  twitter: geochat_rails_dev@gmail.com
+  xmpp: geochat.rails.dev@gmail.com

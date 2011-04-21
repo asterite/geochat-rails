@@ -53,6 +53,22 @@ class ChannelsControllerTest < ActionController::TestCase
     assert_redirected_to channel_path(channel)
   end
 
+  test "create xmpp" do
+    post :create_xmpp, :xmpp_channel => {:address => 'foo@bar.com'}
+
+    channels = Channel.all
+    assert_equal 1, channels.length
+
+    channel = Channel.first
+
+    assert_equal 'xmpp', channel.protocol
+    assert_equal @user, channel.user
+    assert_equal :pending, channel.status
+    assert_not_nil channel.activation_code
+
+    assert_redirected_to channel_path(channel)
+  end
+
   test "activate" do
     channel = @user.email_channels.create! :address => 'foo@bar.com', :status => :pending, :activation_code => '1234'
 
@@ -69,7 +85,7 @@ class ChannelsControllerTest < ActionController::TestCase
   test "activate with wrong code" do
     channel = @user.email_channels.create! :address => 'foo@bar.com', :status => :pending, :activation_code => '1234'
 
-    get :activate, :id => channel.id, :code => '5678'
+    get :activate, :id => channel.id, :activation_code => '5678'
 
     channel.reload
     assert_equal :pending, channel.status

@@ -383,6 +383,8 @@ es_ar:
   now_you_dont_have_a_default_group: "Ahora no tenés un grupo por defecto"
   language_changed: "Idioma cambiado con éxito a español argentino."
   geochat_is_not_available_in_language: "GeoChat no está disponible en %{name}."
+  you_can_now_send_and_receive_messages_via_this_channel: "%{name}, ahora podés enviar y recibir mensajes a través de este canal"
+  incorrect_activation_code: "%{name} no es el código de activación correcto"
   help_help: "Ayuda de GeoChat. Enviá help seguido de un tópico. Tópicos: signup, login, logout, create, join, leave, invite, on, off, my, whereis, whois, owner."
   help_block: "Para impedir a un usuario enviar y recibir mensajes en un grupo, enviá: block GRUPO USUARIO"
   help_create: "Para crear un grupo enviá: create NOMBRE_GRUPO"

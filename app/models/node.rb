@@ -89,17 +89,12 @@ class Node
     context[:channel] = Channel.find_by_protocol_and_address context[:protocol], context[:address]
     context[:user] = context[:channel].try(:user)
 
-    def context.get_target(name)
-      if self[:user]
-        group = self[:user].groups.find_by_alias(name)
-        return GroupTarget.new(name, :group => group) if group
-
-        invite = Invite.joins(:group).where('user_id = ? and groups.alias = ?', self[:user].id, name).first
-        return GroupTarget.new(name, :group => invite.group, :invite => invite) if invite
-      end
-
-      nil
+    # Check channel activation
+    if context[:channel] && context[:channel].activation_pending?
+      return check_activation_code context
     end
+
+    setup_get_target context
 
     node = Parser.parse(message[:body], context, :parse_signup_and_join => !context[:user])
     node.context = context
@@ -115,6 +110,30 @@ class Node
 
       node.messages
     end
+  end
+
+  def self.setup_get_target(context)
+    def context.get_target(name)
+      if self[:user]
+        group = self[:user].groups.find_by_alias(name)
+        return GroupTarget.new(name, :group => group) if group
+
+        invite = Invite.joins(:group).where('user_id = ? and groups.alias = ?', self[:user].id, name).first
+        return GroupTarget.new(name, :group => invite.group, :invite => invite) if invite
+      end
+
+      nil
+    end
+  end
+
+  def self.check_activation_code(context)
+    node = Node.new :context => context
+    if context[:channel].activate context[:message][:body]
+      node.reply T.you_can_now_send_and_receive_messages_via_this_channel(context[:user].login)
+    else
+      node.reply T.incorrect_activation_code(context[:message][:body])
+    end
+    return node.messages
   end
 
   def turn_on_channel_if_needed
