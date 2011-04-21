@@ -13,6 +13,7 @@ gem 'httparty'
 gem 'haml'
 gem 'guid'
 gem 'jquery-rails'
+gem 'validates_email_format_of', :git => 'git://github.com/alexdunae/validates_email_format_of.git'
 
 group :test do
   gem 'machinist'

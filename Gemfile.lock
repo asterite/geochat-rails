@@ -1,3 +1,9 @@
+GIT
+  remote: git://github.com/alexdunae/validates_email_format_of.git
+  revision: 3067b9e3cd3fbe164fac7bb60df75c0d105ba57c
+  specs:
+    validates_email_format_of (1.4.5)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -149,3 +155,4 @@ DEPENDENCIES
   nuntium_api
   rails (= 3.0.3)
   sqlite3-ruby
+  validates_email_format_of!
