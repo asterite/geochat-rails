@@ -1,7 +1,7 @@
 require 'digest/sha1'
 
 class User < ActiveRecord::Base
-  has_many :channels, :dependent => :destroy
+  has_many :channels, :dependent => :destroy, :order => 'id'
   has_many :memberships, :dependent => :destroy
   has_many :groups, :through => :memberships
 
