@@ -3,7 +3,7 @@ class Group < ActiveRecord::Base
   has_many :users, :through => :memberships
   has_many :messages, :dependent => :destroy
 
-  validates :alias, :presence => true, :length => {:minimum => 3}
+  validates :alias, :presence => true, :length => {:minimum => 3}, :format => {:with => /\A[a-zA-Z0-9]+\Z/, :message => 'can only contain alphanumeric characters'}
   validates :alias_downcase, :presence => true, :uniqueness => true
   validates_presence_of :name
   validate :alias_not_a_command

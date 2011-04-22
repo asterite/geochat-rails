@@ -12,6 +12,13 @@ class GroupTest < ActiveSupport::TestCase
     assert !group.valid?
     assert_equal ['is a reserved name'], group.errors[:alias]
   end
+
+  test "doesn't allow spaces in alias" do
+    group = Group.make_unsaved :alias => 'one two'
+    assert !group.valid?
+    assert_equal ["can only contain alphanumeric characters"], group.errors[:alias]
+  end
+
   test "saves alias downcase" do
     group = Group.make :alias => 'HELLO'
     assert_equal 'hello', group.alias_downcase

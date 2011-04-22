@@ -15,7 +15,7 @@ class User < ActiveRecord::Base
     )
   end
 
-  validates :login, :presence => true, :length => {:minimum => 3}
+  validates :login, :presence => true, :length => {:minimum => 3}, :format => {:with => /\A[a-zA-Z0-9]+\Z/, :message => 'can only contain alphanumeric characters'}
   validates :login_downcase, :presence => true, :uniqueness => true, :if => :login_changed?
   validate :login_not_a_command
   validates :password, :presence => true, :unless => :created_from_invite?

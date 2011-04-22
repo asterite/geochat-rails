@@ -13,6 +13,12 @@ class UserTest < ActiveSupport::TestCase
     assert_equal ['is a reserved name'], user.errors[:login]
   end
 
+  test "doesn't allow spaces in login" do
+    user = User.make_unsaved :login => 'one two'
+    assert !user.valid?
+    assert_equal ["can only contain alphanumeric characters"], user.errors[:login]
+  end
+
   test "saves login downcase" do
     user = User.make :login => 'HELLO'
     assert_equal 'hello', user.login_downcase
