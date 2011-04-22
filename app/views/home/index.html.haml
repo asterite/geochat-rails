@@ -3,8 +3,10 @@
 To help you get started we suggest you do the following:
 
 %ul
-  %li #{link_to 'Create a group', new_group_path} or #{link_to 'join one', public_groups_path}: a group is a bunch of people ready to discuss and collaborate on a topic.
-  %li #{link_to 'Configure a channel', channels_path} so that you can send and receive messages from your groups in your phone, email, twitter or instant messenger
+  - if @user.groups_count.zero?
+    %li #{link_to 'Create a group', new_group_path} or #{link_to 'join one', public_groups_path}: a group is a bunch of people ready to discuss and collaborate on a topic.
+  - if !@user.channels.exists?
+    %li #{link_to 'Configure a channel', channels_path} so that you can send and receive messages from your groups in your phone, email, twitter or instant messenger
   %li #{link_to 'Tell us your location'} so that people know you are near them when they need help or can find when you are in help
 
 %h4 Latest messages from your groups

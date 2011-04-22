@@ -10,20 +10,21 @@
 %br
 %br
 
-%table.table
-  %tr
-    %th address
+- if @channels.present?
+  %table.table
+    %tr
+      %th address
     %th kind
     %th status
     %th
-  - @channels.each do |channel|
-    %tr
-      %td= channel.address
+      - @channels.each do |channel|
+        %tr
+          %td= channel.address
       %td= channel.protocol_name
       -if channel.activation_pending?
         %td= link_to(channel.status, channel_path(channel))
       -else
         %td= channel.status
       %td #{link_to 'turn on', turn_on_channel_path(channel) if channel.off?}                         |
-          #{link_to 'turn off', turn_off_channel_path(channel) if channel.on?}                        |
+        #{link_to 'turn off', turn_off_channel_path(channel) if channel.on?}                        |
           #{link_to 'delete', channel_path(channel), :method => :delete, :confirm => 'Are you sure?'} |
