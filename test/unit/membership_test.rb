@@ -26,6 +26,31 @@ class MembershipTest < ActiveSupport::TestCase
     assert_equal 0, user.groups_count
   end
 
+  test "increments group users count on create" do
+    user = User.make
+    assert_equal 0, user.groups_count
+
+    group = Group.make
+
+    Membership.make :user => user, :group => group
+
+    group.reload
+
+    assert_equal 1, group.users_count
+  end
+
+  test "decrement group users count on destroy" do
+    user = User.make
+    group = Group.make
+
+    membership = Membership.make :user => user, :group => group
+    membership.destroy
+
+    group.reload
+
+    assert_equal 0, group.users_count
+  end
+
   test "remove user default group on destroy" do
     group = Group.make
     user = User.make :default_group_id => group.id

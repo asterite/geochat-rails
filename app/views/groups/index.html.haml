@@ -4,6 +4,15 @@
   %p Your belong to #{@groups.length} group#{'s' if @groups.many?}, of which you own #{@owned_groups.length}.
   %p #{link_to 'Create a group', new_group_path}
 
-  %ul
+  %table.table
+    %tr
+      %th Alias
+      %th Name
+      %th Role
+      %th Members
     - @groups.each do |group|
-      %li= group.alias
+      %tr
+        %td= group.alias
+        %td= group.name
+        %td= @memberships.select{|m| m.group == group}.first.role
+        %td{:align => :right}= group.users_count

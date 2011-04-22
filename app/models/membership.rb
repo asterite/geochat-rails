@@ -4,6 +4,10 @@ class Membership < ActiveRecord::Base
 
   after_create :increment_user_groups_count
   after_destroy :decrement_user_groups_count
+
+  after_create :increment_group_users_count
+  after_destroy :decrement_group_users_count
+
   after_destroy :unset_user_default_group
 
   attr_reader_as_symbol :role
@@ -26,6 +30,16 @@ class Membership < ActiveRecord::Base
   def decrement_user_groups_count
     user.groups_count -= 1
     user.save!
+  end
+
+  def increment_group_users_count
+    group.users_count += 1
+    group.save!
+  end
+
+  def decrement_group_users_count
+    group.users_count -= 1
+    group.save!
   end
 
   def unset_user_default_group

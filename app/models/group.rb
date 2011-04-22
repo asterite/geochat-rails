@@ -10,6 +10,7 @@ class Group < ActiveRecord::Base
 
   before_validation :update_alias_downcase
 
+  data_accessor :users_count, :default => 0
   data_accessor :blocked_users, :default => []
 
   def self.find_by_alias(talias)

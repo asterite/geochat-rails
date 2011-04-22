@@ -133,6 +133,32 @@ div.field, div.actions {
   text-decoration: none;
 }
 
+table.table {
+  padding: 0px;
+  border: 0px;
+}
+
+.table td {
+  border: 0px;
+  padding: 1px;
+  background-color: #EFEFEF;
+}
+
+.table tr.even td {
+  background-color: #EFEFEF;
+}
+
+.table tr.odd td {
+  background-color: #DADADA;
+}
+
+.table th  {
+  border: 0px;
+  padding: 1px;
+  background-color: #AAD1BC;
+  font-size: 12px;
+}
+
 #version_separator {
   height: 20px;
 }

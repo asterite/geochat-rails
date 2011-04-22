@@ -1,7 +1,8 @@
 class GroupsController < ApplicationController
   def index
-    @groups = @user.groups.includes(:memberships).all
-    @owned_groups = @groups.select{|g| g.owners.include? @user}
+    @memberships = @user.memberships.includes(:group).all
+    @groups = @memberships.map &:group
+    @owned_groups = @memberships.select{|m| m.role == :owner}.map &:group
   end
 
   def new

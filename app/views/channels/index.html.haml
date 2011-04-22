@@ -7,10 +7,23 @@
 #{link_to 'Configure a mobile phone', mobile_phone_new_channel_path}
 %br
 #{link_to 'Configure an xmpp address', xmpp_new_channel_path}
+%br
+%br
 
-%ul
+%table.table
+  %tr
+    %th address
+    %th kind
+    %th status
+    %th
   - @channels.each do |channel|
-    %li #{channel.protocol_name}: #{channel.address} (#{channel.pending? ? link_to(channel.status, channel_path(channel)) : channel.status})                        |
-    #{link_to 'turn on', turn_on_channel_path(channel) if channel.off?}                                 |
-    #{link_to 'turn off', turn_off_channel_path(channel) if channel.on?}                                 |
-    #{link_to 'delete', channel_path(channel), :method => :delete, :confirm => 'Are you sure?'} |
+    %tr
+      %td= channel.address
+      %td= channel.protocol_name
+      -if channel.activation_pending?
+        %td= link_to(channel.status, channel_path(channel))
+      -else
+        %td= channel.status
+      %td #{link_to 'turn on', turn_on_channel_path(channel) if channel.off?}                         |
+          #{link_to 'turn off', turn_off_channel_path(channel) if channel.on?}                        |
+          #{link_to 'delete', channel_path(channel), :method => :delete, :confirm => 'Are you sure?'} |
