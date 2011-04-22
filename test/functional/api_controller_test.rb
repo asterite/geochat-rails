@@ -50,8 +50,8 @@ class ApiControllerTest < ActionController::TestCase
 
   test "user groups" do
     user = User.make :password => 'foo'
-    user.create_group :alias => 'one'
-    user.create_group :alias => 'two'
+    user.create_group :alias => 'one', :name => 'one'
+    user.create_group :alias => 'two', :name => 'two'
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth(user.login, 'foo')
     get :user_groups, :login => user.login
@@ -62,7 +62,7 @@ class ApiControllerTest < ActionController::TestCase
 
   test "group" do
     user = User.make :password => 'foo'
-    group = user.create_group :alias => 'one'
+    group = user.create_group :alias => 'one', :name => 'one'
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth(user.login, 'foo')
     get :group, :alias => group.alias
@@ -73,7 +73,7 @@ class ApiControllerTest < ActionController::TestCase
 
   test "group unauthorized" do
     user = User.make :password => 'foo'
-    group = user.create_group :alias => 'one'
+    group = user.create_group :alias => 'one', :name => 'one'
 
     get :group, :alias => group.alias
     assert_response :unauthorized
@@ -81,7 +81,7 @@ class ApiControllerTest < ActionController::TestCase
 
   test "group unauthorized not member" do
     user = User.make :password => 'foo'
-    group = user.create_group :alias => 'one'
+    group = user.create_group :alias => 'one', :name => 'one'
 
     user2 = User.make :password => 'bar'
 
@@ -92,7 +92,7 @@ class ApiControllerTest < ActionController::TestCase
 
   test "group members not authorized" do
     user = User.make :password => 'foo'
-    group = user.create_group :alias => 'one'
+    group = user.create_group :alias => 'one', :name => 'one'
 
     get :group_members, :alias => group.alias
     assert_response :unauthorized
@@ -108,7 +108,7 @@ class ApiControllerTest < ActionController::TestCase
 
   test "group members not a member" do
     user = User.make :password => 'foo'
-    group = user.create_group :alias => 'one'
+    group = user.create_group :alias => 'one', :name => 'one'
 
     user2 = User.make :password => 'bar'
 
@@ -119,7 +119,7 @@ class ApiControllerTest < ActionController::TestCase
 
   test "group members" do
     user = User.make :password => 'foo'
-    group = user.create_group :alias => 'one'
+    group = user.create_group :alias => 'one', :name => 'one'
 
     user2 = User.make
     user2.join group
@@ -141,7 +141,7 @@ class ApiControllerTest < ActionController::TestCase
 
   test "group messages not a member" do
     user = User.make :password => 'foo'
-    group = user.create_group :alias => 'one'
+    group = user.create_group :alias => 'one', :name => 'one'
 
     user2 = User.make :password => 'bar'
 
@@ -152,7 +152,7 @@ class ApiControllerTest < ActionController::TestCase
 
   test "group messages" do
     user = User.make :password => 'foo'
-    group = user.create_group :alias => 'one'
+    group = user.create_group :alias => 'one', :name => 'one'
     10.times { Message.make :group => group, :sender => user }
 
     @request.env['HTTP_AUTHORIZATION'] = http_auth(user.login, 'foo')

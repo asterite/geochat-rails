@@ -1,6 +1,6 @@
 %h4 Create a new group
 
-= form_for @group, :url => new_group_path do |f|
+= form_for @group do |f|
   - if @group.errors.any?
     #error_explanation
       %h2 #{pluralize(@group.errors.count, "error")} prohibited you from creating this group:
@@ -21,19 +21,15 @@
     = f.text_area :description, :rows => 5
   %p
     = f.label :hidden
-    %br
     = f.check_box :hidden
   %p
     = f.label :requires_approval_to_join
-    %br
     = f.check_box :requires_approval_to_join
   %p
     = f.label :chatroom
-    %br
     = f.check_box :chatroom
   %p
     = f.label :forward_owners
-    %br
     = f.check_box :forward_owners
   = submit_tag 'Create group'
 

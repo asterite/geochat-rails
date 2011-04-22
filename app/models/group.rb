@@ -5,6 +5,7 @@ class Group < ActiveRecord::Base
 
   validates :alias, :presence => true, :length => {:minimum => 3}
   validates :alias_downcase, :presence => true, :uniqueness => true
+  validates_presence_of :name
   validate :alias_not_a_command
 
   before_validation :update_alias_downcase

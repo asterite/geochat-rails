@@ -1,1 +1,9 @@
-%p You don't belong to any group yet. In order to chat with others you need to #{link_to 'create a group', new_group_path} or #{link_to 'join a group'}.
+- if @groups.empty?
+  %p You don't belong to any group yet. In order to chat with others you need to #{link_to 'create a group', new_group_path} or #{link_to 'join a group'}.
+- else
+  %p Your belong to #{@groups.length} group#{'s' if @groups.many?}, of which you own #{@owned_groups.length}.
+  %p #{link_to 'Create a group', new_group_path}
+
+  %ul
+    - @groups.each do |group|
+      %li= group.alias
