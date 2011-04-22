@@ -12,7 +12,7 @@ class ChannelsController < ApplicationController
   end
 
   def new_email
-    @channel = EmailChannel.new
+    @channel = @user.email_channels.new
   end
 
   def create_email
@@ -28,7 +28,7 @@ class ChannelsController < ApplicationController
   def new_mobile_phone
     nuntium = Nuntium.new_from_config
 
-    @channel = SmsChannel.new
+    @channel = @user.sms_channels.new
     @countries = nuntium.countries
     @carriers = nuntium.carriers @countries.first['iso2']
   end
@@ -46,7 +46,7 @@ class ChannelsController < ApplicationController
   end
 
   def new_xmpp
-    @channel = XmppChannel.new
+    @channel = @user.xmpp_channels.new
   end
 
   def create_xmpp

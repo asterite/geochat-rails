@@ -166,10 +166,12 @@ class LocationTest < NodeTest
   test "place with message too long to email sends one message" do
     @protocol = 'mailto'
 
-    create_users 1..4
+    1.upto 2 do |i|
+      Node.process :from => "mailto://user#{i}@foo.com", :body => "name User#{i}"
+    end
 
-    send_message 1, "create Group1"
-    send_message 2..4, "join Group1"
+    send_message "mailto://user1@foo.com", "create Group1"
+    send_message "mailto://user2@foo.com", "join Group1"
 
     expect_locate 'Paris', 48.856667, -2.350987, 'Paris, France'
     expect_shorten_google_maps 'Paris, France', 'http://short.url'
@@ -177,9 +179,9 @@ class LocationTest < NodeTest
     without_message_length = "User1:  (#{T.at_place 'Paris, France', 'lat: 48.85667 N, lon: 2.35099 W, url: http://short.url'})".length
     gap_filler = "x" * (141 - without_message_length)
 
-    send_message 1, "/Paris/ #{gap_filler}"
-    assert_messages_sent_to 1, T.location_successfuly_updated('Paris, France', "lat: 48.85667 N, lon: 2.35099 W, url: http://short.url")
-    assert_messages_sent_to 2..4, "User1: #{gap_filler} (#{T.at_place 'Paris, France', 'lat: 48.85667 N, lon: 2.35099 W, url: http://short.url'})"
+    send_message "mailto://user1@foo.com", "/Paris/ #{gap_filler}"
+    assert_messages_sent_to "mailto://user1@foo.com", T.location_successfuly_updated('Paris, France', "lat: 48.85667 N, lon: 2.35099 W, url: http://short.url")
+    assert_messages_sent_to "mailto://user2@foo.com", "User1: #{gap_filler} (#{T.at_place 'Paris, France', 'lat: 48.85667 N, lon: 2.35099 W, url: http://short.url'})"
     assert_user_location "User1", "Paris, France", 48.856667, -2.350987, "http://short.url"
     assert_message_saved_with_location "User1", "Group1", gap_filler, "Paris, France", 48.856667, -2.350987, "http://short.url"
   end

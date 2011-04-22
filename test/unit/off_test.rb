@@ -22,11 +22,11 @@ class OffTest < NodeTest
   end
 
   test "turn off by email" do
-    send_message 'mailto://foo', '.name User1'
-    send_message 'mailto://foo', "off"
+    send_message 'mailto://foo@bar.com', '.name User1'
+    send_message 'mailto://foo@bar.com', "off"
 
-    assert_user_is_logged_off "mailto://foo", "User1"
-    assert_messages_sent_to 'mailto://foo', T.you_sent_off_and_we_have_turned_off_channel('off', 'email')
+    assert_user_is_logged_off "mailto://foo@bar.com", "User1"
+    assert_messages_sent_to 'mailto://foo@bar.com', T.you_sent_off_and_we_have_turned_off_channel('off', 'email')
   end
 
   test "turn off when off" do

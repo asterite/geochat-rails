@@ -170,17 +170,17 @@ class MyTest < NodeTest
   end
 
   test "get my email" do
-    send_message "mailto://foo", ".name foo"
+    send_message "mailto://foo@bar.com", ".name foo"
 
-    send_message "mailto://foo", ".my email"
-    assert_messages_sent_to "mailto://foo", T.your_email_is('foo')
+    send_message "mailto://foo@bar.com", ".my email"
+    assert_messages_sent_to "mailto://foo@bar.com", T.your_email_is('foo@bar.com')
   end
 
   test "set my email" do
-    send_message "mailto://foo", ".name foo"
+    send_message "mailto://foo@bar.com", ".name foo"
 
-    send_message "mailto://foo", ".my email 1234"
-    assert_messages_sent_to "mailto://foo", T.you_cant_change_your_email
+    send_message "mailto://foo@bar.com", ".my email 1234"
+    assert_messages_sent_to "mailto://foo@bar.com", T.you_cant_change_your_email
   end
 
   test "get my location never reported" do

@@ -33,10 +33,16 @@ Membership.blueprint do
   role { :owner }
 end
 
-[EmailChannel, SmsChannel, TwitterChannel, XmppChannel].each do |clazz|
+SmsChannel.blueprint do
+  user
+  address { Sham.number }
+  status { :on }
+end
+
+[EmailChannel, XmppChannel].each do |clazz|
   clazz.blueprint do
     user
-    address { Sham.number }
+    address { Sham.email }
     status { :on }
   end
 end

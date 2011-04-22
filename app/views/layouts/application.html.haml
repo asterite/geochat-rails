@@ -7,12 +7,13 @@
     = csrf_meta_tag
   %body
     #container
-      #head
+      #header
         = link_to 'GeoChat', root_path, :id => 'title'
         - if flash[:notice].present?
           %span#notice= flash[:notice]
         - if @user.persisted?
           %span#toolbar #{@user.login} | #{link_to 'Logout', session_path, :method => :delete}
+      = render :partial => 'shared/tabs' if @user.persisted?
       #main
         = content_for?(:content) ? yield(:content) : yield
     #version_separator

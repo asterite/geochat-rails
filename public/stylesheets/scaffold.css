@@ -1,4 +1,4 @@
-body { background-color: #fff; color: #333; margin: 0px; padding: 10px; height: 100%;}
+body { background-color: #fff; color: #333; margin: 0px; height: 100%;}
 
 body, p, ol, ul, td {
   font-family: verdana, arial, helvetica, sans-serif;
@@ -79,7 +79,7 @@ div.field, div.actions {
 }
 
 #header {
-  padding: 8px;
+  padding: 8px 8px 0px 8px;
 }
 
 #toolbar {
@@ -91,6 +91,46 @@ div.field, div.actions {
 #container {
   min-height: 100%;
   position: relative;
+}
+
+#tabs {
+  float: left;
+  position: relative;
+  list-style: none;
+  width: 100%;
+  display: block;
+  margin: 0px 0px 10px 0px;
+  padding: 0px;
+  padding-top: 10px;
+  border-bottom: 1px solid black;
+}
+
+#tabs li {
+  float: left;
+  display: block;
+  padding: 2px 8px 2px 8px;
+  margin-left: 4px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  -moz-border-radius-topleft: 8px;
+  -moz-border-radius-topright: 8px;
+  border: 1px solid black;
+  position: relative;
+  top: 1px;
+  background: #efefef;
+}
+
+#tabs li a {
+  text-decoration: none;
+}
+
+#tabs li.selected {
+  border-bottom: 1px solid white;
+  background: white;
+}
+
+#tabs li.selected a {
+  text-decoration: none;
 }
 
 #version_separator {

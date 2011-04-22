@@ -45,21 +45,21 @@ class OnTest < NodeTest
   end
 
   test "turn on by email" do
-    send_message 'mailto://foo', '.name User1'
-    send_message 'mailto://foo', "off"
+    send_message 'mailto://foo@bar.com', '.name User1'
+    send_message 'mailto://foo@bar.com', "off"
 
-    send_message 'mailto://foo', "on"
-    assert_user_is_logged_in 'mailto://foo', "User1"
-    assert_messages_sent_to 'mailto://foo', T.you_sent_on_and_we_have_turned_on_udpated_on_this_channel('on', 'email')
+    send_message 'mailto://foo@bar.com', "on"
+    assert_user_is_logged_in 'mailto://foo@bar.com', "User1"
+    assert_messages_sent_to 'mailto://foo@bar.com', T.you_sent_on_and_we_have_turned_on_udpated_on_this_channel('on', 'email')
   end
 
   test "turn on implicitly when sending an email" do
-    send_message 'mailto://foo', '.name User1'
-    send_message 'mailto://foo', "create Group1"
-    send_message 'mailto://foo', "off"
+    send_message 'mailto://foo@bar.com', '.name User1'
+    send_message 'mailto://foo@bar.com', "create Group1"
+    send_message 'mailto://foo@bar.com', "off"
 
-    send_message 'mailto://foo', "Hello!"
-    assert_messages_sent_to 'mailto://foo', T.we_have_turned_on_updates_on_this_channel('email')
-    assert_user_is_logged_in 'mailto://foo', "User1"
+    send_message 'mailto://foo@bar.com', "Hello!"
+    assert_messages_sent_to 'mailto://foo@bar.com', T.we_have_turned_on_updates_on_this_channel('email')
+    assert_user_is_logged_in 'mailto://foo@bar.com', "User1"
   end
 end

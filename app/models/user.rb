@@ -16,16 +16,14 @@ class User < ActiveRecord::Base
   end
 
   validates :login, :presence => true
-  validates :login_downcase, :presence => true, :uniqueness => true, :if => proc{|u| u.login_changed?}
-  validates :password, :presence => true, :if => proc {|u| !u.created_from_invite?}
-  validates_confirmation_of :password, :if => proc {|u| !u.password_confirmation.nil?}
-
-  attr_accessor :old_password # For changing the password
+  validates :login_downcase, :presence => true, :uniqueness => true, :if => :login_changed?
+  validates :password, :presence => true, :unless => :created_from_invite?
+  validates_confirmation_of :password, :unless => lambda { password_confirmation.nil? }
 
   belongs_to :default_group, :class_name => 'Group'
   before_validation :update_login_downcase
   before_save :update_location_reported_at
-  before_save :encode_password, :if => proc{|u| u.password_changed?}
+  before_save :encode_password, :if => :password_changed?
 
   data_accessor :groups_count, :default => 0
   data_accessor :locale, :default => :en

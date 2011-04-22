@@ -1,16 +1,16 @@
-%h3 Your groups
-%p You don't belong to any group yet. In order to chat with others you need to #{link_to 'create a group'} or #{link_to 'join a group'}.
+%h3 Welcome to GeoChat!
 
-%h3 Your channels
-- if @channels.empty?
-  %p You don't have any configured channels. If you want to receive messages in your phone, email, twitter or other ways you need to #{link_to 'configure a channel', channels_path}.
-  %p You can still send and see messages on the website without configuring a channel.
-- else
-  - if @active_channels.empty?
-    %p You don't have any active channels.
-  - else
-    %p Your active channels are: #{@channels.select(&:active?).map{|c| "#{c.address} (#{c.protocol_name})"}.join ', '}
-  %p #{link_to 'Manage channels', channels_path}
+To help you get started we suggest you do the following:
 
-%h3 Your password
-#{link_to 'Change your password', change_user_password_path}
+%ul
+  %li #{link_to 'Create a group', new_group_path} or #{link_to 'join one'}: a group is a bunch of people ready to discuss and collaborate on a topic.
+  %li #{link_to 'Configure a channel', channels_path} so that you can send and receive messages from your groups in your phone, email, twitter or instant messenger
+  %li #{link_to 'Tell us your location'} so that people know you are near them when they need help or can find when you are in help
+
+%h4 Latest messages from your groups
+
+List...
+
+%h4 Groups near you
+
+Will list groups near to the user's location... when he signs up through the web we will guess his location with his IP.
