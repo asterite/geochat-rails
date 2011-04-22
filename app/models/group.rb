@@ -13,12 +13,18 @@ class Group < ActiveRecord::Base
   data_accessor :users_count, :default => 0
   data_accessor :blocked_users, :default => []
 
+  scope :public, where(:hidden => false)
+
   def self.find_by_alias(talias)
     self.find_by_alias_downcase talias.downcase
   end
 
   def to_param
     self.alias
+  end
+
+  def name_with_alias
+    name == self.alias ? name : "#{name} (alias: #{self.alias})"
   end
 
   def owners

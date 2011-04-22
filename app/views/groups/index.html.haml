@@ -3,12 +3,17 @@
 - else
   %p Your belong to #{@groups.length} group#{'s' if @groups.many?}, of which you own #{@owned_groups.length}.
   %p #{link_to 'Create a group', new_group_path}
+  %p #{link_to 'Browse public groups', public_groups_path}
 
   %table.table
     %tr
       %th Alias
       %th Name
       %th Role
+      %th Hidden?
+      %th Chatroom?
+      %th Requires approval to join?
+      %th Forward to owners?
       %th Members
       %th
     - @groups.each do |group|
@@ -16,5 +21,9 @@
         %td= group.alias
         %td= group.name
         %td= @memberships.select{|m| m.group == group}.first.role
+        %td= group.hidden? ? 'Yes' : 'No'
+        %td= group.chatroom? ? 'Yes' : 'No'
+        %td= group.requires_approval_to_join? ? 'Yes' : 'No'
+        %td= group.forward_owners? ? 'Yes' : 'No'
         %td{:align => :right}= group.users_count
         %td= link_to 'view', group

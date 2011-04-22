@@ -23,7 +23,10 @@ GeochatRails::Application.routes.draw do
     end
   end
 
-  resources :groups
+  resources :groups do
+    get 'public', :on => :collection
+    get 'join', :on => :member
+  end
 
   scope '/user' do
     get '/' => 'users#index', :as => 'user'

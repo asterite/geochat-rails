@@ -2,6 +2,8 @@ class Membership < ActiveRecord::Base
   belongs_to :user
   belongs_to :group
 
+  validates_uniqueness_of :user_id, :scope => :group_id
+
   after_create :increment_user_groups_count
   after_destroy :decrement_user_groups_count
 

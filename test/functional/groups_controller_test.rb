@@ -20,4 +20,35 @@ class GroupsControllerTest < ActionController::TestCase
       assert_equal value, groups[0].send(key)
     end
   end
+
+  test "join group" do
+    group = User.make.create_group :alias => 'bar', :name => 'bar', :requires_approval_to_join => false
+
+    get :join, :id => 'bar'
+
+    assert "You are now a member of #{group.alias}"
+    assert_redirected_to group
+
+    assert @user.belongs_to?(group)
+  end
+
+  test "can't join group that requires approval" do
+    group = User.make.create_group :alias => 'bar', :name => 'bar', :requires_approval_to_join => true
+
+    get :join, :id => 'bar'
+
+    assert "This group need approval to join"
+    assert_redirected_to group
+
+    assert !@user.belongs_to?(group)
+  end
+
+  test "join group when already joined" do
+    group = @user.create_group :alias => 'bar', :name => 'bar', :requires_approval_to_join => false
+
+    get :join, :id => 'bar'
+
+    assert "You already are a member of #{group.alias}"
+    assert_redirected_to group
+  end
 end
