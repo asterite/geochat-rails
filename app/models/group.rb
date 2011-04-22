@@ -18,6 +18,7 @@ class Group < ActiveRecord::Base
   def self.find_by_alias(talias)
     self.find_by_alias_downcase talias.downcase
   end
+  class << self; alias_method :[], :find_by_alias; end
 
   def to_param
     self.alias

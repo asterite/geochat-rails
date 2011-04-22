@@ -9,9 +9,11 @@ To help you get started we suggest you do the following:
     %li #{link_to 'Configure a channel', channels_path} so that you can send and receive messages from your groups in your phone, email, twitter or instant messenger
   %li #{link_to 'Tell us your location'} so that people know you are near them when they need help or can find when you are in help
 
-%h4 Latest messages from your groups
-
-List...
+- if @last_messages.present?
+  %h4 Last messages from your groups
+  %ul
+    - @last_messages.each do |msg|
+      %li #{msg.sender_login} to #{link_to msg.group_alias, group_path(msg.group_alias)} #{time_ago_in_words msg.created_at} ago: #{truncate msg.text, :length => 50}
 
 %h4 Groups near you
 

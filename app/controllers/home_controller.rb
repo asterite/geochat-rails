@@ -2,8 +2,7 @@ class HomeController < ApplicationController
   before_filter :set_selected_tab
 
   def index
-    @channels = @user.channels.all
-    @active_channels = @channels.select &:active?
+    @last_messages = @user.last_messages.all
   end
 
   private

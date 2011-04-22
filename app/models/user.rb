@@ -32,6 +32,7 @@ class User < ActiveRecord::Base
   def self.find_by_login(login)
     self.find_by_login_downcase login.downcase
   end
+  class << self; alias_method :[], :find_by_login; end
 
   def self.find_by_mobile_number(number)
     User.joins(:channels).where('channels.protocol = ? and channels.address = ?', 'sms', number).first
@@ -113,11 +114,19 @@ class User < ActiveRecord::Base
   end
 
   def membership_in(group)
-    Membership.where('user_id = ? and group_id = ?', self.id, group.id).first
+    Membership.where(:user_id => self.id, :group_id => group.id).first
   end
 
   def belongs_to?(group)
-    Membership.where('user_id = ? and group_id = ?', self.id, group.id).exists?
+    Membership.where(:user_id => self.id, :group_id => group.id).exists?
+  end
+
+  def messages
+    Message.joins(:group => :memberships).where('memberships.user_id = ?', self.id)
+  end
+
+  def last_messages
+    messages.order('messages.id DESC').limit(10)
   end
 
   def coords=(array)
