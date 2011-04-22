@@ -337,3 +337,8 @@ class Node
     nil
   end
 end
+
+# Load all nodes
+Dir["#{Rails.root}/app/models/nodes/*"].each do |file|
+  eval(ActiveSupport::Inflector.camelize(file[file.rindex('/') + 1 .. -4]))
+end

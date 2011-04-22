@@ -15,8 +15,9 @@ class User < ActiveRecord::Base
     )
   end
 
-  validates :login, :presence => true
+  validates :login, :presence => true, :length => {:minimum => 3}
   validates :login_downcase, :presence => true, :uniqueness => true, :if => :login_changed?
+  validate :login_not_a_command
   validates :password, :presence => true, :unless => :created_from_invite?
   validates_confirmation_of :password, :unless => lambda { password_confirmation.nil? }
 
@@ -182,5 +183,9 @@ class User < ActiveRecord::Base
   def self.hash_password(salt, password)
     decoded_salt = ActiveSupport::Base64.decode64 salt
     ActiveSupport::Base64.encode64(Digest::SHA1.digest(decoded_salt + Iconv.conv('ucs-2le', 'utf-8', password))).strip
+  end
+
+  def login_not_a_command
+    errors.add(:login, 'is a reserved name') if login.try(:command?)
   end
 end

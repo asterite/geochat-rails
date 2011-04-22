@@ -20,7 +20,7 @@ class JoinNode < Node
 
     # If it doesn't require approval or if any invite is already approved by an admin,
     # just join the group, notify the requestors and destroy the invites
-    if !group.requires_aproval_to_join || invites.any?{|x| x.admin_accepted}
+    if !group.requires_approval_to_join || invites.any?{|x| x.admin_accepted}
       join_and_welcome current_user, group
 
       invites.each do |invite|

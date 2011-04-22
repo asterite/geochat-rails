@@ -1,6 +1,17 @@
 require 'test_helper'
 
 class GroupTest < ActiveSupport::TestCase
+  test "doesn't allow short alias" do
+    group = Group.make_unsaved :alias => 'a'
+    assert !group.valid?
+    assert_equal ['is too short (minimum is 3 characters)'], group.errors[:alias]
+  end
+
+  test "doesn't allow alias command" do
+    group = Group.make_unsaved :alias => 'block'
+    assert !group.valid?
+    assert_equal ['is a reserved name'], group.errors[:alias]
+  end
   test "saves alias downcase" do
     group = Group.make :alias => 'HELLO'
     assert_equal 'hello', group.alias_downcase
@@ -35,7 +46,7 @@ class GroupTest < ActiveSupport::TestCase
     assert_equal({
       :alias => group.alias,
       :name => group.name,
-      :requireApprovalToJoin => group.requires_aproval_to_join,
+      :requireApprovalToJoin => group.requires_approval_to_join,
       :isChatRoom => group.chatroom?,
       :created => group.created_at,
       :updated => group.updated_at,

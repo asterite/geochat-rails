@@ -1,6 +1,18 @@
 require 'test_helper'
 
 class UserTest < ActiveSupport::TestCase
+  test "doesn't allow short login" do
+    user = User.make_unsaved :login => 'a'
+    assert !user.valid?
+    assert_equal ['is too short (minimum is 3 characters)'], user.errors[:login]
+  end
+
+  test "doesn't allow login command" do
+    user = User.make_unsaved :login => 'block'
+    assert !user.valid?
+    assert_equal ['is a reserved name'], user.errors[:login]
+  end
+
   test "saves login downcase" do
     user = User.make :login => 'HELLO'
     assert_equal 'hello', user.login_downcase

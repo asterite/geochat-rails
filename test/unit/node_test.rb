@@ -197,9 +197,9 @@ class NodeTest < ActiveSupport::TestCase
     send_message user, "create group #{group}"
   end
 
-  def set_requires_aproval_to_join(group)
+  def set_requires_approval_to_join(group)
     group = Group.find_by_alias group
-    group.requires_aproval_to_join = true
+    group.requires_approval_to_join = true
     group.save!
   end
 

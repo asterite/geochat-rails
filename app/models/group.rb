@@ -3,8 +3,9 @@ class Group < ActiveRecord::Base
   has_many :users, :through => :memberships
   has_many :messages, :dependent => :destroy
 
-  validates :alias, :presence => true
+  validates :alias, :presence => true, :length => {:minimum => 3}
   validates :alias_downcase, :presence => true, :uniqueness => true
+  validate :alias_not_a_command
 
   before_validation :update_alias_downcase
 
@@ -45,7 +46,7 @@ class Group < ActiveRecord::Base
   def as_json(options = {})
     hash = {:alias => self.alias}
     hash[:name] = self.name if self.name.present?
-    hash[:requireApprovalToJoin] = self.requires_aproval_to_join?
+    hash[:requireApprovalToJoin] = self.requires_approval_to_join?
     hash[:isChatRoom] = self.chatroom?
     hash[:created] = self.created_at
     hash[:updated] = self.updated_at
@@ -60,5 +61,9 @@ class Group < ActiveRecord::Base
 
   def update_alias_downcase
     self.alias_downcase = self.alias.downcase
+  end
+
+  def alias_not_a_command
+    errors.add(:alias, 'is a reserved name') if self.alias.try(:command?)
   end
 end

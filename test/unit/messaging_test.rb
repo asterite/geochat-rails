@@ -152,7 +152,7 @@ class MessagingTest < NodeTest
     create_group 1, "Group1"
     create_group 2, "Group2"
     send_message 3, "join Group2"
-    set_requires_aproval_to_join "Group2"
+    set_requires_approval_to_join "Group2"
 
     send_message 3, "invite 1"
 
@@ -167,7 +167,7 @@ class MessagingTest < NodeTest
     create_users 1, 2
     create_group 1, "Group1"
     create_group 2, "Group2"
-    set_requires_aproval_to_join "Group2"
+    set_requires_approval_to_join "Group2"
 
     send_message 1, "@Group2 Hello"
     assert_messages_sent_to 1, T.cant_send_message_to_group_not_a_member('Group2')

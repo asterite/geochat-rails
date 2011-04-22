@@ -19,5 +19,21 @@
     = f.label :description
     %br
     = f.text_area :description, :rows => 5
+  %p
+    = f.label :hidden
+    %br
+    = f.check_box :hidden
+  %p
+    = f.label :requires_approval_to_join
+    %br
+    = f.check_box :requires_approval_to_join
+  %p
+    = f.label :chatroom
+    %br
+    = f.check_box :chatroom
+  %p
+    = f.label :forward_owners
+    %br
+    = f.check_box :forward_owners
   = submit_tag 'Create group'
 

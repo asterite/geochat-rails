@@ -19,7 +19,7 @@ class JoinTest < NodeTest
     create_users 1, 2
 
     send_message 1, "create group Group1"
-    set_requires_aproval_to_join 'Group1'
+    set_requires_approval_to_join 'Group1'
 
     send_message 2, "join Group1"
     assert_messages_sent_to 1, T.invitation_pending_for_approval('User2', 'Group1')
@@ -38,7 +38,7 @@ class JoinTest < NodeTest
     create_users 1, 2, 3
 
     send_message 1, "create group Group1"
-    set_requires_aproval_to_join "Group1"
+    set_requires_approval_to_join "Group1"
     send_message 1, "invite User3"
     send_message 3, "join Group1"
     send_message 1, "owner User3"
@@ -72,7 +72,7 @@ class JoinTest < NodeTest
     create_users 1, 2, 3
 
     send_message 1, "create group Group1"
-    set_requires_aproval_to_join "Group1"
+    set_requires_approval_to_join "Group1"
 
     send_message 1, "invite User2"
     send_message 2, "join Group1"
@@ -101,7 +101,7 @@ class JoinTest < NodeTest
     create_users 1, 2, 3
 
     send_message 1, "create group Group1"
-    set_requires_aproval_to_join "Group1"
+    set_requires_approval_to_join "Group1"
 
     send_message 1, "invite User2"
     send_message 2, "join Group1"
@@ -128,7 +128,7 @@ class JoinTest < NodeTest
     create_users 1, 2, 3
 
     send_message 1, "create group Group1"
-    set_requires_aproval_to_join "Group1"
+    set_requires_approval_to_join "Group1"
 
     send_message 1, "invite User2"
     send_message 2, "join Group1"

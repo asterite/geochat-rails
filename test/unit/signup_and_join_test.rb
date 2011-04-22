@@ -21,10 +21,10 @@ class SignupAndJoinTest < NodeTest
     create_users 1
 
     send_message 1, "create group Group1"
-    send_message 1, "Group1 +2"
+    send_message 1, "Group1 +234"
 
-    send_message 2, "User2 join Group1"
-    assert_messages_sent_to 2, [
+    send_message 234, "User2 join Group1"
+    assert_messages_sent_to 234, [
       T.welcome_to_geochat('User2'),
       T.remember_you_can_log_in('User2', 'MockPassword'),
       T.welcome_to_first_group('User2', 'Group1')

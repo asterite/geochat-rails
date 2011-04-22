@@ -2,7 +2,7 @@ require 'machinist/active_record'
 require 'sham'
 require 'ffaker'
 
-Sham.short_name { Faker::Name.last_name.gsub(/[^0-9a-z]+/i, '').downcase }
+Sham.short_name { Faker::Name.name.gsub(/[^0-9a-z]+/i, '').downcase }
 Sham.name { Faker::Name.name }
 Sham.title { Faker::Lorem.words.join }
 Sham.description { Faker::Lorem.paragraph }
