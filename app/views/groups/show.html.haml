@@ -1,0 +1,14 @@
+%h3  #{@group.name} #{"(alias: #{@group.alias})" if @group.alias != @group.name}
+
+%p= @group.description
+
+%h4 Members
+
+%table.table
+  %tr
+    %th Login
+    %th Role
+  - @memberships.each do |membership|
+    %tr
+      %td= membership.user.login
+      %td= membership.role

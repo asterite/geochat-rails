@@ -17,6 +17,10 @@ class Group < ActiveRecord::Base
     self.find_by_alias_downcase talias.downcase
   end
 
+  def to_param
+    self.alias
+  end
+
   def owners
     User.joins(:memberships).where('memberships.group_id = ? AND (role = ? OR role = ?)', self.id, :admin, :owner)
   end

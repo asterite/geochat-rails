@@ -20,4 +20,9 @@ class GroupsController < ApplicationController
       render :new
     end
   end
+
+  def show
+    @group = @user.groups.find_by_alias params[:id]
+    @memberships = @group.memberships.includes(:user)
+  end
 end
