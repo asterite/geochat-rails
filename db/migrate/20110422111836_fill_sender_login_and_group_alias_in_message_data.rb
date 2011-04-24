@@ -1,8 +1,8 @@
 class FillSenderLoginAndGroupAliasInMessageData < ActiveRecord::Migration
   def self.up
     Message.includes([:group, :sender]).find_each do |msg|
-      msg.data[:group_alias] = msg.group.alias
-      msg.data[:sender_login] = msg.sender.login
+      msg.group_alias = msg.group.alias
+      msg.sender_login = msg.sender.login
       msg.save!
     end
   end
