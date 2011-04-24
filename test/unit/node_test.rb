@@ -210,11 +210,23 @@ class NodeTest < ActiveSupport::TestCase
   end
 
   def expect_locate(name, lat, lon, location)
-    Geocoder.expects(:locate).with(name).returns({:lat => lat, :lon => lon, :location => location})
+    obj = stub(:lat => lat, :lng => lon, :full_address => location, :success? => true)
+    Geokit::Geocoders::GoogleGeocoder.expects(:geocode).with(name).returns(obj)
+  end
+
+  def expect_locate_not_found(name)
+    obj = stub(:success? => false)
+    Geokit::Geocoders::GoogleGeocoder.expects(:geocode).with(name).returns(obj)
   end
 
   def expect_reverse(lat, lon, location)
-    Geocoder.expects(:reverse).with([lat, lon]).returns(location)
+    obj = stub(:full_address => location, :success? => true)
+    Geokit::Geocoders::GoogleGeocoder.expects(:reverse_geocode).with([lat, lon]).returns(obj)
+  end
+
+  def expect_reverse_not_found(lat, lon)
+    obj = stub(:success? => false)
+    Geokit::Geocoders::GoogleGeocoder.expects(:reverse_geocode).with([lat, lon]).returns(obj)
   end
 
   def expect_shorten(long_url, short_url)

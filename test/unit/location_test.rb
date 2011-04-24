@@ -107,7 +107,7 @@ class LocationTest < NodeTest
     send_message 1, "create Group1"
     send_message 2..4, "join Group1"
 
-    Geocoder.expects(:locate).with('Paris').returns(nil)
+    expect_locate_not_found 'Paris'
 
     send_message 1, "at Paris"
     assert_messages_sent_to 1, T.location_not_found('Paris')
@@ -121,11 +121,25 @@ class LocationTest < NodeTest
     send_message 1, "create Group1"
     send_message 2..4, "join Group1"
 
-    Geocoder.expects(:locate).with('Paris').returns(nil)
+    expect_locate_not_found 'Paris'
 
     send_message 1, "at Paris * Hello"
     assert_messages_sent_to 1, T.location_not_found('Paris')
     assert_messages_sent_to 2..4, "User1: at Paris * Hello"
+    assert_user_location "User1", nil, 0, 0, nil
+  end
+
+  test "lat/lon not found" do
+    create_users 1..4
+
+    send_message 1, "create Group1"
+    send_message 2..4, "join Group1"
+
+    expect_reverse_not_found 10, 20
+
+    send_message 1, "at 10, 20"
+    assert_messages_sent_to 1, T.location_not_found('10.0, 20.0')
+    assert_messages_sent_to 2..4, "User1: at 10, 20"
     assert_user_location "User1", nil, 0, 0, nil
   end
 

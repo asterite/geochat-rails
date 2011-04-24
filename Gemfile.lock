@@ -67,6 +67,7 @@ GEM
     ffaker (1.2.0)
     ffi (0.6.3)
       rake (>= 0.8.7)
+    geokit (1.5.0)
     gherkin (2.3.3)
       json (~> 1.4.6)
     guid (0.1.1)
@@ -145,6 +146,7 @@ DEPENDENCIES
   database_cleaner
   email_spec
   ffaker
+  geokit
   guid
   haml
   httparty

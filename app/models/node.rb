@@ -292,10 +292,10 @@ class Node
 
   def update_current_user_location_to(location)
     if location.is_a?(String)
-      result = Geocoder.locate(location)
-      if result
-        coords = result[:lat], result[:lon]
-        place = result[:location]
+      result = Geokit::Geocoders::GoogleGeocoder.geocode(location)
+      if result.success?
+        coords = result.lat, result.lng
+        place = result.full_address
       else
         reply T.location_not_found(location)
         return false
@@ -303,7 +303,14 @@ class Node
 
       short_url = Googl.shorten "http://maps.google.com/?q=#{CGI.escape place}"
     else
-      place, coords = Geocoder.reverse(location), location
+      result = Geokit::Geocoders::GoogleGeocoder.reverse_geocode(location)
+      if result.success?
+        coords = location
+        place = result.full_address
+      else
+        reply T.location_not_found(location.join ', ')
+        return false
+      end
       short_url = Googl.shorten "http://maps.google.com/?q=#{coords.join ','}"
     end
 

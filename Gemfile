@@ -15,6 +15,7 @@ gem 'guid'
 gem 'jquery-rails'
 gem 'validates_email_format_of', :git => 'git://github.com/alexdunae/validates_email_format_of.git'
 gem "will_paginate", "~> 3.0.pre2"
+gem 'geokit'
 
 group :test do
   gem 'machinist'

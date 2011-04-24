@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110422111836) do
+ActiveRecord::Schema.define(:version => 20110422145401) do
 
   create_table "channels", :force => true do |t|
     t.string   "protocol"
@@ -31,14 +31,17 @@ ActiveRecord::Schema.define(:version => 20110422111836) do
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "requires_approval_to_join", :default => false
-    t.boolean  "chatroom",                  :default => true
-    t.boolean  "enabled",                   :default => true
-    t.boolean  "forward_owners",            :default => false
+    t.boolean  "requires_approval_to_join",                                :default => false
+    t.boolean  "chatroom",                                                 :default => true
+    t.boolean  "enabled",                                                  :default => true
+    t.boolean  "forward_owners",                                           :default => false
     t.string   "alias_downcase"
     t.text     "data"
     t.text     "description"
-    t.boolean  "hidden",                    :default => true
+    t.boolean  "hidden",                                                   :default => true
+    t.decimal  "lat",                       :precision => 10, :scale => 6
+    t.decimal  "lon",                       :precision => 10, :scale => 6
+    t.string   "location"
   end
 
   add_index "groups", ["alias_downcase"], :name => "index_groups_on_alias_downcase"
