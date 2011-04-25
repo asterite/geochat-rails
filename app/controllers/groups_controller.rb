@@ -1,4 +1,6 @@
 class GroupsController < ApplicationController
+  before_filter :get_group, :only => [:show, :join, :change_role]
+
   def index
     @memberships = @user.memberships.includes(:group).all
     @groups = @memberships.map &:group
@@ -31,12 +33,11 @@ class GroupsController < ApplicationController
   end
 
   def show
-    @group = Group.find_by_alias params[:id]
     @memberships = @group.memberships.includes(:user)
+    @user_membership = @memberships.select{|m| m.user_id == @user.id}.first
   end
 
   def join
-    @group = Group.find_by_alias params[:id]
     if @group.requires_approval_to_join?
       flash[:notice] = "This groups needs approval to join"
     elsif @user.belongs_to? @group
@@ -47,5 +48,29 @@ class GroupsController < ApplicationController
     end
 
     redirect_to @group
+  end
+
+  def change_role
+    user_membership = @user.membership_in(@group)
+    membership = @group.memberships.joins(:user).where('users.login_downcase = ?', params[:user].downcase).first
+
+    # Can't touch someone bigger or same than you
+    return redirect_to @group if membership >= user_membership
+
+    membership.role = params[:role].to_sym
+
+    # Can't change to someone bigger than you
+    return redirect_to @group if membership > user_membership
+
+    membership.save!
+
+    flash[:notice] = "User #{params[:user]} is now #{params[:role]} in #{@group}"
+    redirect_to @group
+  end
+
+  private
+
+  def get_group
+    @group = Group.find_by_alias params[:id]
   end
 end

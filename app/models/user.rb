@@ -93,7 +93,7 @@ class User < ActiveRecord::Base
     if user.kind_of?(String)
       user = User.create! :login => user, :created_from_invite => true
     end
-    Invite.create! :group => group, :user => user, :admin_accepted => self.is_owner_of(group), :requestor => self
+    Invite.create! :group => group, :user => user, :admin_accepted => self.can_invite_in?(group), :requestor => self
   end
 
   def request_join(group)
@@ -104,11 +104,15 @@ class User < ActiveRecord::Base
     Membership.find_by_group_id_and_user_id(group.id, self.id).try(:role).try(:to_sym)
   end
 
-  def is_owner_of(group)
+  def is_owner_of?(group)
     role_in(group) == :owner
   end
 
-  def shares_a_common_group_with(user)
+  def can_invite_in?(group)
+    [:owner, :admin].include?(role_in group)
+  end
+
+  def shares_a_common_group_with?(user)
     result = self.class.connection.execute "select 1 from memberships m1, memberships m2 where m1.group_id = m2.group_id and m1.user_id = #{self.id} and m2.user_id = #{user.id}"
     result.count > 0
   end

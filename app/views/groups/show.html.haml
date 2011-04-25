@@ -8,7 +8,22 @@
   %tr
     %th Login
     %th Role
+    - if @user_membership.owner? || @user_membership.admin?
+      %th
   - @memberships.each do |membership|
     %tr
       %td= membership.user.login
       %td= membership.role
+      - if @user_membership.owner?
+        %td
+          - if membership.admin?
+            #{link_to 'make member', change_role_path(:user => membership.user.login, :role => :member)}
+          - if membership.member?
+            #{link_to 'make admin', change_role_path(:user => membership.user.login, :role => :admin)}
+          - if membership.member? || membership.admin?
+            #{link_to 'make owner', change_role_path(:user => membership.user.login, :role => :owner)}
+      - elsif @user_membership.admin?
+        %td
+          - if membership.member?
+            #{link_to 'make admin', change_role_path(:user => membership.user.login, :role => :admin)}
+

@@ -27,6 +27,7 @@ GeochatRails::Application.routes.draw do
     get 'public', :on => :collection
     get 'join', :on => :member
   end
+  get 'groups/:id/users/:user/change_role/:role' => 'groups#change_role', :as => 'change_role'
 
   scope '/user' do
     get '/' => 'users#index', :as => 'user'

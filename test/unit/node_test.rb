@@ -94,7 +94,7 @@ class NodeTest < ActiveSupport::TestCase
   def assert_is_not_group_owner(group, user)
     user = User.find_by_login(user)
     group = Group.find_by_alias group
-    assert !user.is_owner_of(group)
+    assert !user.is_owner_of?(group)
   end
 
   def assert_is_not_blocked(group, user)

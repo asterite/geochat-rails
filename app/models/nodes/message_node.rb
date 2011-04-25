@@ -129,13 +129,13 @@ class MessageNode < Node
     users.each do |user|
       if explicit_group && !user.belongs_to?(group)
         return reply T.cant_send_message_to_user_via_group_does_not_belong(user, group)
-      elsif !current_user.shares_a_common_group_with(user)
+      elsif !current_user.shares_a_common_group_with?(user)
         return reply T.cant_send_message_to_user_no_common_group(user)
       end
     end
 
     if invite
-      if invite.admin_accepted || !group.requires_approval_to_join
+      if invite.admin_accepted? || !group.requires_approval_to_join?
         join_and_welcome current_user, group
         invite.destroy
       else
