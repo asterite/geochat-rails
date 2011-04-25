@@ -290,9 +290,10 @@ class Node
     @messages << options
   end
 
-  def update_current_user_location_to(location)
+  def update_current_user_location_to(location, group = nil)
     if location.is_a?(String)
-      custom_location = current_user.find_custom_location location
+      custom_location = current_user.find_custom_location(location)
+      custom_location = group.find_custom_location(location) if !custom_location && group
       if custom_location
         place, coords, short_url = custom_location.location, custom_location.coords, custom_location.location_short_url
       else

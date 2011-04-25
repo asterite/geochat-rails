@@ -1,8 +1,9 @@
 class Group < ActiveRecord::Base
+  include Locatable
+
   has_many :memberships, :dependent => :destroy
   has_many :users, :through => :memberships
   has_many :messages, :dependent => :destroy
-  has_many :custom_locations, :as => :locatable
 
   validates :alias, :presence => true, :length => {:minimum => 3}, :format => {:with => /\A[a-zA-Z0-9]+\Z/, :message => 'can only contain alphanumeric characters'}
   validates :alias_downcase, :presence => true, :uniqueness => true
@@ -12,7 +13,6 @@ class Group < ActiveRecord::Base
   before_validation :update_alias_downcase
 
   data_accessor :users_count, :default => 0
-  data_accessor :custom_locations_count, :default => 0
   data_accessor :blocked_users, :default => []
 
   scope :public, where(:hidden => false)
@@ -56,14 +56,6 @@ class Group < ActiveRecord::Base
     save!
 
     true
-  end
-
-  def location_known?
-    self.lat && self.lon
-  end
-
-  def has_custom_locations?
-    custom_locations_count > 0
   end
 
   def as_json(options = {})

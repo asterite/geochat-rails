@@ -201,7 +201,14 @@ class NodeTest < ActiveSupport::TestCase
     expect_reverse lat, lon, full_address
     expect_shorten_google_maps lat, lon, short_url
 
-    User.find_by_login("User#{user}").custom_locations.create! :name => name, :lat => lat, :lon => lon
+    User.find_by_login(user).custom_locations.create! :name => name, :lat => lat, :lon => lon
+  end
+
+  def create_group_custom_location(group, name, lat, lon, full_address, short_url)
+    expect_reverse lat, lon, full_address
+    expect_shorten_google_maps lat, lon, short_url
+
+    Group.find_by_alias(group).custom_locations.create! :name => name, :lat => lat, :lon => lon
   end
 
   def set_requires_approval_to_join(group)

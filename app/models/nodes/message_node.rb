@@ -156,7 +156,7 @@ class MessageNode < Node
     location_info = nil
 
     if self.location.present?
-      location_update_result = update_current_user_location_to self.location
+      location_update_result = update_current_user_location_to self.location, group
       if location_update_result
         location_info = true
       else
