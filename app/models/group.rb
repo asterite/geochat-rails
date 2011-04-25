@@ -56,6 +56,10 @@ class Group < ActiveRecord::Base
     true
   end
 
+  def location_known?
+    self.lat && self.lon
+  end
+
   def as_json(options = {})
     hash = {:alias => self.alias}
     hash[:name] = self.name if self.name.present?

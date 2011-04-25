@@ -55,8 +55,8 @@
       setUserLocation(latlng);
     });
 
-= f.hidden_field :lat
-= f.hidden_field :lon
+= f.hidden_field :lat, :value => (lat || 37.09024)
+= f.hidden_field :lon, :value => (lon || -95.712891)
 #map_container{:style => "width:#{width}px"}
   #map{:style => "width:#{width}px;height:#{height}px;"}
   %input#location_search_button{:type => :button, :value => :Search}

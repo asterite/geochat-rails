@@ -22,6 +22,11 @@ class GroupsController < ApplicationController
 
   def create
     @group = @user.groups.new params[:group]
+    if @group.valid? && @group.location_known?
+      result = Geokit::Geocoders::GoogleGeocoder.reverse_geocode([@group.lat, @group.lon])
+      @group.location = result.full_address if result.success?
+    end
+
     if @group.save
       @user.join @group, :as => :owner
 
