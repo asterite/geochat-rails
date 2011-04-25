@@ -292,16 +292,20 @@ class Node
 
   def update_current_user_location_to(location)
     if location.is_a?(String)
-      result = Geokit::Geocoders::GoogleGeocoder.geocode(location)
-      if result.success?
-        coords = result.lat, result.lng
-        place = result.full_address
+      custom_location = current_user.find_custom_location location
+      if custom_location
+        place, coords, short_url = custom_location.location, custom_location.coords, custom_location.location_short_url
       else
-        reply T.location_not_found(location)
-        return false
+        result = Geokit::Geocoders::GoogleGeocoder.geocode(location)
+        if result.success?
+          coords = result.lat, result.lng
+          place = result.full_address
+        else
+          reply T.location_not_found(location)
+          return false
+        end
+        short_url = Googl.shorten "http://maps.google.com/?q=#{CGI.escape place}"
       end
-
-      short_url = Googl.shorten "http://maps.google.com/?q=#{CGI.escape place}"
     else
       result = Geokit::Geocoders::GoogleGeocoder.reverse_geocode(location)
       if result.success?
@@ -321,7 +325,7 @@ class Node
 
     reply T.location_successfuly_updated(place, current_user.location_info)
 
-    true
+    custom_location || true
   end
 
   def create_channel_for(user)

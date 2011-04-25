@@ -1,0 +1,16 @@
+%h4 Create a custom location
+
+= form_for @custom_location, :url => create_user_custom_location_path  do |f|
+  - if @custom_location.errors.any?
+    #error_explanation
+      %h2 #{pluralize(@custom_location.errors.count, "error")} prohibited you from creating this custom location:
+      %ul
+        - @custom_location.errors.full_messages.each do |msg|
+          %li= msg
+  %p
+    = f.label :name
+    %br
+    = f.text_field :name
+  %p= f.label :location
+  = render :partial => 'shared/location', :locals => {:f => f, :lat => @user.lat, :lon => @user.lon, :width => 800, :height => 300}
+  = submit_tag 'Create custom location'

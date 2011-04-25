@@ -17,10 +17,10 @@
       });
       marker.setMap(map);
 
-      function setUserLocation(latLng) {
+      function setObjectLocation(latLng) {
         marker.setPosition(latLng);
-        $('#user_lat').val(latLng.lat());
-        $('#user_lon').val(latLng.lng());
+        $('##{f.object_name}_lat').val(latLng.lat());
+        $('##{f.object_name}_lon').val(latLng.lng());
       }
 
       function searchLocation() {
@@ -28,7 +28,7 @@
         geocoder.geocode({'address': address}, function(results, status) {
           if (status == google.maps.GeocoderStatus.OK) {
             var location = results[0].geometry.location;
-            setUserLocation(location);
+            setObjectLocation(location);
             map.setCenter(location);
           } else {
           }
@@ -36,7 +36,7 @@
       }
 
       google.maps.event.addListener(map, 'click', function(event) {
-        setUserLocation(event.latLng);
+        setObjectLocation(event.latLng);
       });
 
       $('#location_search_button').click(function() {
@@ -52,7 +52,7 @@
         }
       });
 
-      setUserLocation(latlng);
+      setObjectLocation(latlng);
     });
 
 = f.hidden_field :lat, :value => (lat || 37.09024)

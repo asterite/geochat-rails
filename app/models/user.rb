@@ -4,6 +4,7 @@ class User < ActiveRecord::Base
   has_many :channels, :dependent => :destroy, :order => 'id'
   has_many :memberships, :dependent => :destroy
   has_many :groups, :through => :memberships
+  has_many :custom_locations, :as => :locatable
 
   Channel::Protocols.each do |protocol|
     has_many "#{protocol.to_channel.name.tableize}"
@@ -27,6 +28,7 @@ class User < ActiveRecord::Base
   before_save :encode_password, :if => :password_changed?
 
   data_accessor :groups_count, :default => 0
+  data_accessor :custom_locations_count, :default => 0
   data_accessor :locale, :default => :en
 
   def self.find_by_login(login)
@@ -140,6 +142,16 @@ class User < ActiveRecord::Base
 
   def location_known?
     self.lat && self.lon
+  end
+
+  def has_custom_locations?
+    custom_locations_count > 0
+  end
+
+  def find_custom_location(name)
+    return nil unless has_custom_locations?
+
+    custom_locations.find_by_name name
   end
 
   def location_info

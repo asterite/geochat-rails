@@ -200,6 +200,21 @@ class LocationTest < NodeTest
     assert_message_saved_with_location "User1", "Group1", gap_filler, "Paris, France", 48.856667, -2.350987, "http://short.url"
   end
 
+  test "user custom location" do
+    create_users 1..2
+
+    create_user_custom_location 1, 'custom', 48.856667, 2.350987, 'Paris, France', 'http://short.url'
+
+    send_message 1, "create Group1"
+    send_message 2, "join Group1"
+
+    send_message 1, "at custom"
+    assert_messages_sent_to 1, T.location_successfuly_updated('Paris, France', "lat: 48.85667 N, lon: 2.35099 E, url: http://short.url")
+    assert_messages_sent_to 2, "User1: #{T.at_place 'Paris, France', 'lat: 48.85667 N, lon: 2.35099 E, url: http://short.url'}"
+    assert_user_location "User1", "Paris, France", 48.856667, 2.350987, "http://short.url"
+    assert_message_saved_with_location "User1", "Group1", "at Paris, France", "Paris, France", 48.856667, 2.350987, "http://short.url"
+  end
+
   # TODO USNG
 
   # TODO custom locations

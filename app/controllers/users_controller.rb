@@ -3,6 +3,11 @@ class UsersController < ApplicationController
   before_filter :add_old_password_accessor, :only => [:change_password, :update_password]
 
   def index
+    @pagination = {
+      :page => params[:custom_locations_page] || 1,
+      :per_page => 10
+    }
+    @custom_locations = @user.custom_locations.paginate @pagination
   end
 
   def change_password
@@ -42,6 +47,28 @@ class UsersController < ApplicationController
     @user.save!
 
     flash[:notice] = "Location successfully updated to #{@user.location}"
+    redirect_to user_path
+  end
+
+  def new_custom_location
+    @custom_location = @user.custom_locations.new
+  end
+
+  def create_custom_location
+    @custom_location = @user.custom_locations.new params[:custom_location]
+    if @custom_location.save
+      flash[:notice] = "Custom location #{@custom_location.name} created"
+      redirect_to user_path
+    else
+      render :new_custom_location
+    end
+  end
+
+  def destroy_custom_location
+    @custom_location = @user.custom_locations.find_by_name params[:id]
+    @custom_location.destroy
+
+    flash[:notice] = "Custom location #{@custom_location.name} deleted"
     redirect_to user_path
   end
 

@@ -197,6 +197,13 @@ class NodeTest < ActiveSupport::TestCase
     send_message user, "create group #{group}"
   end
 
+  def create_user_custom_location(user, name, lat, lon, full_address, short_url)
+    expect_reverse lat, lon, full_address
+    expect_shorten_google_maps lat, lon, short_url
+
+    User.find_by_login("User#{user}").custom_locations.create! :name => name, :lat => lat, :lon => lon
+  end
+
   def set_requires_approval_to_join(group)
     group = Group.find_by_alias group
     group.requires_approval_to_join = true

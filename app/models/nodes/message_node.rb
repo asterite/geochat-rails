@@ -156,14 +156,19 @@ class MessageNode < Node
     location_info = nil
 
     if self.location.present?
-      if update_current_user_location_to self.location
+      location_update_result = update_current_user_location_to self.location
+      if location_update_result
         location_info = true
       else
         text_to_send = message[:body]
       end
 
       if text_to_save.blank?
-        text_to_save = T.at_place(self.location.is_a?(String) ? self.location : self.location.join(', '))
+        if location_update_result.is_a? CustomLocation
+          text_to_save = T.at_place(location_update_result.location)
+        else
+          text_to_save = T.at_place(self.location.is_a?(String) ? self.location : self.location.join(', '))
+        end
       end
     end
 

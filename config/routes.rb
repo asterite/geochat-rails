@@ -35,6 +35,14 @@ GeochatRails::Application.routes.draw do
     post '/password' => 'users#update_password', :as => 'update_user_password'
     get '/location' => 'users#change_location', :as => 'change_user_location'
     post '/location' => 'users#update_location', :as => 'update_user_location'
+
+    scope '/custom_locations' do
+      get '/new' => 'users#new_custom_location', :as => 'new_user_custom_location'
+      post '/create' => 'users#create_custom_location', :as => 'create_user_custom_location'
+      get '/:id/edit' => 'users#edit_custom_location', :as => 'edit_user_custom_location'
+      post '/:id' => 'users#update_custom_location', :as => 'edit_user_custom_location'
+      delete '/:id' => 'users#destroy_custom_location', :as => 'destroy_user_custom_location'
+    end
   end
 
   scope "/nuntium" do
