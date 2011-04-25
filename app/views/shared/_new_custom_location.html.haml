@@ -1,4 +1,4 @@
-= form_for @custom_location, :url => create_custom_location_path(locatable)  do |f|
+= form_for @custom_location, :url => create_custom_location_path(locatable, @custom_location), :html => {:method => :post}  do |f|
   - if @custom_location.errors.any?
     #error_explanation
       %h2 #{pluralize(@custom_location.errors.count, "error")} prohibited you from creating this custom location:
@@ -10,5 +10,5 @@
     %br
     = f.text_field :name
   %p= f.label :location
-  = render :partial => 'shared/location', :locals => {:f => f, :lat => @user.lat, :lon => @user.lon, :width => 800, :height => 300}
-  = submit_tag 'Create custom location'
+  = render :partial => 'shared/location', :locals => {:f => f, :lat => (@custom_location.lat || @user.lat), :lon => (@custom_location.lon || @user.lon), :width => 800, :height => 300}
+  = submit_tag(locatable.new_record? ? 'Create custom location' : 'Update custom location')

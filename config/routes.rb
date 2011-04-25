@@ -51,7 +51,7 @@ GeochatRails::Application.routes.draw do
       post '/' => 'users#create_custom_location', :as => 'create_user_custom_location'
       get '/:custom_location_id/edit' => 'users#edit_custom_location', :as => 'edit_user_custom_location'
       post '/:custom_location_id' => 'users#update_custom_location', :as => 'update_user_custom_location'
-      delete '/:id' => 'users#destroy_custom_location', :as => 'destroy_user_custom_location'
+      delete '/:custom_location_id' => 'users#destroy_custom_location', :as => 'destroy_user_custom_location'
     end
   end
 

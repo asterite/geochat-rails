@@ -5,8 +5,8 @@ class CustomLocation < ActiveRecord::Base
   validates_uniqueness_of :name_downcase, :scope => [:locatable_type, :locatable_id]
 
   before_validation :update_name_downcase
-  before_save :geocode
-  before_save :shorten_url
+  before_save :geocode, :if => lambda { new_record? || lat_changed? || lon_changed? }
+  before_save :shorten_url, :if => lambda { new_record? || lat_changed? || lon_changed? }
 
   before_create :increment_locatable_custom_locations_count
   after_destroy :decrement_locatable_custom_locations_count

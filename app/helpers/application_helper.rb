@@ -16,11 +16,19 @@ module ApplicationHelper
     end
   end
 
-  def create_custom_location_path(locatable)
+  def create_custom_location_path(locatable, location)
     if locatable.is_a? User
-      create_user_custom_location_path
+      if location.new_record?
+        create_user_custom_location_path
+      else
+        update_user_custom_location_path location
+      end
     else
-      create_group_custom_location_path locatable
+      if location.new_record?
+        create_group_custom_location_path locatable
+      else
+        update_group_custom_location_path locatable, location
+      end
     end
   end
 

@@ -1,6 +1,6 @@
 class GroupsController < ApplicationController
-  before_filter :get_group, :only => [:show, :join, :change_role, :new_custom_location]
-  before_filter :check_is_owner, :only => [:new_custom_location]
+  before_filter :get_group, :only => [:show, :join, :change_role, :new_custom_location, :create_custom_location, :edit_custom_location, :update_custom_location, :destroy_custom_location]
+  before_filter :check_is_owner, :only => [:new_custom_location, :create_custom_location, :edit_custom_location, :update_custom_location, :destroy_custom_location]
 
   def index
     @memberships = @user.memberships.includes(:group).all
@@ -84,27 +84,9 @@ class GroupsController < ApplicationController
     redirect_to @group
   end
 
-  def new_custom_location
-    @custom_location = @group.custom_locations.new
-  end
-
-  def create_custom_location
-    @custom_location = @group.custom_locations.new params[:custom_location]
-    if @custom_location.save
-      flash[:notice] = "Custom location #{@custom_location.name} created"
-      redirect_to group_path(@group)
-    else
-      render :new_custom_location
-    end
-  end
-
-  def destroy_custom_location
-    @custom_location = @group.custom_locations.find_by_name params[:custom_location_id]
-    @custom_location.destroy
-
-    flash[:notice] = "Custom location #{@custom_location.name} deleted"
-    redirect_to group_path(@group)
-  end
+  include LocatableActions
+  def locatable; @group; end
+  def locatable_path; group_path(@group); end
 
   private
 
