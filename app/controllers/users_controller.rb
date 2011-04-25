@@ -1,4 +1,5 @@
 class UsersController < ApplicationController
+  before_filter { @selected_tab = :user }
   before_filter :add_old_password_accessor, :only => [:change_password, :update_password]
 
   def index
