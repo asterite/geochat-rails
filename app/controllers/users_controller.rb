@@ -25,6 +25,25 @@ class UsersController < ApplicationController
     end
   end
 
+  def change_location
+  end
+
+  def update_location
+    @user.lat = params[:user][:lat]
+    @user.lon = params[:user][:lon]
+
+    result = Geokit::Geocoders::GoogleGeocoder.reverse_geocode([@user.lat, @user.lon])
+    if result.success?
+      @user.location = result.full_address
+      @user.location_short_url = Googl.shorten "http://maps.google.com/?q=#{@user.lat},#{@user.lon}"
+    end
+
+    @user.save!
+
+    flash[:notice] = "Location successfully updated to #{@user.location}"
+    redirect_to user_path
+  end
+
   private
 
   def add_old_password_accessor

@@ -159,6 +159,11 @@ table.table {
   font-size: 12px;
 }
 
+#map_container {
+  padding: 4px;
+  border: 1px solid black;
+}
+
 #version_separator {
   height: 20px;
 }

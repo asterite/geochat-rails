@@ -33,6 +33,8 @@ GeochatRails::Application.routes.draw do
     get '/' => 'users#index', :as => 'user'
     get '/password' => 'users#change_password', :as => 'change_user_password'
     post '/password' => 'users#update_password', :as => 'update_user_password'
+    get '/location' => 'users#change_location', :as => 'change_user_location'
+    post '/location' => 'users#update_location', :as => 'update_user_location'
   end
 
   scope "/nuntium" do

@@ -208,38 +208,4 @@ class NodeTest < ActiveSupport::TestCase
     group.forward_owners = true
     group.save!
   end
-
-  def expect_locate(name, lat, lon, location)
-    obj = stub(:lat => lat, :lng => lon, :full_address => location, :success? => true)
-    Geokit::Geocoders::GoogleGeocoder.expects(:geocode).with(name).returns(obj)
-  end
-
-  def expect_locate_not_found(name)
-    obj = stub(:success? => false)
-    Geokit::Geocoders::GoogleGeocoder.expects(:geocode).with(name).returns(obj)
-  end
-
-  def expect_reverse(lat, lon, location)
-    obj = stub(:full_address => location, :success? => true)
-    Geokit::Geocoders::GoogleGeocoder.expects(:reverse_geocode).with([lat, lon]).returns(obj)
-  end
-
-  def expect_reverse_not_found(lat, lon)
-    obj = stub(:success? => false)
-    Geokit::Geocoders::GoogleGeocoder.expects(:reverse_geocode).with([lat, lon]).returns(obj)
-  end
-
-  def expect_shorten(long_url, short_url)
-    Googl.expects(:shorten).with(long_url).returns(short_url)
-  end
-
-  def expect_shorten_google_maps(*params)
-    if params.length == 3
-      expect_shorten "http://maps.google.com/?q=#{params[0]},#{params[1]}", params[2]
-    elsif params.length == 2
-      expect_shorten "http://maps.google.com/?q=#{CGI.escape params[0]}", params[1]
-    else
-      raise "Expected 2 or 3 params for expect_shorten_google_maps"
-    end
-  end
 end

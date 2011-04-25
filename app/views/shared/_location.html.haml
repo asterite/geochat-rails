@@ -2,17 +2,63 @@
   = javascript_include_tag 'http://maps.google.com/maps/api/js?sensor=true'
   :javascript
     $(function() {
-      var latlng = new google.maps.LatLng(-34.397, 150.644);
+      var latlng = new google.maps.LatLng(#{lat || 37.09024}, #{lon || -95.712891});
       var myOptions = {
-        zoom: 8,
+        zoom: 4,
         center: latlng,
         mapTypeId: google.maps.MapTypeId.ROADMAP
       };
       var map = new google.maps.Map(document.getElementById("map"), myOptions);
+      var geocoder = new google.maps.Geocoder();
+      var marker = new google.maps.Marker({
+        position: latlng,
+        title: "Your location",
+        draggable: true
+      });
+      marker.setMap(map);
+
+      function setUserLocation(latLng) {
+        marker.setPosition(latLng);
+        $('#user_lat').val(latLng.lat());
+        $('#user_lon').val(latLng.lng());
+      }
+
+      function searchLocation() {
+        var address = $("#location_search").val();
+        geocoder.geocode({'address': address}, function(results, status) {
+          if (status == google.maps.GeocoderStatus.OK) {
+            var location = results[0].geometry.location;
+            setUserLocation(location);
+            map.setCenter(location);
+          } else {
+          }
+        });
+      }
+
+      google.maps.event.addListener(map, 'click', function(event) {
+        setUserLocation(event.latLng);
+      });
+
+      $('#location_search_button').click(function() {
+        searchLocation();
+        return false;
+      });
+
+      $('#location_search').keypress(function(event) {
+        if (event.keyCode == 13) {
+          searchLocation();
+          return false;
+        } else {
+        }
+      });
+
+      setUserLocation(latlng);
     });
 
-%p= f.label :location
 = f.hidden_field :lat
 = f.hidden_field :lon
-#map{:style => 'width:400px;height:200px;'}
+#map_container{:style => "width:#{width}px"}
+  #map{:style => "width:#{width}px;height:#{height}px;"}
+  %input#location_search_button{:type => :button, :value => :Search}
+  #{text_field :location, :search, :style => 'width:80%'}
 %br

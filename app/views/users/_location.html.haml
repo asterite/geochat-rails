@@ -1,0 +1,4 @@
+- if @user.location_known?
+  %p You said you was in #{@user.location} (#{@user.lat}, #{@user.lon}) #{time_ago_in_words @user.location_reported_at} ago
+- else
+  %p You never reported your location.
