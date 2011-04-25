@@ -4,6 +4,9 @@
 
 %h4 Members
 
+= page_entries_info @memberships, :entry_name => 'user'
+= will_paginate @memberships, :param_name => 'page'
+
 %table.table
   %tr
     %th Login

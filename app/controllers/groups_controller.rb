@@ -33,7 +33,11 @@ class GroupsController < ApplicationController
   end
 
   def show
-    @memberships = @group.memberships.includes(:user)
+    @pagination = {
+      :page => params[:page] || 1,
+      :per_page => 10
+    }
+    @memberships = @group.memberships.includes(:user).order('users.login_downcase').paginate @pagination
     @user_membership = @memberships.select{|m| m.user_id == @user.id}.first
   end
 
