@@ -16,6 +16,7 @@
       %th address
       %th kind
       %th status
+      %th send messages to
       %th
     - @channels.each do |channel|
       %tr
@@ -25,6 +26,7 @@
           %td= link_to(channel.status, channel_path(channel))
         -else
           %td= channel.status
+          %td= channel.target_address
           %td #{link_to 'turn on', turn_on_channel_path(channel) if channel.off?}                         |
               #{link_to 'turn off', turn_off_channel_path(channel) if channel.on?}                        |
               #{link_to 'delete', channel_path(channel), :method => :delete, :confirm => 'Are you sure?'} |

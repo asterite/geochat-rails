@@ -13,6 +13,10 @@ class EmailChannel < Channel
     ChannelMailer.activation_email(self).deliver
   end
 
+  def target_address
+    Addresses['email']
+  end
+
   private
 
   def set_activation_code

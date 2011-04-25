@@ -5,6 +5,10 @@ class XmppChannel < Channel
     "instant messenger"
   end
 
+  def target_address
+    Addresses['xmpp']
+  end
+
   private
 
   def set_activation_code

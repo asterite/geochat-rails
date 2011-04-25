@@ -16,11 +16,25 @@ class SmsChannel < Channel
   def send_activation_code
     Nuntium.new_from_config.send_ao(
       :from => 'geochat://system',
-      :to => "sms://#{address}",
+      :to => self.full_address,
       :body => "Enter the following code in the website to activate this phone: #{activation_code}",
       :country => self.country_iso2,
       :carrier => self.carrier_guid
     )
+  end
+
+  def target_address
+    channels = Nuntium.new_from_config.candidate_channels_for_ao({
+      :to => self.full_address,
+      :country => self.country_iso2,
+      :carrier => self.carrier_guid
+    })
+    if channels.present?
+      target = channels.first['address']
+      target = "+#{country_prefix_number}#{target}" if country_prefix_number.present? && !target.start_with?(country_prefix_number)
+    else
+      "don't know"
+    end
   end
 
   private

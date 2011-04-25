@@ -2,16 +2,20 @@
 
 :javascript
   var countries = #{Hash[@countries.map{|c| [c['iso2'], c['phone_prefix']]}].to_json};
-  function country_changed(value) {
-    $("#prefix").html('+' + countries[value]);
-    $.get("/nuntium/carriers/" + value, function(data) {
-      var html = '';
-      for(var i = 0; i < data.length; i++) {
-        html += '<option value="' + data[i].guid + '">' + data[i].name + '</option>';
-      }
-      $("#sms_channel_carrier").html(html);
+  $(function() {
+    $country = $("#sms_channel_country_iso2");
+    $carrier = $("#sms_channel_carrier_guid");
+    $country.change(function() {
+      $("#prefix").html('+' + countries[$country.val()]);
+      $.get("/nuntium/carriers/" + $country.val(), function(data) {
+        var html = '';
+        for(var i = 0; i < data.length; i++) {
+          html += '<option value="' + data[i].guid + '">' + data[i].name + '</option>';
+        }
+        $carrier.html(html);
+      });
     });
-  }
+  });
 
 = form_for @channel, :url => mobile_phone_new_channel_path do |f|
   - if @channel.errors.any?
@@ -23,7 +27,7 @@
   %p
     = f.label :country_iso2, 'Country'
     %br
-    = f.select :country_iso2, @countries.map{|c| [c['name'], c['iso2']] }, {}, :onchange => 'country_changed(this.value)'
+    = f.select :country_iso2, @countries.map{|c| [c['name'], c['iso2']] }
   %p
     = f.label :carrier_guid, 'Carrier'
     %br

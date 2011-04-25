@@ -3,7 +3,7 @@
 - else
   %p Your belong to #{@groups.length} group#{'s' if @groups.many?}, of which you own #{@owned_groups.length}.
   %p #{link_to 'Create a group', new_group_path}
-  %p #{link_to 'Browse public groups', new_group_path}
+  %p #{link_to 'Browse public groups', public_groups_path}
 
   %table.table
     %tr
@@ -18,7 +18,7 @@
       %th
     - @groups.each do |group|
       %tr
-        %td= group.alias
+        %td= link_to group.alias, group
         %td= group.name
         %td= @memberships.select{|m| m.group == group}.first.role
         %td= group.hidden? ? 'Yes' : 'No'
