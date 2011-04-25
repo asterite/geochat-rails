@@ -65,7 +65,7 @@ class UsersController < ApplicationController
   end
 
   def destroy_custom_location
-    @custom_location = @user.custom_locations.find_by_name params[:id]
+    @custom_location = @user.custom_locations.find_by_name params[:custom_location_id]
     @custom_location.destroy
 
     flash[:notice] = "Custom location #{@custom_location.name} deleted"

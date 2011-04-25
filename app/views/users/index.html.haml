@@ -6,24 +6,7 @@
 
 %h4 Your custom locations
 
-%p #{link_to 'Create a custom location', new_user_custom_location_path}
-
-= page_entries_info @custom_locations, :entry_name => 'custom location'
-= will_paginate @custom_locations, :param_name => 'custom_location_page'
-
-- if @custom_locations.present?
-  %table.table
-    %tr
-      %th Name
-      %th Location
-      %th
-    - @custom_locations.each do |location|
-      %tr
-        %td= location.name
-        %td= location.location
-        %td
-          #{link_to 'edit', edit_user_custom_location_path(location)}
-          #{link_to 'delete', destroy_user_custom_location_path(location), :method => :delete, :confirm => "Are you sure you want to delete the #{location.name} custom location?"}
+= render :partial => 'shared/custom_locations', :locals => {:locatable => @user, :can_edit => true}
 
 %h4 Your password
 

@@ -62,9 +62,9 @@ class ChannelsController < ApplicationController
     if ['mailto', 'sms'].include?(@channel.protocol) && @channel.activate(params[:activation_code])
       @channel.turn :on
       flash[:notice] = "Your #{@channel.protocol_name} channel for #{@channel.address} is now active"
-      redirect_to channels_path and return
+      redirect_to channels_path
     else
-      render :show and return
+      render :show
     end
   end
 

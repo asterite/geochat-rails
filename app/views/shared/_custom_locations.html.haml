@@ -1,0 +1,21 @@
+- if can_edit
+  %p #{link_to 'Create a custom location', new_custom_location_path(locatable)}
+
+= page_entries_info @custom_locations, :entry_name => 'custom location'
+= will_paginate @custom_locations, :param_name => 'custom_location_page'
+
+- if @custom_locations.present?
+  %table.table
+    %tr
+      %th Name
+      %th Location
+      - if can_edit
+        %th
+    - @custom_locations.each do |location|
+      %tr
+        %td= location.name
+        %td= location.location
+        - if can_edit
+          %td
+            #{link_to 'edit', edit_custom_location_path(locatable, location)}
+            #{link_to 'delete', destroy_custom_location_path(locatable, location), :method => :delete, :confirm => "Are you sure you want to delete the #{location.name} custom location?"}

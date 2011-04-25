@@ -7,7 +7,7 @@
 %h4 Members
 
 = page_entries_info @memberships, :entry_name => 'user'
-= will_paginate @memberships, :param_name => 'page'
+= will_paginate @memberships, :param_name => 'users_page'
 
 %table.table
   %tr
@@ -32,3 +32,6 @@
           - if membership.member?
             #{link_to 'make admin', change_role_path(:user => membership.user.login, :role => :admin)}
 
+%h4 Custom locations
+
+= render :partial => 'shared/custom_locations', :locals => {:locatable => @group, :can_edit => @user.is_owner_of?(@group)}

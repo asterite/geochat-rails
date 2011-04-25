@@ -27,7 +27,17 @@ GeochatRails::Application.routes.draw do
     get 'public', :on => :collection
     get 'join', :on => :member
   end
-  get 'groups/:id/users/:user/change_role/:role' => 'groups#change_role', :as => 'change_role'
+  scope '/groups/:id' do
+    get '/users/:user/change_role/:role' => 'groups#change_role', :as => 'change_role'
+
+    scope '/custom_locations' do
+      get '/new' => 'groups#new_custom_location', :as => 'new_group_custom_location'
+      post '/' => 'groups#create_custom_location', :as => 'create_group_custom_location'
+      get '/:custom_location_id/edit' => 'groups#edit_custom_location', :as => 'edit_group_custom_location'
+      post '/:custom_location_id' => 'groups#update_custom_location', :as => 'update_group_custom_location'
+      delete '/:custom_location_id' => 'groups#destroy_custom_location', :as => 'destroy_group_custom_location'
+    end
+  end
 
   scope '/user' do
     get '/' => 'users#index', :as => 'user'
@@ -38,9 +48,9 @@ GeochatRails::Application.routes.draw do
 
     scope '/custom_locations' do
       get '/new' => 'users#new_custom_location', :as => 'new_user_custom_location'
-      post '/create' => 'users#create_custom_location', :as => 'create_user_custom_location'
-      get '/:id/edit' => 'users#edit_custom_location', :as => 'edit_user_custom_location'
-      post '/:id' => 'users#update_custom_location', :as => 'edit_user_custom_location'
+      post '/' => 'users#create_custom_location', :as => 'create_user_custom_location'
+      get '/:custom_location_id/edit' => 'users#edit_custom_location', :as => 'edit_user_custom_location'
+      post '/:custom_location_id' => 'users#update_custom_location', :as => 'update_user_custom_location'
       delete '/:id' => 'users#destroy_custom_location', :as => 'destroy_user_custom_location'
     end
   end
