@@ -311,7 +311,7 @@ class Node
           reply T.location_not_found(location)
           return false
         end
-        short_url = Googl.shorten "http://maps.google.com/?q=#{CGI.escape place}"
+        short_url = Googl.shorten_location place
       end
     else
       result = Geokit::Geocoders::GoogleGeocoder.reverse_geocode(location)
@@ -322,7 +322,7 @@ class Node
         reply T.location_not_found(location.join ', ')
         return false
       end
-      short_url = Googl.shorten "http://maps.google.com/?q=#{coords.join ','}"
+      short_url = Googl.shorten_location coords
     end
 
     current_user.location = place

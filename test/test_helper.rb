@@ -50,9 +50,9 @@ class ActiveSupport::TestCase
 
   def expect_shorten_google_maps(*params)
     if params.length == 3
-      expect_shorten "http://maps.google.com/?q=#{params[0]},#{params[1]}", params[2]
+      Googl.expects(:shorten_location).with(params[0 .. 1]).returns(params[2])
     elsif params.length == 2
-      expect_shorten "http://maps.google.com/?q=#{CGI.escape params[0]}", params[1]
+      Googl.expects(:shorten_location).with(params[0]).returns(params[1])
     else
       raise "Expected 2 or 3 params for expect_shorten_google_maps"
     end

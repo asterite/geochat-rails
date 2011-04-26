@@ -12,7 +12,7 @@ module LocatableActions
     if result.success?
       locatable.location = result.full_address
       if locatable.respond_to? :location_short_url=
-        locatable.location_short_url = Googl.shorten "http://maps.google.com/?q=#{locatable.lat},#{locatable.lon}"
+        locatable.location_short_url = Googl.shorten_location locatable.coords
       end
     end
 

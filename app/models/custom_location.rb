@@ -35,7 +35,7 @@ class CustomLocation < ActiveRecord::Base
   end
 
   def shorten_url
-    self.location_short_url = Googl.shorten "http://maps.google.com/?q=#{lat},#{lon}"
+    self.location_short_url = Googl.shorten_location coords
   end
 
   def increment_locatable_custom_locations_count
