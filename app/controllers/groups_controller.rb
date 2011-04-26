@@ -1,6 +1,6 @@
 class GroupsController < ApplicationController
-  before_filter :get_group, :only => [:show, :join, :change_role, :change_location, :update_location, :new_custom_location, :create_custom_location, :edit_custom_location, :update_custom_location, :destroy_custom_location]
-  before_filter :check_is_owner, :only => [:change_location, :update_location, :new_custom_location, :create_custom_location, :edit_custom_location, :update_custom_location, :destroy_custom_location]
+  before_filter :get_group, :except => [:index, :public, :new, :create]
+  before_filter :check_is_owner, :except => [:index, :public, :new, :create, :show]
 
   def index
     @memberships = @user.memberships.includes(:group).all
@@ -51,6 +51,8 @@ class GroupsController < ApplicationController
       :per_page => 10
     }
     @custom_locations = @group.custom_locations.order('name').paginate @custom_locations_pagination
+
+    @custom_channels = @group.custom_channels.order('name')
   end
 
   def join
@@ -82,6 +84,28 @@ class GroupsController < ApplicationController
 
     flash[:notice] = "User #{params[:user]} is now #{params[:role]} in #{@group}"
     redirect_to @group
+  end
+
+  def new_custom_sms_channel
+    @custom_channel = @group.custom_qst_server_channels.new
+  end
+
+  def create_custom_sms_channel
+    @custom_channel = @group.custom_qst_server_channels.new params[:custom_qst_server_channel]
+    if @custom_channel.save
+      flash[:notice] = "Custom sms channel #{@custom_channel.name} created"
+      redirect_to group_path(@group)
+    else
+      render :new_custom_sms_channel
+    end
+  end
+
+  def destroy_custom_channel
+    @custom_channel = @group.custom_channels.find params[:custom_channel_id]
+    @custom_channel.destroy
+
+    flash[:notice] = "Custom #{@custom_channel.kind} channel #{@custom_channel.name} deleted"
+    redirect_to group_path(@group)
   end
 
   include LocatableActions

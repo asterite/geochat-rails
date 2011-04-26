@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110425084254) do
+ActiveRecord::Schema.define(:version => 20110426043930) do
 
   create_table "channels", :force => true do |t|
     t.string   "protocol"
@@ -25,6 +25,16 @@ ActiveRecord::Schema.define(:version => 20110425084254) do
 
   add_index "channels", ["protocol", "address"], :name => "index_channels_on_protocol_and_address"
   add_index "channels", ["user_id", "status"], :name => "index_channels_on_user_id_and_status"
+
+  create_table "custom_channels", :force => true do |t|
+    t.integer  "group_id"
+    t.string   "name"
+    t.string   "type"
+    t.string   "direction"
+    t.text     "data"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "custom_locations", :force => true do |t|
     t.string   "name"

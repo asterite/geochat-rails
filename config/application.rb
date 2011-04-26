@@ -15,6 +15,7 @@ module GeochatRails
     # Custom directories with classes and modules you want to be autoloadable.
     config.autoload_paths += %W(#{config.root}/app/models/nodes)
     config.autoload_paths += %W(#{config.root}/app/models/channels)
+    config.autoload_paths += %W(#{config.root}/app/models/custom_channels)
 
     # Only load the plugins named here, in the order given (default is alphabetical).
     # :all can be used as a placeholder for all plugins not explicitly named.

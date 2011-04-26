@@ -1,6 +1,6 @@
 module Locatable
   def self.included(klass)
-    klass.has_many :custom_locations, :as => :locatable
+    klass.has_many :custom_locations, :as => :locatable, :dependent => :destroy
     klass.data_accessor :custom_locations_count, :default => 0
   end
 

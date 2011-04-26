@@ -4,6 +4,8 @@ class Group < ActiveRecord::Base
   has_many :memberships, :dependent => :destroy
   has_many :users, :through => :memberships
   has_many :messages, :dependent => :destroy
+  has_many :custom_channels, :dependent => :destroy
+  has_many :custom_qst_server_channels
 
   validates :alias, :presence => true, :length => {:minimum => 3}, :format => {:with => /\A[a-zA-Z0-9]+\Z/, :message => 'can only contain alphanumeric characters'}
   validates :alias_downcase, :presence => true, :uniqueness => true

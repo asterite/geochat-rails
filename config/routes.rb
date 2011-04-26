@@ -40,6 +40,12 @@ GeochatRails::Application.routes.draw do
       post '/:custom_location_id' => 'groups#update_custom_location', :as => 'update_group_custom_location'
       delete '/:custom_location_id' => 'groups#destroy_custom_location', :as => 'destroy_group_custom_location'
     end
+
+    scope '/custom_channels' do
+      get '/sms/new' => 'groups#new_custom_sms_channel', :as => 'new_custom_sms_channel'
+      post '/sms' => 'groups#create_custom_sms_channel', :as => 'create_custom_sms_channel'
+      delete '/:custom_channel_id' => 'groups#destroy_custom_channel', :as => 'destroy_custom_channel'
+    end
   end
 
   scope '/user' do
