@@ -1,6 +1,6 @@
 class GroupsController < ApplicationController
-  before_filter :get_group, :only => [:show, :join, :change_role, :new_custom_location, :create_custom_location, :edit_custom_location, :update_custom_location, :destroy_custom_location]
-  before_filter :check_is_owner, :only => [:new_custom_location, :create_custom_location, :edit_custom_location, :update_custom_location, :destroy_custom_location]
+  before_filter :get_group, :only => [:show, :join, :change_role, :change_location, :update_location, :new_custom_location, :create_custom_location, :edit_custom_location, :update_custom_location, :destroy_custom_location]
+  before_filter :check_is_owner, :only => [:change_location, :update_location, :new_custom_location, :create_custom_location, :edit_custom_location, :update_custom_location, :destroy_custom_location]
 
   def index
     @memberships = @user.memberships.includes(:group).all

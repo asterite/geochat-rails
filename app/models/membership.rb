@@ -36,13 +36,16 @@ class Membership < ActiveRecord::Base
   end
 
   def <=>(other)
+    other = other.role if other.is_a? Membership
+    raise "Can only compare to :member, :admin or :owner" unless [:member, :admin, :owner].include? other
+
     case role
     when :member
-      other.member? ? 0 : -1
+      other == :member ? 0 : -1
     when :admin
-      other.member? ? 1 : (other.admin? ? 0 : -1)
+      other == :member ? 1 : (other == :admin ? 0 : -1)
     when :owner
-      other.owner? ? 0 : 1
+      other == :owner ? 0 : 1
     end
   end
 

@@ -1,4 +1,27 @@
 module LocatableActions
+  def change_location
+  end
+
+  def update_location
+    param_name = locatable.class.name.tableize.singularize.to_sym
+
+    locatable.lat = params[param_name][:lat]
+    locatable.lon = params[param_name][:lon]
+
+    result = Geokit::Geocoders::GoogleGeocoder.reverse_geocode([locatable.lat, locatable.lon])
+    if result.success?
+      locatable.location = result.full_address
+      if locatable.respond_to? :location_short_url=
+        locatable.location_short_url = Googl.shorten "http://maps.google.com/?q=#{locatable.lat},#{locatable.lon}"
+      end
+    end
+
+    locatable.save!
+
+    flash[:notice] = "Location successfully updated to #{locatable.location}"
+    redirect_to locatable_path
+  end
+
   def new_custom_location
     @custom_location = locatable.custom_locations.new
   end

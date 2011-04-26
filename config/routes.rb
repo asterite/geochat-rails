@@ -30,6 +30,9 @@ GeochatRails::Application.routes.draw do
   scope '/groups/:id' do
     get '/users/:user/change_role/:role' => 'groups#change_role', :as => 'change_role'
 
+    get '/location' => 'groups#change_location', :as => 'change_group_location'
+    post '/location' => 'groups#update_location', :as => 'update_group_location'
+
     scope '/custom_locations' do
       get '/new' => 'groups#new_custom_location', :as => 'new_group_custom_location'
       post '/' => 'groups#create_custom_location', :as => 'create_group_custom_location'

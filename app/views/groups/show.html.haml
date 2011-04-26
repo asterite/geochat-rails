@@ -1,8 +1,16 @@
 %h3= @group.name_with_alias
 
 %p= @group.description
+
+%h4 Location
+
 - if @group.location_known?
-  %p Based in #{@group.location}
+  #{@group.location}.
+- else
+  This group's location is unknown.
+  - if @user_membership.owner?
+- if @user_membership.owner?
+  #{link_to 'change', change_group_location_path}
 
 %h4 Members
 
@@ -13,7 +21,7 @@
   %tr
     %th Login
     %th Role
-    - if @user_membership.owner? || @user_membership.admin?
+    - if @user_membership > :admin
       %th
   - @memberships.each do |membership|
     %tr

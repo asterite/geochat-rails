@@ -123,4 +123,18 @@ class GroupsControllerTest < ActionController::TestCase
     user3.reload
     assert_equal :admin, user3.role_in(group)
   end
+
+  test "change location" do
+    group = @user.create_group :alias => 'bar', :name => 'bar'
+
+    expect_reverse 11.558831, 104.91744500000004, 'Phnom Penh'
+
+    post :update_location, :id => 'bar', :group => {:lat => 11.558831, :lon => 104.91744500000004}
+
+    group.reload
+
+    assert_in_delta 11.558831, group.lat, 1e-07
+    assert_in_delta 104.91744500000004, group.lon, 1e-07
+    assert_equal 'Phnom Penh', group.location
+  end
 end
