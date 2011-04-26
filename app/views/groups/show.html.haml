@@ -46,7 +46,9 @@
 
 %h4 Custom channels
 
-- ['sms', 'xmpp'].each do |kind|
+- ['sms',
+  #'xmpp',
+  ].each do |kind|
   = link_to "Create a custom #{kind} channel", :"new_custom_#{kind}_channel"
   %br
 
