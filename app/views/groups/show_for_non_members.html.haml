@@ -1,0 +1,16 @@
+%h3= @group.name_with_alias
+
+%p= @group.description
+
+%h4 Location
+
+- if @group.location_known?
+  #{@group.location}.
+- else
+  This group's location is unknown.
+
+%p
+  - if @group.requires_approval_to_join?
+    = link_to 'Request to join this group'
+  - else
+    = link_to 'Join this group', join_group_path(@group)

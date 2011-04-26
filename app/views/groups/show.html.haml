@@ -8,7 +8,6 @@
   #{@group.location}.
 - else
   This group's location is unknown.
-  - if @user_membership.owner?
 - if @user_membership.owner?
   #{link_to 'change', change_group_location_path}
 
@@ -44,25 +43,27 @@
 
 = render :partial => 'shared/custom_locations', :locals => {:locatable => @group, :can_edit => @user.is_owner_of?(@group)}
 
-%h4 Custom channels
+- if @user_membership.owner?
 
-= link_to "Create a custom sms channel", new_custom_sms_channel_path
+  %h4 Custom channels
 
-%br
-- if @custom_channels.blank?
-  No custom channels.
-- else
-  %table.table
-    %tr
-      %th Name
-      %th Kind
-      %th Direction
-      - if @user_membership.owner?
-        %th
-    - @custom_channels.each do |channel|
+  = link_to "Create a custom sms channel", new_custom_sms_channel_path
+
+  %br
+  - if @custom_channels.blank?
+    No custom channels.
+  - else
+    %table.table
       %tr
-        %td= channel.name
-        %td= channel.kind
-        %td= channel.direction
+        %th Name
+        %th Kind
+        %th Direction
         - if @user_membership.owner?
-          %td= link_to 'delete', destroy_custom_channel_path(@group, channel), :method => :delete, :confirm => "Are you sure you want to delete the #{channel.kind} #{channel.name} channel?"
+          %th
+      - @custom_channels.each do |channel|
+        %tr
+          %td= channel.name
+          %td= channel.kind
+          %td= channel.direction
+          - if @user_membership.owner?
+            %td= link_to 'delete', destroy_custom_channel_path(@group, channel), :method => :delete, :confirm => "Are you sure you want to delete the #{channel.kind} #{channel.name} channel?"

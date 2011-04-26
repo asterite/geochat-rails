@@ -39,12 +39,16 @@ class GroupsController < ApplicationController
   end
 
   def show
+    @user_membership = @user.membership_in @group
+    if !@user_membership
+      render :show_for_non_members and return
+    end
+
     @memberships_pagination = {
       :page => params[:users_page] || 1,
       :per_page => 10
     }
     @memberships = @group.memberships.includes(:user).order('users.login_downcase').paginate @memberships_pagination
-    @user_membership = @memberships.select{|m| m.user_id == @user.id}.first
 
     @custom_locations_pagination = {
       :page => params[:custom_locations_page] || 1,

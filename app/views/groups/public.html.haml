@@ -4,10 +4,10 @@
 = will_paginate @groups, :param_name => 'page'
 
 - @groups.each do |group|
-  %h4= group.name_with_alias
+  %h4= link_to group.name_with_alias, group
   %p= group.description
   %p Members: #{group.users_count}
   - if group.requires_approval_to_join?
-    = link_to 'Request join approval'
+    = link_to 'Request to join this group'
   - else
     = link_to 'Join this group', join_group_path(group)
