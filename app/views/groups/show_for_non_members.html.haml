@@ -9,8 +9,13 @@
 - else
   This group's location is unknown.
 
-%p
-  - if @group.requires_approval_to_join?
-    = link_to 'Request to join this group'
+- if @invite
+  - if @invite.admin_accepted?
+    %p= link_to 'You have been invited to this group. Join it now!', join_group_path(@group)
   - else
-    = link_to 'Join this group', join_group_path(@group)
+    %p You already requested to join this group.
+- else
+  - if @group.requires_approval_to_join?
+    %p= link_to 'Request to join this group', join_group_path(@group)
+  - else
+    %p= link_to 'Join this group', join_group_path(@group)

@@ -8,6 +8,6 @@
   %p= group.description
   %p Members: #{group.users_count}
   - if group.requires_approval_to_join?
-    = link_to 'Request to join this group'
+    = link_to 'Request to join this group', join_group_path(group)
   - else
     = link_to 'Join this group', join_group_path(group)

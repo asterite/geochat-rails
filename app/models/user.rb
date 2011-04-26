@@ -98,6 +98,10 @@ class User < ActiveRecord::Base
     Invite.create! :group => group, :user => user, :admin_accepted => self.can_invite_in?(group), :requestor => self
   end
 
+  def invite_in(group)
+    Invite.where(:user_id => self.id, :group_id => group.id).first
+  end
+
   def request_join(group)
     Invite.create! :user => self, :group => group, :user_accepted => true
   end

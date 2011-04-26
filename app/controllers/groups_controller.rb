@@ -41,6 +41,7 @@ class GroupsController < ApplicationController
   def show
     @user_membership = @user.membership_in @group
     if !@user_membership
+      @invite = @user.invite_in @group
       render :show_for_non_members and return
     end
 
@@ -60,10 +61,23 @@ class GroupsController < ApplicationController
   end
 
   def join
-    if @group.requires_approval_to_join?
-      flash[:notice] = "This groups needs approval to join"
-    elsif @user.belongs_to? @group
-      flash[:notice] = "You already are a member of #{@group.alias}"
+    if @user.belongs_to? @group
+      flash[:notice] = "You already are a member of #{@group}"
+    elsif @group.requires_approval_to_join?
+      @invite = @user.invite_in @group
+      if @invite
+        if @invite.admin_accepted?
+          @user.join @group
+          @invite.destroy
+
+          flash[:notice] = "You are now a member of #{@group}"
+        else
+          flash[:notice] = "You already requested to join #{@group}"
+        end
+      else
+        @user.request_join @group
+        flash[:notice] = "Request to join group #{@group} sent"
+      end
     else
       @user.join @group
       flash[:notice] = "You are now a member of #{@group.alias}"
