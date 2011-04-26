@@ -46,8 +46,11 @@
 
 %h4 Custom channels
 
-%p= link_to 'Create a custom sms channel', new_custom_sms_channel_path
+- ['sms', 'xmpp'].each do |kind|
+  = link_to "Create a custom #{kind} channel", :"new_custom_#{kind}_channel"
+  %br
 
+%br
 - if @custom_channels.blank?
   No custom channels.
 - else

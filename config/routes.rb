@@ -42,8 +42,12 @@ GeochatRails::Application.routes.draw do
     end
 
     scope '/custom_channels' do
-      get '/sms/new' => 'groups#new_custom_sms_channel', :as => 'new_custom_sms_channel'
-      post '/sms' => 'groups#create_custom_sms_channel', :as => 'create_custom_sms_channel'
+      ['sms', 'xmpp'].each do |kind|
+        scope "/#{kind}" do
+          get '/new' => "groups#new_custom_#{kind}_channel", :as => "new_custom_#{kind}_channel"
+          post '/' => "groups#create_custom_#{kind}_channel", :as => "create_custom_#{kind}_channel"
+        end
+      end
       delete '/:custom_channel_id' => 'groups#destroy_custom_channel', :as => 'destroy_custom_channel'
     end
   end

@@ -86,18 +86,22 @@ class GroupsController < ApplicationController
     redirect_to @group
   end
 
-  def new_custom_sms_channel
-    @custom_channel = @group.custom_qst_server_channels.new
-  end
+  [['sms', 'qst_server'], ['xmpp', 'xmpp']].each do |kind, nuntium_kind|
+    class_eval %Q(
+      def new_custom_#{kind}_channel
+        @custom_channel = @group.custom_#{nuntium_kind}_channels.new
+      end
 
-  def create_custom_sms_channel
-    @custom_channel = @group.custom_qst_server_channels.new params[:custom_qst_server_channel]
-    if @custom_channel.save
-      flash[:notice] = "Custom sms channel #{@custom_channel.name} created"
-      redirect_to group_path(@group)
-    else
-      render :new_custom_sms_channel
-    end
+      def create_custom_#{kind}_channel
+        @custom_channel = @group.custom_#{nuntium_kind}_channels.new params[:custom_#{nuntium_kind}_channel]
+        if @custom_channel.save
+          flash[:notice] = "Custom #{kind} channel " + @custom_channel.name + " created"
+          redirect_to group_path(@group)
+        else
+          render :new_custom_#{nuntium_kind}_channel
+        end
+      end
+    )
   end
 
   def destroy_custom_channel

@@ -1,0 +1,49 @@
+%h3 #{@group.name_with_alias}
+
+%h4 New custom xmpp channel
+
+= form_for @custom_channel, :url => create_custom_xmpp_channel_path, :html => {:method => :post} do |f|
+  - if @custom_channel.errors.any?
+    #error_explanation
+      %h2 #{pluralize(@custom_channel.errors.count, "error")} prohibited you to create this custom xmpp channel:
+      %ul
+        - @custom_channel.errors.full_messages.each do |msg|
+          %li= msg
+  %p
+    = f.label :name
+    %br
+    = f.text_field :name
+  %p
+    = f.label :direction
+    %br
+    = f.select :direction, options_for_select([:bidirectional, :incoming, :outgoing])
+  %p
+    = f.label :user
+    %br
+    = f.text_field :user
+  %p
+    = f.label :domain
+    %br
+    = f.text_field :domain
+  %p
+    = f.label :password
+    %br
+    = f.password_field :password
+  %p
+    = f.label :server, 'Server (optional)'
+    %br
+    = f.text_field :server
+  %p
+    = f.label :port
+    %br
+    = f.text_field :port
+  %p
+    = f.label :resource, 'Resource (optional)'
+    %br
+    = f.text_field :resource
+  %p
+    = f.label :status, 'Status message'
+    %br
+    = f.text_field :status
+  = submit_tag 'Create custom xmpp channel'
+
