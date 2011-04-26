@@ -20,7 +20,6 @@ class CustomChannel < ActiveRecord::Base
       :configuration => data,
       :restrictions => [:name => 'group', :value => group.alias],
     })
-    p response
     if response.code != 200
       response['properties'].each do |props|
         props.each do |key, value|

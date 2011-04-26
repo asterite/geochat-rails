@@ -57,7 +57,7 @@ class SignupAndJoinTest < NodeTest
     send_message 2, "join Group1"
 
     send_message 1, "Hello ! World"
-    assert_messages_sent_to 2, "User1: Hello ! World"
+    assert_messages_sent_to 2, "User1: Hello ! World", :group => 'Group1'
     assert_message_saved "User1", "Group1", "Hello ! World"
   end
 end

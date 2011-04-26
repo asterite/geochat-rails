@@ -63,14 +63,14 @@ class NodeTest < ActiveSupport::TestCase
     assert_nil channel, "Expected channel with address #{address} not to exist"
   end
 
-  def assert_messages_sent_to(address, msgs)
+  def assert_messages_sent_to(address, msgs, options = {})
     address = address.to_a if address.is_a?(Range)
     address = *address
     address.each do |a|
       a = "#{@protocol}://#{a}" if a.is_a?(Integer)
       actual = @messages.select{|x| x[:to] == a}
       msgs = *msgs
-      expected = msgs.map{|x| {:from => 'geochat://system', :to => a, :body => x}}
+      expected = msgs.map{|x| {:from => 'geochat://system', :to => a, :body => x}.merge(options)}
       assert_equal expected, actual, "Mismatched messages to #{a}"
     end
   end

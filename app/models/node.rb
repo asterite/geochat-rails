@@ -234,6 +234,8 @@ class Node
   end
 
   def send_message_to_channel(user, channel, msg, options = {})
+    message_properties = {}
+
     prefix = ""
 
     if options[:group]
@@ -241,6 +243,7 @@ class Node
       if group.id != user.default_group_id && user.groups_count > 1
         prefix << "[#{group.alias}] "
       end
+      message_properties[:group] = group.alias
     end
 
     if options[:sender]
@@ -282,7 +285,10 @@ class Node
 
     msg = "#{prefix}#{msg}"
 
-    send_message :to => channel.full_address, :body => msg
+    message_properties[:to] = channel.full_address
+    message_properties[:body] = msg
+
+    send_message message_properties
   end
 
   def send_message(options = {})

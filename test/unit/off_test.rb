@@ -52,6 +52,6 @@ class OffTest < NodeTest
 
     send_message 1, "Hello"
     assert_no_messages_sent_to 2
-    assert_messages_sent_to 3, "User1: Hello"
+    assert_messages_sent_to 3, "User1: Hello", :group => 'Group1'
   end
 end

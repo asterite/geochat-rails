@@ -59,7 +59,7 @@ class LanguageTest < NodeTest
     send_message 1, "at Paris"
 
     I18n.with_locale :es do
-      assert_messages_sent_to 2, "User1: #{T.at_place 'Paris, France', 'lat: 1.0 N, lon: 2.0 E, url: http://short.url'}"
+      assert_messages_sent_to 2, "User1: #{T.at_place 'Paris, France', 'lat: 1.0 N, lon: 2.0 E, url: http://short.url'}", :group => 'Group1'
     end
   end
 

@@ -1,6 +1,6 @@
 class GroupsController < ApplicationController
   before_filter :get_group, :except => [:index, :public, :new, :create]
-  before_filter :check_is_owner, :except => [:index, :public, :new, :create, :show]
+  before_filter :check_is_owner, :except => [:index, :public, :new, :create, :show, :join, :change_role]
 
   def index
     @memberships = @user.memberships.includes(:group).all

@@ -22,8 +22,8 @@ class JoinTest < NodeTest
     set_requires_approval_to_join 'Group1'
 
     send_message 2, "join Group1"
-    assert_messages_sent_to 1, T.invitation_pending_for_approval('User2', 'Group1')
     assert_messages_sent_to 2, T.group_requires_approval('Group1')
+    assert_messages_sent_to 1, T.invitation_pending_for_approval('User2', 'Group1'), :group => 'Group1'
     assert_pending_approval "Group1", "User2"
     assert_group_exists "Group1", "User1"
 
@@ -48,8 +48,8 @@ class JoinTest < NodeTest
     send_message 2, "join Group1"
     assert_pending_approval "Group1", "User2"
     assert_group_exists "Group1", "User1", "User3"
-    assert_messages_sent_to [1, 3], T.invitation_pending_for_approval('User2', 'Group1')
     assert_messages_sent_to 2, T.group_requires_approval('Group1')
+    assert_messages_sent_to [1, 3], T.invitation_pending_for_approval('User2', 'Group1'), :group => 'Group1'
 
     send_message 3, "invite User2"
     assert_messages_sent_to 2, T.welcome_to_first_group('User2', 'Group1')
@@ -87,8 +87,8 @@ class JoinTest < NodeTest
     send_message 3, "join Group1"
     assert_group_exists "Group1", "User1", "User2"
     assert_pending_approval "Group1", "User3"
-    assert_messages_sent_to 1, T.invitation_pending_for_approval('User3', 'Group1')
     assert_messages_sent_to 3, T.group_requires_approval('Group1')
+    assert_messages_sent_to 1, T.invitation_pending_for_approval('User3', 'Group1'), :group => 'Group1'
 
     send_message 1, "invite User3"
     assert_group_exists "Group1", "User1", "User2", "User3"
