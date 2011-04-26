@@ -108,7 +108,7 @@ module T
     end
 
     def hello(user)
-      user = user.display_name if user.is_a?(User)
+      user = user.display_name.present? ? user.display_name : user.login if user.is_a? User
       I18n.t! :hello, :name => user
     end
 
