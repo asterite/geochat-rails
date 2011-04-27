@@ -22,4 +22,12 @@ class ExternalServiceTest < NodeTest
     assert_no_messages_sent_to 2
     assert_no_messages_saved
   end
+
+  test "external service continue" do
+    HTTParty.expects(:post).with("http://example.com?#{@options.to_query}", :body => 'something').returns(stub(:headers => {'x-geochat-action' => 'continue'}))
+
+    send_message 1, "something"
+    assert_messages_sent_to 2, "User1: something", :group => 'Group1'
+    assert_message_saved 'User1', 'Group1', 'something'
+  end
 end

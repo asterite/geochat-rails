@@ -179,6 +179,8 @@ class MessageNode < Node
       case action
       when 'stop'
         return
+      when 'continue'
+        # Just continue
       end
     end
 
