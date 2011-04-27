@@ -16,7 +16,7 @@ class ActiveSupport::TestCase
   include Mocha::API
 
   def http_auth(user, pass)
-    'Basic ' + Base64.encode64(user + ':' + pass)
+    @request.env['HTTP_AUTHORIZATION'] = 'Basic ' + Base64.encode64(user + ':' + pass)
   end
 
   def login(user)

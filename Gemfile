@@ -20,6 +20,7 @@ gem 'geokit'
 group :test do
   gem 'machinist'
   gem 'ffaker'
+  gem 'shoulda'
   gem 'mocha', :require => false
   gem 'cucumber-rails'
   gem 'capybara'

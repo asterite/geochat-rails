@@ -16,149 +16,130 @@ class ApiControllerTest < ActionController::TestCase
     assert_equal user.to_json, @response.body
   end
 
-  test "create user already exists" do
-    user = User.make
-    get :create_user, :login => user.login, :password => 'bar', :displayname => 'Foo Bar'
-    assert_response :bad_request
-  end
-
-  test "user" do
-    user = User.make
-    get :user, :login => user.login
-    assert_equal user.to_json, @response.body
-  end
-
-  test "user not found" do
-    get :user, :login => 'foo'
-    assert_response :not_found
-  end
-
-  [['true', 'bar'], ['false', 'baz']].each do |value, pass|
-    test "verify user credentials #{value}" do
-      user = User.make :password => 'bar'
-      get :verify_user_credentials, :login => user.login, :password => pass
-      assert_response :ok
-      assert_equal value, @response.body
+  context 'with a user' do
+    setup do
+      @user = User.make :password => 'foo'
     end
-  end
 
-  test "user groups not authorized" do
-    user = User.make
-    get :user_groups, :login => user.login
-    assert_response :unauthorized
-  end
+    should "not be able to create user: already exists" do
+      get :create_user, :login => @user.login, :password => 'bar', :displayname => 'Foo Bar'
+      assert_response :bad_request
+    end
 
-  test "user groups" do
-    user = User.make :password => 'foo'
-    user.create_group :alias => 'one', :name => 'one'
-    user.create_group :alias => 'two', :name => 'two'
+    should "get user" do
+      get :user, :login => @user.login
+      assert_equal @user.to_json, @response.body
+    end
 
-    @request.env['HTTP_AUTHORIZATION'] = http_auth(user.login, 'foo')
-    get :user_groups, :login => user.login
-    assert_response :ok
+    should "not found unexistent user" do
+      get :user, :login => 'foo'
+      assert_response :not_found
+    end
 
-    assert_equal user.groups.to_json, @response.body
-  end
+    [['true', 'foo'], ['false', 'bar']].each do |value, pass|
+      should "verify user credentials #{value}" do
+        get :verify_user_credentials, :login => @user.login, :password => pass
+        assert_response :ok
+        assert_equal value, @response.body
+      end
+    end
 
-  test "group" do
-    user = User.make :password => 'foo'
-    group = user.create_group :alias => 'one', :name => 'one'
+    should "say unauthorized for user groups when not logged in" do
+      get :user_groups, :login => @user.login
+      assert_response :unauthorized
+    end
 
-    @request.env['HTTP_AUTHORIZATION'] = http_auth(user.login, 'foo')
-    get :group, :alias => group.alias
-    assert_response :ok
+    should "get user groups" do
+      @user.create_group :alias => 'one', :name => 'one'
+      @user.create_group :alias => 'two', :name => 'two'
 
-    assert_equal group.to_json, @response.body
-  end
+      http_auth(@user.login, 'foo')
+      get :user_groups, :login => @user.login
+      assert_response :ok
 
-  test "group unauthorized" do
-    user = User.make :password => 'foo'
-    group = user.create_group :alias => 'one', :name => 'one'
+      assert_equal @user.groups.to_json, @response.body
+    end
 
-    get :group, :alias => group.alias
-    assert_response :unauthorized
-  end
+    context 'in a group' do
+      setup do
+        @group = @user.create_group :alias => 'one', :name => 'one'
+      end
 
-  test "group unauthorized not member" do
-    user = User.make :password => 'foo'
-    group = user.create_group :alias => 'one', :name => 'one'
+      context 'not logged in' do
+        should "say unauthorized for group" do
+          get :group, :alias => @group.alias
+          assert_response :unauthorized
+        end
 
-    user2 = User.make :password => 'bar'
+        should "say unauthorized for group members when not logged in" do
+          get :group_members, :alias => @group.alias
+          assert_response :unauthorized
+        end
+      end
 
-    @request.env['HTTP_AUTHORIZATION'] = http_auth(user2.login, 'bar')
-    get :group, :alias => group.alias
-    assert_response :unauthorized
-  end
+      context 'logged in' do
+        setup do
+          http_auth(@user.login, 'foo')
+        end
 
-  test "group members not authorized" do
-    user = User.make :password => 'foo'
-    group = user.create_group :alias => 'one', :name => 'one'
+        should "get group" do
+          get :group, :alias => @group.alias
+          assert_response :ok
 
-    get :group_members, :alias => group.alias
-    assert_response :unauthorized
-  end
+          assert_equal @group.to_json, @response.body
+        end
 
-  test "group members not found" do
-    user = User.make :password => 'foo'
+        should "should not find group members for unexistent group" do
+          get :group_members, :alias => 'bar'
+          assert_response :not_found
+        end
 
-    @request.env['HTTP_AUTHORIZATION'] = http_auth(user.login, 'foo')
-    get :group_members, :alias => 'bar'
-    assert_response :not_found
-  end
+        should "get group members" do
+          user2 = User.make
+          user2.join @group
 
-  test "group members not a member" do
-    user = User.make :password => 'foo'
-    group = user.create_group :alias => 'one', :name => 'one'
+          get :group_members, :alias => @group.alias
+          assert_response :ok
 
-    user2 = User.make :password => 'bar'
+          assert_equal(@group.users.to_json, @response.body)
+        end
 
-    @request.env['HTTP_AUTHORIZATION'] = http_auth(user2.login, 'bar')
-    get :group_members, :alias => group.alias
-    assert_response :unauthorized
-  end
+        should "say not found for group messages when group does not exist" do
+          get :group_messages, :alias => 'bar'
+          assert_response :not_found
+        end
 
-  test "group members" do
-    user = User.make :password => 'foo'
-    group = user.create_group :alias => 'one', :name => 'one'
+        should "get group messages" do
+          10.times { Message.make :group => @group, :sender => @user }
 
-    user2 = User.make
-    user2.join group
+          get :group_messages, :alias => @group.alias, :page => '2', :per_page => '3'
+          assert_response :ok
 
-    @request.env['HTTP_AUTHORIZATION'] = http_auth(user.login, 'foo')
-    get :group_members, :alias => group.alias
-    assert_response :ok
+          assert_equal({:items => @group.messages.order('created_at DESC')[3 ... 6]}.to_json, @response.body)
+        end
+      end
 
-    assert_equal(group.users.to_json, @response.body)
-  end
+      context 'logged in as another user' do
+        setup do
+          user2 = User.make :password => 'bar'
+          http_auth(user2.login, 'bar')
+        end
 
-  test "group messages not found" do
-    user = User.make :password => 'foo'
+        should "say unauthorized for group when not member" do
+          get :group, :alias => @group.alias
+          assert_response :unauthorized
+        end
 
-    @request.env['HTTP_AUTHORIZATION'] = http_auth(user.login, 'foo')
-    get :group_messages, :alias => 'bar'
-    assert_response :not_found
-  end
+        should "say unauthorized for group members when not a member" do
+          get :group_members, :alias => @group.alias
+          assert_response :unauthorized
+        end
 
-  test "group messages not a member" do
-    user = User.make :password => 'foo'
-    group = user.create_group :alias => 'one', :name => 'one'
-
-    user2 = User.make :password => 'bar'
-
-    @request.env['HTTP_AUTHORIZATION'] = http_auth(user2.login, 'bar')
-    get :group_messages, :alias => group.alias
-    assert_response :unauthorized
-  end
-
-  test "group messages" do
-    user = User.make :password => 'foo'
-    group = user.create_group :alias => 'one', :name => 'one'
-    10.times { Message.make :group => group, :sender => user }
-
-    @request.env['HTTP_AUTHORIZATION'] = http_auth(user.login, 'foo')
-    get :group_messages, :alias => group.alias, :page => '2', :per_page => '3'
-    assert_response :ok
-
-    assert_equal({:items => group.messages.order('created_at DESC')[3 ... 6]}.to_json, @response.body)
+        should "say unauthorized for group messages when not a member" do
+          get :group_messages, :alias => @group.alias
+          assert_response :unauthorized
+        end
+      end
+    end
   end
 end
