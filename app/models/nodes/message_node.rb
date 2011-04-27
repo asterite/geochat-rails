@@ -176,11 +176,18 @@ class MessageNode < Node
       query = {:from => message[:from], :to => message[:to], :sender => current_user.login}
       response = HTTParty.post("#{group.external_service_url}?#{query.to_query}", :body => text_to_send)
       action = response.headers['x-geochat-action']
+      replace = response.headers['x-geochat-replace']
+      replace_with = response.headers['x-geochat-replacewith']
+      body = response.body
       case action
       when 'stop'
         return
       when 'continue'
-        # Just continue
+        if replace_with.present?
+          text_to_send = text_to_save = replace_with
+        elsif replace.present?
+          text_to_send = text_to_save = body
+        end
       end
     end
 
