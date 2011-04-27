@@ -13,7 +13,7 @@ class BlockTest < NodeTest
         assert_is_not_blocked "Group1", "User2"
 
         send_message 1, msg
-        assert_messages_sent_to 1, T.user_blocked('User2', 'Group1')
+        assert_messages_sent_to 1, T.user_blocked('User2', 'Group1'), :group => 'Group1'
         assert_no_messages_sent_to 2
         assert_group_exists "Group1", "User1"
       end
@@ -23,7 +23,7 @@ class BlockTest < NodeTest
 
         send_message 1, "create group Group1"
         send_message 1, msg
-        assert_messages_sent_to 1, T.user_does_not_exist(user)
+        assert_messages_sent_to 1, T.user_does_not_exist(user), :group => 'Group1'
         assert_group_exists "Group1", "User1"
       end
     end
@@ -41,7 +41,7 @@ class BlockTest < NodeTest
         assert_is_not_blocked "Group2", "User2"
 
         send_message 1, msg
-        assert_messages_sent_to 1, T.user_blocked('User2', 'Group2')
+        assert_messages_sent_to 1, T.user_blocked('User2', 'Group2'), :group => 'Group2'
         assert_no_messages_sent_to 2
         assert_group_exists "Group2", "User1"
       end
@@ -89,7 +89,7 @@ class BlockTest < NodeTest
     send_message 1, "create Group1"
     send_message 2, "join Group1"
     send_message 2, "block User1"
-    assert_messages_sent_to 2, T.you_cant_block_you_are_not_owner('User1', 'Group1')
+    assert_messages_sent_to 2, T.you_cant_block_you_are_not_owner('User1', 'Group1'), :group => 'Group1'
     assert_group_exists "Group1", "User1", "User2"
   end
 
@@ -107,7 +107,7 @@ class BlockTest < NodeTest
 
     send_message 1, "block User2"
     send_message 1, "block User2"
-    assert_messages_sent_to 1, T.user_already_blocked('User2', 'Group1')
+    assert_messages_sent_to 1, T.user_already_blocked('User2', 'Group1'), :group => 'Group1'
   end
 
   test "block self" do
@@ -115,7 +115,7 @@ class BlockTest < NodeTest
 
     send_message 1, "create Group1"
     send_message 1, "block User1"
-    assert_messages_sent_to 1, T.you_cant_block_yourself
+    assert_messages_sent_to 1, T.you_cant_block_yourself, :group => 'Group1'
   end
 
   test "block does not belong to group" do

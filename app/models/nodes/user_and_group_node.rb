@@ -18,12 +18,16 @@ module UserAndGroupNode
       end
     end
 
+    group = default_group(options) unless group
+
     if !user
-      reply T.user_does_not_exist(@user)
+      if group
+        reply T.user_does_not_exist(@user), :group => group
+      else
+        reply T.user_does_not_exist(@user)
+      end
       return false
     end
-
-    group = default_group(options) unless group
 
     group ? [user, group] : false
   end

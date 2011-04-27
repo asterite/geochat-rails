@@ -129,11 +129,11 @@ class InviteNode < Node
       sent << name
     end
 
-    reply T.users_are_now_members_of_group(joined, group) if joined.present?
-    reply T.could_not_find_users_for_invitation(not_found) if not_found.present?
-    reply T.you_cant_invite_yourself if invited_self
-    reply T.you_already_invited_user(already_invited, group) if already_invited.present?
-    reply T.user_already_belongs_to_group(already_belongs, group) if already_belongs.present?
-    reply T.invitations_sent_to_users(sent) if sent.present?
+    reply T.users_are_now_members_of_group(joined, group), :group => group if joined.present?
+    reply T.could_not_find_users_for_invitation(not_found), :group => group if not_found.present?
+    reply T.you_cant_invite_yourself, :group => group if invited_self
+    reply T.you_already_invited_user(already_invited, group), :group => group if already_invited.present?
+    reply T.user_already_belongs_to_group(already_belongs, group), :group => group if already_belongs.present?
+    reply T.invitations_sent_to_users(sent), :group => group if sent.present?
   end
 end

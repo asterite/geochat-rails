@@ -44,7 +44,7 @@ class LanguageTest < NodeTest
     I18n.with_locale :es do
       assert_messages_sent_to 2, T.user_has_invited_you('User1', 'Group1')
     end
-    assert_messages_sent_to 1, T.invitations_sent_to_users('User2')
+    assert_messages_sent_to 1, T.invitations_sent_to_users('User2'), :group => 'Group1'
   end
 
   test "change language send location report to others" do

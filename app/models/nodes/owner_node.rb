@@ -23,25 +23,25 @@ class OwnerNode < Node
     return reply T.you_cant_set_owner_you_dont_belong_to_group(user, group) unless current_user_membership
 
     user_membership = user.membership_in group
-    return reply T.user_does_not_belong_to_group(user, group) unless user_membership
+    return reply T.user_does_not_belong_to_group(user, group), :group => group unless user_membership
 
     if current_user_membership.role != :owner
       if user == current_user
-        return reply T.nice_try
+        return reply T.nice_try, :group => group
       else
-        return reply T.you_cant_set_owner_you_are_not_owner(user, group)
+        return reply T.you_cant_set_owner_you_are_not_owner(user, group), :group => group
       end
     end
 
     if user == current_user
-      return reply T.you_are_already_an_owner_of_group(group)
+      return reply T.you_are_already_an_owner_of_group(group), :group => group
     end
 
     if user_membership.change_role_to :owner
-      reply T.user_set_as_owner(user, group)
-      send_message_to_user user, :user_has_made_you_owner, :args => [current_user, group]
+      reply T.user_set_as_owner(user, group), :group => group
+      send_message_to_user user, :user_has_made_you_owner, :group => group, :args => [current_user, group], :prefix => false
     else
-      reply T.user_already_an_owner(user, group)
+      reply T.user_already_an_owner(user, group), :group => group
     end
   end
 end

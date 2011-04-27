@@ -13,7 +13,7 @@ class JoinNode < Node
     group = Group.find_by_alias @group
     return reply T.group_does_not_exist(@group) unless group
 
-    return reply T.you_already_belong_to_group(group) if current_user.belongs_to? group
+    return reply T.you_already_belong_to_group(group), :group => group if current_user.belongs_to? group
 
     # Get all the invites for this user
     invites = Invite.find_all_by_group_id_and_user_id group, current_user
@@ -24,7 +24,7 @@ class JoinNode < Node
       join_and_welcome current_user, group
 
       invites.each do |invite|
-        send_message_to_user invite.requestor, :user_has_accepted_your_invitation, :args => [current_user, group] if invite.requestor
+        send_message_to_user invite.requestor, :user_has_accepted_your_invitation, :group => group, :args => [current_user, group] if invite.requestor
         invite.destroy
       end
       return

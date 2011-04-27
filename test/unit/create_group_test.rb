@@ -9,7 +9,7 @@ class CreateGroupTest < NodeTest
     send_message 1, "create group Group1"
     assert_group_exists "Group1", "User1"
 
-    assert_messages_sent_to 1, T.group_created('Group1')
+    assert_messages_sent_to 1, T.group_created('Group1'), :group => 'Group1'
   end
 
   test "create group already exists" do

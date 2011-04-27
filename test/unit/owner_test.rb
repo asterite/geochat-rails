@@ -13,8 +13,8 @@ class OwnerTest < NodeTest
         assert_is_not_group_owner "Group1", "User2"
 
         send_message 1, msg
-        assert_messages_sent_to 1, T.user_set_as_owner('User2', 'Group1')
-        assert_messages_sent_to 2, T.user_has_made_you_owner('User1', 'Group1')
+        assert_messages_sent_to 1, T.user_set_as_owner('User2', 'Group1'), :group => 'Group1'
+        assert_messages_sent_to 2, T.user_has_made_you_owner('User1', 'Group1'), :group => 'Group1'
         assert_group_owners "Group1", "User1", "User2"
       end
 
@@ -23,7 +23,7 @@ class OwnerTest < NodeTest
 
         send_message 1, "create group Group1"
         send_message 1, msg
-        assert_messages_sent_to 1, T.user_does_not_exist(user)
+        assert_messages_sent_to 1, T.user_does_not_exist(user), :group => 'Group1'
         assert_group_owners "Group1", "User1"
       end
 
@@ -32,7 +32,7 @@ class OwnerTest < NodeTest
 
         send_message 1, "create group Group1"
         send_message 1, msg
-        assert_messages_sent_to 1, T.user_does_not_belong_to_group('User2', 'Group1')
+        assert_messages_sent_to 1, T.user_does_not_belong_to_group('User2', 'Group1'), :group => 'Group1'
         assert_group_owners "Group1", "User1"
       end
     end
@@ -50,8 +50,8 @@ class OwnerTest < NodeTest
         assert_is_not_group_owner "Group2", "User2"
 
         send_message 1, msg
-        assert_messages_sent_to 1, T.user_set_as_owner('User2', 'Group2')
-        assert_messages_sent_to 2, T.user_has_made_you_owner('User1', 'Group2')
+        assert_messages_sent_to 1, T.user_set_as_owner('User2', 'Group2'), :group => 'Group2'
+        assert_messages_sent_to 2, T.user_has_made_you_owner('User1', 'Group2'), :group => 'Group2'
         assert_group_owners "Group2", "User1", "User2"
       end
     end
@@ -98,7 +98,7 @@ class OwnerTest < NodeTest
     send_message 1, "create Group1"
     send_message 2, "join Group1"
     send_message 2, "owner User1"
-    assert_messages_sent_to 2, T.you_cant_set_owner_you_are_not_owner('User1', 'Group1')
+    assert_messages_sent_to 2, T.you_cant_set_owner_you_are_not_owner('User1', 'Group1'), :group => 'Group1'
     assert_group_owners "Group1", "User1"
   end
 
@@ -116,7 +116,7 @@ class OwnerTest < NodeTest
 
     send_message 1, "owner User2"
     send_message 1, "owner User2"
-    assert_messages_sent_to 1, T.user_already_an_owner('User2', 'Group1')
+    assert_messages_sent_to 1, T.user_already_an_owner('User2', 'Group1'), :group => 'Group1'
   end
 
   test "add group owner self owner" do
@@ -124,7 +124,7 @@ class OwnerTest < NodeTest
 
     send_message 1, "create Group1"
     send_message 1, "owner User1"
-    assert_messages_sent_to 1, T.you_are_already_an_owner_of_group('Group1')
+    assert_messages_sent_to 1, T.you_are_already_an_owner_of_group('Group1'), :group => 'Group1'
   end
 
   test "add group owner self not owner" do
@@ -133,7 +133,7 @@ class OwnerTest < NodeTest
     send_message 1, "create Group1"
     send_message 2, "join Group1"
     send_message 2, "owner User2"
-    assert_messages_sent_to 2, T.nice_try
+    assert_messages_sent_to 2, T.nice_try, :group => 'Group1'
   end
 
   test "add group owner does not belong to group" do

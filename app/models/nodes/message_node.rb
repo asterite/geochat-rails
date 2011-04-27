@@ -88,7 +88,7 @@ class MessageNode < Node
           if user
             users << user
           else
-            reply T.user_does_not_exist(target.name)
+            reply T.user_does_not_exist(target.name), :group => group
           end
         elsif users.present?
           group = Group.find_by_alias target.name
@@ -128,7 +128,7 @@ class MessageNode < Node
 
     users.each do |user|
       if explicit_group && !user.belongs_to?(group)
-        return reply T.cant_send_message_to_user_via_group_does_not_belong(user, group)
+        return reply T.cant_send_message_to_user_via_group_does_not_belong(user, group), :group => group
       elsif !current_user.shares_a_common_group_with?(user)
         return reply T.cant_send_message_to_user_no_common_group(user)
       end
@@ -189,7 +189,7 @@ class MessageNode < Node
           text_to_send = text_to_save = body
         end
       when 'reply'
-        reply_in_group group, body and return
+        reply body, :group => group and return
       end
     end
 

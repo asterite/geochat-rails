@@ -173,17 +173,14 @@ class Node
 
   def join_and_welcome(user, group)
     user.join group
-    send_message_to_user user, :welcome_to_group, :args => [user, group]
+    send_message_to_user user, :welcome_to_group, :group => group, :args => [user, group]
   end
 
   def reply(msg, options = {})
     msg = check_symbol_message msg, options
-    send_message :to => @context[:from], :body => msg
-  end
-
-  def reply_in_group(group, msg, options = {})
-    msg = check_symbol_message msg, options
-    send_message :group => group.alias, :to => @context[:from], :body => msg
+    msg_options = {:to => @context[:from], :body => msg}
+    msg_options[:group] = options[:group].alias if options[:group].present?
+    send_message msg_options
   end
 
   def check_symbol_message(message, options)
@@ -245,7 +242,7 @@ class Node
 
     if options[:group]
       group = options[:group]
-      if group.id != user.default_group_id && user.groups_count > 1
+      if options[:prefix] != false && group.id != user.default_group_id && user.groups_count > 1
         prefix << "[#{group.alias}] "
       end
       message_properties[:group] = group.alias
@@ -279,8 +276,8 @@ class Node
       if channel.protocol == 'sms'
         full_msg = "#{prefix}#{msg_with_location}"
         if full_msg.length > 140
-          send_message_to_channel user, channel, "#{prefix}#{location_info}"
-          send_message_to_channel user, channel, "#{prefix}#{msg}"
+          send_message_to_channel user, channel, "#{prefix}#{location_info}", :group => options[:group]
+          send_message_to_channel user, channel, "#{prefix}#{msg}", :group => options[:group]
           return
         end
       end
@@ -313,7 +310,7 @@ class Node
           coords = result.lat, result.lng
           place = result.full_address
         else
-          reply T.location_not_found(location)
+          reply T.location_not_found(location), :group => group
           return false
         end
         short_url = Googl.shorten_location place
@@ -324,7 +321,7 @@ class Node
         coords = location
         place = result.full_address
       else
-        reply T.location_not_found(location.join ', ')
+        reply T.location_not_found(location.join ', '), :group => group
         return false
       end
       short_url = Googl.shorten_location coords
@@ -335,7 +332,7 @@ class Node
     current_user.location_short_url = short_url
     current_user.save!
 
-    reply T.location_successfuly_updated(place, current_user.location_info)
+    reply T.location_successfuly_updated(place, current_user.location_info), :group => group
 
     custom_location || true
   end

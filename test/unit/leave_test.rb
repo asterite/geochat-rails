@@ -9,7 +9,7 @@ class LeaveTest < NodeTest
     send_message 2, "join Group1"
 
     send_message 2, "leave Group1"
-    assert_messages_sent_to 2, T.good_bye_from_only_group('User2', 'Group1')
+    assert_messages_sent_to 2, T.good_bye_from_only_group('User2', 'Group1'), :group => 'Group1'
     assert_group_exists "Group1", "User1"
   end
 
@@ -21,7 +21,7 @@ class LeaveTest < NodeTest
     send_message 2, "join Group2"
 
     send_message 2, "leave Group1"
-    assert_messages_sent_to 2, T.good_bye_from_second_group('User2', 'Group1', 'Group2')
+    assert_messages_sent_to 2, T.good_bye_from_second_group('User2', 'Group1', 'Group2'), :group => 'Group1'
     assert_group_exists "Group1", "User1"
   end
 
@@ -35,7 +35,7 @@ class LeaveTest < NodeTest
     send_message 2, "join Group3"
 
     send_message 2, "leave Group1"
-    assert_messages_sent_to 2, T.good_bye_from_more_than_two_groups('User2', 'Group1')
+    assert_messages_sent_to 2, T.good_bye_from_more_than_two_groups('User2', 'Group1'), :group => 'Group1'
     assert_group_exists "Group1", "User1"
   end
 
@@ -56,7 +56,7 @@ class LeaveTest < NodeTest
     create_users 1
     send_message 1, "create Group1"
     send_message 1, "leave Group1"
-    assert_messages_sent_to 1, T.you_cant_leave_group_because_you_are_its_only_owner('Group1')
+    assert_messages_sent_to 1, T.you_cant_leave_group_because_you_are_its_only_owner('Group1'), :group => 'Group1'
   end
 
   test "leave group not only owner" do
@@ -66,7 +66,7 @@ class LeaveTest < NodeTest
     send_message 1, "owner User2"
 
     send_message 1, "leave Group1"
-    assert_messages_sent_to 1, T.good_bye_from_only_group('User1', 'Group1')
+    assert_messages_sent_to 1, T.good_bye_from_only_group('User1', 'Group1'), :group => 'Group1'
   end
 
   test "leave not logged in" do

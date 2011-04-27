@@ -13,7 +13,7 @@ class SignupAndJoinTest < NodeTest
       T.welcome_to_geochat('User2'),
       T.remember_you_can_log_in('User2', 'MockPassword'),
       T.welcome_to_first_group('User2', 'Group1')
-    ]
+    ], [{}, {}, {:group => 'Group1'}]
     assert_group_exists "Group1", "User1", "User2"
   end
 
@@ -28,7 +28,7 @@ class SignupAndJoinTest < NodeTest
       T.welcome_to_geochat('User2'),
       T.remember_you_can_log_in('User2', 'MockPassword'),
       T.welcome_to_first_group('User2', 'Group1')
-    ]
+    ], [{}, {}, {:group => 'Group1'}]
     assert_group_exists "Group1", "User1", "User2"
 
     assert_user_was_not_created_from_invite "User2"
@@ -41,12 +41,12 @@ class SignupAndJoinTest < NodeTest
 
     send_message 1, "invite 2345"
     assert_messages_sent_to 2, T.user_has_invited_you('1234', 'Group1')
-    assert_messages_sent_to 1, T.invitations_sent_to_users('2345')
+    assert_messages_sent_to 1, T.invitations_sent_to_users('2345'), :group => 'Group1'
     assert_invite_exists "Group1", "2345"
     assert_group_exists "Group1", "1234"
 
     send_message 2, "join Group1"
-    assert_messages_sent_to 2, T.welcome_to_first_group('2345', 'Group1')
+    assert_messages_sent_to 2, T.welcome_to_first_group('2345', 'Group1'), :group => 'Group1'
     assert_group_exists "Group1", "1234", "2345"
   end
 

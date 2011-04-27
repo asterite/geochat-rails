@@ -25,7 +25,7 @@ class MessagingTest < NodeTest
 
     send_message 1, "@Group1 at santiago de chile"
 
-    assert_messages_sent_to 1, T.location_successfuly_updated('Santiago, Chile', 'lat: 33.42536 S, lon: 70.56647 W, url: http://short.url')
+    assert_messages_sent_to 1, T.location_successfuly_updated('Santiago, Chile', 'lat: 33.42536 S, lon: 70.56647 W, url: http://short.url'), :group => 'Group1'
     assert_messages_sent_to 2..4, "User1: #{T.at_place 'Santiago, Chile', 'lat: 33.42536 S, lon: 70.56647 W, url: http://short.url'}", :group => 'Group1'
     assert_message_saved "User1", "Group1", "at santiago de chile"
   end
@@ -114,7 +114,7 @@ class MessagingTest < NodeTest
     send_message 2, "invite 1"
 
     send_message 1, "Group2 Hello"
-    assert_messages_sent_to 1, T.welcome_to_non_first_group('User1', 'Group2')
+    assert_messages_sent_to 1, T.welcome_to_non_first_group('User1', 'Group2'), :group => 'Group2'
     assert_messages_sent_to 2, "User1: Hello", :group => 'Group2'
     assert_group_exists "Group2", "User1", "User2"
     assert_no_invite_exists
@@ -126,7 +126,7 @@ class MessagingTest < NodeTest
     send_message 1, "invite 2"
 
     send_message 2, "Group1 Hello"
-    assert_messages_sent_to 2, T.welcome_to_first_group('User2', 'Group1')
+    assert_messages_sent_to 2, T.welcome_to_first_group('User2', 'Group1'), :group => 'Group1'
     assert_messages_sent_to 1, "User2: Hello", :group => 'Group1'
     assert_group_exists "Group1", "User1", "User2"
     assert_no_invite_exists
@@ -141,7 +141,7 @@ class MessagingTest < NodeTest
     send_message 3, "invite 1"
 
     send_message 1, "Group2 Hello"
-    assert_messages_sent_to 1, T.welcome_to_non_first_group('User1', 'Group2')
+    assert_messages_sent_to 1, T.welcome_to_non_first_group('User1', 'Group2'), :group => 'Group2'
     assert_messages_sent_to 2..3, "User1: Hello", :group => 'Group2'
     assert_group_exists "Group2", "User1", "User2", "User3"
     assert_no_invite_exists
@@ -180,7 +180,7 @@ class MessagingTest < NodeTest
     create_group 2, "Group2"
 
     send_message 1, "@Group2 Hello!"
-    assert_messages_sent_to 1, T.welcome_to_non_first_group('User1', 'Group2')
+    assert_messages_sent_to 1, T.welcome_to_non_first_group('User1', 'Group2'), :group => 'Group2'
     assert_messages_sent_to 2, "User1: Hello!", :group => 'Group2'
     assert_group_exists "Group2", "User1", "User2"
   end
@@ -246,7 +246,7 @@ class MessagingTest < NodeTest
     send_message 3..4, "join Group2"
 
     send_message 1, "Group2 @User2 Hello!"
-    assert_messages_sent_to 1, T.cant_send_message_to_user_via_group_does_not_belong('User2', 'Group2')
+    assert_messages_sent_to 1, T.cant_send_message_to_user_via_group_does_not_belong('User2', 'Group2'), :group => 'Group2'
     assert_no_messages_sent_to 2, 3, 4
     assert_no_messages_saved
   end
@@ -279,7 +279,7 @@ class MessagingTest < NodeTest
     send_message 2..4, "join Group2"
 
     send_message 1, "Group2 @User2 @User5 Hello!"
-    assert_messages_sent_to 1, T.user_does_not_exist('User5')
+    assert_messages_sent_to 1, T.user_does_not_exist('User5'), :group => 'Group2'
     assert_messages_sent_to 2, "[Group2] #{T.message_only_to_you('User1', [])}: Hello!", :group => 'Group2'
   end
 

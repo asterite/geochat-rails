@@ -70,7 +70,8 @@ class NodeTest < ActiveSupport::TestCase
       a = "#{@protocol}://#{a}" if a.is_a?(Integer)
       actual = @messages.select{|x| x[:to] == a}
       msgs = *msgs
-      expected = msgs.map{|x| {:from => 'geochat://system', :to => a, :body => x}.merge(options)}
+      i = -1
+      expected = msgs.map{|x| i += 1; (options.is_a?(Array) ? options[i] : options).merge(:from => 'geochat://system', :to => a, :body => x)}
       assert_equal expected, actual, "Mismatched messages to #{a}"
     end
   end

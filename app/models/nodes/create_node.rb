@@ -47,7 +47,7 @@ class CreateNode < Node
     return reply T.cannot_create_group_name_reserved(@alias) if @alias.command?
     return reply T.group_already_exists(@alias) if Group.find_by_alias @alias
 
-    current_user.create_group :alias => @alias, :name => (@name || @alias), :chatroom => !@nochat
-    reply T.group_created(@alias)
+    group = current_user.create_group :alias => @alias, :name => (@name || @alias), :chatroom => !@nochat
+    reply T.group_created(@alias), :group => group
   end
 end
