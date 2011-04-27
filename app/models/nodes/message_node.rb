@@ -172,18 +172,32 @@ class MessageNode < Node
       end
     end
 
-    if users.present?
-      users.each do |user|
-        others = users.reject{|x| x == user}
-        send_message_to_user user, text_to_send, :sender => current_user, :group => group, :private => true, :receivers => others, :location => location_info, :dont_translate => true
+    send_message = true
+
+    if group.external_service_url.present? && text_to_send.present?
+      query = {:from => message[:from], :to => message[:to], :sender => current_user.login}
+      response = HTTParty.post("#{group.external_service_url}?#{query.to_query}", :body => text_to_send)
+      action = response.headers['x-geochat-action']
+      case action
+      when 'stop'
+        send_message = false
       end
-      if group.forward_owners
-        send_message_to_group_owners group, text_to_send, :sender => current_user, :receivers => users, :location => location_info, :except => users, :dont_translate => true
+    end
+
+    if send_message
+      if users.present?
+        users.each do |user|
+          others = users.reject{|x| x == user}
+          send_message_to_user user, text_to_send, :sender => current_user, :group => group, :private => true, :receivers => others, :location => location_info, :dont_translate => true
+        end
+        if group.forward_owners
+          send_message_to_group_owners group, text_to_send, :sender => current_user, :receivers => users, :location => location_info, :except => users, :dont_translate => true
+        end
+      elsif group.chatroom || @blast
+        send_message_to_group group, text_to_send, :sender => current_user, :location => location_info, :dont_translate => true
+      elsif group.forward_owners
+        send_message_to_group_owners group, text_to_send, :sender => current_user, :location => location_info, :dont_translate => true
       end
-    elsif group.chatroom || @blast
-      send_message_to_group group, text_to_send, :sender => current_user, :location => location_info, :dont_translate => true
-    elsif group.forward_owners
-      send_message_to_group_owners group, text_to_send, :sender => current_user, :location => location_info, :dont_translate => true
     end
 
     # Save the message

@@ -14,7 +14,7 @@ class NodeTest < ActiveSupport::TestCase
     address = *address
     address.each do |a|
       a = "#{@protocol}://#{a}" if a.is_a?(Integer)
-      @messages = Node.process :from => a, :body => message
+      @messages = Node.process :from => a, :to => 'geochat://system', :body => message
     end
   end
 
