@@ -20,6 +20,6 @@ class ExternalServiceTest < NodeTest
 
     send_message 1, "something"
     assert_no_messages_sent_to 2
-    assert_message_saved 'User1', 'Group1', 'something'
+    assert_no_messages_saved
   end
 end
