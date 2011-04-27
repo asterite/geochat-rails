@@ -6,10 +6,10 @@
   %p
     = f.label :external_service_prefix, 'Forward messages that start with (or leave blank to forward all messages)'
     %br
-    = f.text_field :external_service_prefix
+    = f.text_field :external_service_prefix, :size => 10
   %p
     = f.label :external_service_url, 'to URL (or leave blank to not forward any message)'
     %br
-    = f.text_field :external_service_url
+    = f.text_field :external_service_url, :size => 80
   = submit_tag 'Configure external service'
 
