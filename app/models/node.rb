@@ -181,6 +181,11 @@ class Node
     send_message :to => @context[:from], :body => msg
   end
 
+  def reply_in_group(group, msg, options = {})
+    msg = check_symbol_message msg, options
+    send_message :group => group.alias, :to => @context[:from], :body => msg
+  end
+
   def check_symbol_message(message, options)
     if message.is_a? Symbol
       if options[:args]

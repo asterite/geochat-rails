@@ -188,6 +188,8 @@ class MessageNode < Node
         elsif replace.present?
           text_to_send = text_to_save = body
         end
+      when 'reply'
+        reply_in_group group, body and return
       end
     end
 
