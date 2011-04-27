@@ -19,7 +19,7 @@ class Group < ActiveRecord::Base
   data_accessor :users_count, :default => 0
   data_accessor :blocked_users, :default => []
   data_accessor :external_service_url
-  data_accessor :external_service_prefix, :default => '.r'
+  data_accessor :external_service_prefix
 
   scope :public, where(:hidden => false)
 

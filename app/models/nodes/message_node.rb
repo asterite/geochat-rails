@@ -172,9 +172,12 @@ class MessageNode < Node
       end
     end
 
-    if group.external_service_url.present? && text_to_send.present?
+    if group.external_service_url.present? && text_to_send.present? && (group.external_service_prefix.blank? || text_to_send.start_with?(group.external_service_prefix))
+      request_body = text_to_send
+      request_body = request_body[group.external_service_prefix.length .. -1].strip if group.external_service_prefix.present?
+
       query = {:from => message[:from], :to => message[:to], :sender => current_user.login}
-      response = HTTParty.post("#{group.external_service_url}?#{query.to_query}", :body => text_to_send)
+      response = HTTParty.post("#{group.external_service_url}?#{query.to_query}", :body => request_body)
       action = response.headers['x-geochat-action']
       replace = response.headers['x-geochat-replace']
       replace_with = response.headers['x-geochat-replacewith']
@@ -190,6 +193,11 @@ class MessageNode < Node
         end
       when 'reply'
         reply body, :group => group and return
+      when 'reply-and-continue'
+        reply body, :group => group
+        if replace_with.present?
+          text_to_send = text_to_save = replace_with
+        end
       end
     end
 
