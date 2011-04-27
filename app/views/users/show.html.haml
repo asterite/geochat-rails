@@ -1,6 +1,6 @@
 %h3 #{@other_user.login}
 
 - if @other_user.location_known?
-  %p This user said he/she #{@other_user.location} (#{@other_user.lat}, #{@other_user.lon}) #{time_ago_in_words @other_user.location_reported_at} ago
+  %p This user said he/she was in #{@other_user.location} (#{@other_user.lat}, #{@other_user.lon}) #{time_ago_in_words @other_user.location_reported_at} ago
 - else
   %p This user never reported his/her location.
