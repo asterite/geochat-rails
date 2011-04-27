@@ -1,10 +1,9 @@
 - if can_edit
   %p #{link_to 'Create a custom location', new_custom_location_path(locatable)}
 
-= page_entries_info @custom_locations, :entry_name => 'custom location'
-= will_paginate @custom_locations, :param_name => 'custom_location_page'
-
 - if @custom_locations.present?
+  = page_entries_info @custom_locations, :entry_name => 'custom location'
+  = will_paginate @custom_locations, :param_name => 'custom_location_page'
   %table.table
     %tr
       %th Name

@@ -34,6 +34,9 @@ GeochatRails::Application.routes.draw do
     get '/location' => 'groups#change_location', :as => 'change_group_location'
     post '/location' => 'groups#update_location', :as => 'update_group_location'
 
+    get '/external_service' => 'groups#change_external_service', :as => 'change_external_service'
+    post '/external_service' => 'groups#update_external_service', :as => 'update_external_service'
+
     scope '/custom_locations' do
       get '/new' => 'groups#new_custom_location', :as => 'new_group_custom_location'
       post '/' => 'groups#create_custom_location', :as => 'create_group_custom_location'

@@ -147,6 +147,22 @@ class GroupsController < ApplicationController
     redirect_to group_path(@group)
   end
 
+  def change_external_service
+  end
+
+  def update_external_service
+    @group.external_service_prefix = params[:group][:external_service_prefix]
+    @group.external_service_url = params[:group][:external_service_url]
+    @group.save!
+
+    if @group.external_service_url.present?
+      flash[:notice] = "Now messages are forwarded to an external service"
+    else
+      flash[:notice] = "Now messages are not forwarded to an external service"
+    end
+    redirect_to group_path(@group)
+  end
+
   include LocatableActions
   def locatable; @group; end
   def locatable_path; group_path(@group); end

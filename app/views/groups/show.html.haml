@@ -41,18 +41,21 @@
 
 %h4 Custom locations
 
+%p
+  Custom locations allow members in this group to send shorter messages to report their location. <br/>
+  For example, if this group has a custom location named "hospital" members can just send "at hospital".
+
 = render :partial => 'shared/custom_locations', :locals => {:locatable => @group, :can_edit => @user.is_owner_of?(@group)}
 
 - if @user_membership.owner?
 
-  %h4 Custom channels
+  %h4 Custom sms channels
 
-  = link_to "Create a custom sms channel", new_custom_sms_channel_path
+  You can configure a cellphone to be the receiver and sender of messages in this group.
 
-  %br
-  - if @custom_channels.blank?
-    No custom channels.
-  - else
+  %p= link_to "Create a custom sms channel", new_custom_sms_channel_path
+
+  - if @custom_channels.present?
     %table.table
       %tr
         %th Name
@@ -67,3 +70,18 @@
           %td= channel.direction
           - if @user_membership.owner?
             %td= link_to 'delete', destroy_custom_channel_path(@group, channel), :method => :delete, :confirm => "Are you sure you want to delete the #{channel.kind} #{channel.name} channel?"
+
+%h4 External service
+
+- if @group.external_service_url.present?
+  - if @group.external_service_prefix.present?
+    %p Messages sent to this group that start with "#{@group.external_service_prefix}" are forwarded to #{@group.external_service_url}
+  - else
+    %p All messages sent to this group are forwarded to #{@group.external_service_url}
+  - if @user_membership.owner?
+    #{link_to 'Change external service configuration', change_external_service_path}
+- else
+  %p No external service is defined for this group.
+  %p External services allow you to forward all or some messages sent to this group to an external services.
+  - if @user_membership.owner?
+    #{link_to 'Configure an external service', change_external_service_path}

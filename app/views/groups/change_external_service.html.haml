@@ -1,0 +1,15 @@
+%h3 #{@group.name_with_alias}
+
+%h4 Configure external service
+
+= form_for @group, :url => update_external_service_path, :html => {:method => :post} do |f|
+  %p
+    = f.label :external_service_prefix, 'Forward messages that start with (or leave blank to forward all messages)'
+    %br
+    = f.text_field :external_service_prefix
+  %p
+    = f.label :external_service_url, 'to URL (or leave blank to not forward any message)'
+    %br
+    = f.text_field :external_service_url
+  = submit_tag 'Configure external service'
+
