@@ -68,28 +68,30 @@ class ChannelsControllerTest < ActionController::TestCase
     assert_redirected_to channel_path(channel)
   end
 
-  test "activate" do
-    channel = @user.email_channels.create! :address => 'foo@bar.com', :status => :pending, :activation_code => '1234'
+  context 'activate' do
+    setup do
+      @channel = @user.email_channels.create! :address => 'foo@bar.com', :status => :pending, :activation_code => '1234'
+    end
 
-    get :activate, :id => channel.id, :activation_code => channel.activation_code
+    should "activate with correct code" do
+      get :activate, :id => @channel.id, :activation_code => @channel.activation_code
 
-    channel.reload
-    assert_equal :on, channel.status
-    assert_nil channel.activation_code
+      @channel.reload
+      assert_equal :on, @channel.status
+      assert_nil @channel.activation_code
 
-    assert_equal "Your email channel for foo@bar.com is now active", flash[:notice]
-    assert_redirected_to channels_path
-  end
+      assert_equal "Your email channel for foo@bar.com is now active", flash[:notice]
+      assert_redirected_to channels_path
+    end
 
-  test "activate with wrong code" do
-    channel = @user.email_channels.create! :address => 'foo@bar.com', :status => :pending, :activation_code => '1234'
+    should "not activate with wrong code" do
+      get :activate, :id => @channel.id, :activation_code => '5678'
 
-    get :activate, :id => channel.id, :activation_code => '5678'
+      @channel.reload
+      assert_equal :pending, @channel.status
 
-    channel.reload
-    assert_equal :pending, channel.status
-
-    assert_template 'show'
+      assert_template 'show'
+    end
   end
 
   test "destroy channel" do
