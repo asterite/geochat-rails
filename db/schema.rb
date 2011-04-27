@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110426043930) do
+ActiveRecord::Schema.define(:version => 20110427054153) do
 
   create_table "channels", :force => true do |t|
     t.string   "protocol"
@@ -77,6 +77,7 @@ ActiveRecord::Schema.define(:version => 20110426043930) do
     t.boolean  "user_accepted",  :default => false
     t.boolean  "admin_accepted", :default => false
     t.integer  "requestor_id"
+    t.text     "data"
   end
 
   add_index "invites", ["group_id", "user_id"], :name => "index_invites_on_group_id_and_user_id"

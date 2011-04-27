@@ -106,6 +106,18 @@ class User < ActiveRecord::Base
     Invite.create! :user => self, :group => group, :user_accepted => true
   end
 
+  def requests
+    Invite.where(:user_id => id)
+  end
+
+  def others_requests
+    Invite.joins(:group => :memberships).where('memberships.user_id = ? and (memberships.role = ? or memberships.role = ?)', id, :admin, :owner)
+  end
+
+  def invites
+    Invite.where(:requestor_id => id)
+  end
+
   def role_in(group)
     Membership.find_by_group_id_and_user_id(group.id, self.id).try(:role).try(:to_sym)
   end
@@ -168,8 +180,12 @@ class User < ActiveRecord::Base
     hash
   end
 
+  def to_param
+    login
+  end
+
   def to_s
-    self.login
+    login
   end
 
   private

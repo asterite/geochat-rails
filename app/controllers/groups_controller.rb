@@ -1,6 +1,7 @@
 class GroupsController < ApplicationController
   before_filter :get_group, :except => [:index, :public, :new, :create]
-  before_filter :check_is_owner, :except => [:index, :public, :new, :create, :show, :join, :change_role]
+  before_filter :check_is_owner, :except => [:index, :public, :new, :create, :show, :join, :change_role, :accept_join_request]
+  before_filter :check_is_admin_or_owner, :only => [:accept_join_request]
 
   def index
     @memberships = @user.memberships.includes(:group).all
@@ -71,6 +72,11 @@ class GroupsController < ApplicationController
           @invite.destroy
 
           flash[:notice] = "You are now a member of #{@group}"
+        elsif !@invite.user_accepted?
+          @invite.user_accepted = true
+          @invite.save!
+
+          flash[:notice] = "Request to join group #{@group} sent"
         else
           flash[:notice] = "You already requested to join #{@group}"
         end
@@ -84,6 +90,17 @@ class GroupsController < ApplicationController
     end
 
     redirect_to @group
+  end
+
+  def accept_join_request
+    login = params[:user]
+    invite = @user.others_requests.all.select{|x| x.user_login == login}.first
+    other_user = invite.user
+    other_user.join @group
+    invite.destroy
+
+    flash[:notice] = "You have accepted #{other_user.login} in #{@group}"
+    redirect_to invites_path
   end
 
   def change_role
@@ -142,5 +159,10 @@ class GroupsController < ApplicationController
 
   def check_is_owner
     redirect_to group_path(@group) unless @user.is_owner_of? @group
+  end
+
+  def check_is_admin_or_owner
+    @membership = @user.membership_in @group
+    redirect_to group_path(@group) unless @membership >= :admin
   end
 end

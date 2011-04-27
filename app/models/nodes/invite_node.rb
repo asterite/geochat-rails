@@ -60,6 +60,9 @@ class InviteNode < Node
     })
     return unless group
 
+    membership = current_user.membership_in group
+    return reply T.you_cant_invite_you_dont_belong(group) unless membership
+
     sent = []
     joined = []
     not_found = []
@@ -103,7 +106,7 @@ class InviteNode < Node
       end
 
       # If no invite exist or user cannot invite, create the invite
-      if invites.empty? || !current_user.can_invite_in?(group)
+      if invites.empty? || membership.member?
         current_user.invite user, :to => group
         send_message_to_user user, :user_has_invited_you, :args => [current_user, group]
         sent << name

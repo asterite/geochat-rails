@@ -47,4 +47,12 @@ module ApplicationHelper
       destroy_group_custom_location_path locatable, location
     end
   end
+
+  def link_to_user(user)
+    link_to user, other_user_path(user)
+  end
+
+  def link_to_group(group)
+    link_to group, group_path(group)
+  end
 end

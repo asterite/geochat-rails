@@ -107,6 +107,7 @@ en:
   geochat_is_not_available_in_language: "GeoChat is not avaialble in %{name}."
   you_can_now_send_and_receive_messages_via_this_channel: "%{name}, you can now send and receive messages via this channel"
   incorrect_activation_code: "%{name} is not the correct activation code"
+  you_cant_invite_you_dont_belong: "You can't invite users to group %{name} because you don't belong to it"
   help_help: "GeoChat help center. Send help followed by a topic. Topics: signup, login, logout, create, join, leave, invite, on, off, my, whereis, whois, owner."
   help_block: "To prevent a user from sending and receiving messages in a group send: block GROUP_ALIAS USER_LOGIN"
   help_create: "To create a group send: create GROUP_ALIAS"

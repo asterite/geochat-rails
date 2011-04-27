@@ -262,4 +262,12 @@ class InviteTest < NodeTest
     assert_messages_sent_to 1, T.user_already_belongs_to_group('User2', 'Group1')
     assert_no_messages_sent_to 2
   end
+
+  test "can't invite user if not belongs to group" do
+    create_users 1..3
+    send_message 1, "create group Group1"
+
+    send_message 2, "invite Group1 User3"
+    assert_messages_sent_to 2, T.you_cant_invite_you_dont_belong('Group1')
+  end
 end

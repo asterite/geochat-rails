@@ -4,6 +4,7 @@ class Group < ActiveRecord::Base
   has_many :memberships, :dependent => :destroy
   has_many :users, :through => :memberships
   has_many :messages, :dependent => :destroy
+  has_many :invites, :dependent => :destroy
   has_many :custom_channels, :dependent => :destroy
   has_many :custom_qst_server_channels
   has_many :custom_xmpp_channels

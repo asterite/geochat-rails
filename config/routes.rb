@@ -29,6 +29,7 @@ GeochatRails::Application.routes.draw do
   end
   scope '/groups/:id' do
     get '/users/:user/change_role/:role' => 'groups#change_role', :as => 'change_role'
+    get '/users/:user/accept_join_request' => 'groups#accept_join_request', :as => 'accept_join_group_request'
 
     get '/location' => 'groups#change_location', :as => 'change_group_location'
     post '/location' => 'groups#update_location', :as => 'update_group_location'
@@ -67,6 +68,10 @@ GeochatRails::Application.routes.draw do
       delete '/:custom_location_id' => 'users#destroy_custom_location', :as => 'destroy_user_custom_location'
     end
   end
+
+  get '/users/:id/show' => 'users#show', :as => 'other_user'
+
+  resources 'invites', :only => [:index]
 
   scope "/nuntium" do
     match "/receive_at" => "nuntium#receive_at"

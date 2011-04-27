@@ -1,0 +1,34 @@
+%h4 Others' requests to join groups you own
+- if @others_requests.present?
+  %ul
+    - @others_requests.each do |request|
+      - if !request.requestor_id? || request.user_accepted?
+        %li #{link_to_user request.user_login} want's to join group #{link_to_group request.group_alias}.  #{link_to 'Accept join request', accept_join_group_request_path(request.group_alias, request.user_login)}
+      - else
+        %li #{link_to_user request.requestor_login} wants #{link_to_user request.user_login} to join group #{link_to_group request.group_alias}.  #{link_to 'Accept join request', accept_join_group_request_path(request.group_alias, request.user_login)}
+- else
+  No requests.
+
+%h4 Invites from others to join groups you don't own
+- if @invites_from_others.present?
+  %ul
+    - @invites_from_others.each do |request|
+      %li #{link_to_user request.requestor_login} want's you to join group #{link_to_group request.group_alias}. #{link_to 'Join', join_group_path(request.group_alias)}
+- else
+  No invites.
+
+%h4 You requests to join groups you don't own
+- if @requests.present?
+  %ul
+    - @requests.each do |request|
+      %li Your request to join #{link_to_group request.group_alias} hasn't been accepted yet
+- else
+  No requests.
+
+%h4 Users you have invited to join groups you belong
+- if @invites.present?
+  %ul
+    - @invites.each do |request|
+      %li You have invited #{link_to_user request.user_login} to join group #{link_to_group request.group_alias}
+- else
+  No invites.

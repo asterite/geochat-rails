@@ -10,6 +10,10 @@ class UsersController < ApplicationController
     @custom_locations = @user.custom_locations.paginate @pagination
   end
 
+  def show
+    @other_user = User.find_by_login params[:id]
+  end
+
   def change_password
   end
 

@@ -63,6 +63,24 @@ class UserTest < ActiveSupport::TestCase
     assert_not_nil User.authenticate 'foo', 'manzana'
   end
 
+  test "requests" do
+    u1 = User.make
+    u2 = User.make
+    u3 = User.make
+
+    g1 = u1.create_group :name => 'foo', :alias => 'foo', :requires_approval_to_join => true
+    g2 = u2.create_group :name => 'bar', :alias => 'bar', :requires_approval_to_join => true
+    g3 = u3.create_group :name => 'baz', :alias => 'baz', :requires_approval_to_join => true
+
+    request = u1.request_join g2
+    other_request = u2.request_join g1
+    invite = u1.invite u3, :to => g3
+
+    assert_equal [request], u1.requests
+    assert_equal [other_request], u1.others_requests
+    assert_equal [invite], u1.invites
+  end
+
   test "to json" do
     user = User.make
     assert_equal({
