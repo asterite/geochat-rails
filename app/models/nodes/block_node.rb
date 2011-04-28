@@ -10,18 +10,23 @@ class BlockNode < Node
   include UserAndGroupNode
 
   def process
-    user, group = solve_user_and_group :no_default_group_message => T.you_must_specify_a_group_to_block(@user)
-    return unless user && group
+    solve_user_and_group :no_default_group_message => T.you_must_specify_a_group_to_block(@user) or return
+    check_valid_membership or return
 
-    membership = current_user.membership_in group
-    return reply T.you_cant_block_you_dont_belong_to_group(user, group) unless membership
-    return reply T.you_cant_block_you_are_not_owner(user, group), :group => group unless membership.role == :owner
-    return reply T.you_cant_block_yourself, :group => group if user == current_user
-
-    if group.block user
-      reply T.user_blocked(user, group), :group => group
+    if @group.block @user
+      reply T.user_blocked(@user, @group), :group => @group
     else
-      reply T.user_already_blocked(user, group), :group => group
+      reply T.user_already_blocked(@user, @group), :group => @group
     end
+  end
+
+  private
+
+  def check_valid_membership
+    membership = current_user.membership_in @group
+    reply T.you_cant_block_you_dont_belong_to_group(@user, @group) and return false unless membership
+    reply T.you_cant_block_you_are_not_owner(@user, @group), :group => @group and return false unless membership.role == :owner
+    reply T.you_cant_block_yourself, :group => @group and return false if @user == current_user
+    return true
   end
 end
