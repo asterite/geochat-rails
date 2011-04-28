@@ -16,6 +16,13 @@ class SessionsController < ApplicationController
       render :new and return
     end
 
+    if params[:user][:remember_me_token] == '1'
+      @user.remember_me_token = Guid.new.to_s
+      @user.save!
+
+      cookies[:remember_me] = {:value => "#{@user.id}|#{@user.remember_me_token}", :expires => 30.days.from_now }
+    end
+
     flash[:login_error] = nil
     session[:user_id] = @user.id
     redirect_to root_path
@@ -33,6 +40,7 @@ class SessionsController < ApplicationController
   end
 
   def destroy
+    cookies.delete :remember_me
     session.delete :user_id
     redirect_to root_path
   end

@@ -30,6 +30,7 @@ class User < ActiveRecord::Base
 
   data_accessor :groups_count, :default => 0
   data_accessor :locale, :default => :en
+  data_accessor :remember_me_token
 
   def self.find_by_login(login)
     self.find_by_login_downcase login.downcase

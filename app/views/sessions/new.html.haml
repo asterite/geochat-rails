@@ -9,6 +9,10 @@
     = f.label :password
     %br
     = f.password_field :password
+  %p
+    = f.label :remember_me
+    %br
+    = f.check_box :remember_me_token
   %p.error= flash[:login_error]
   = submit_tag 'Login'
 
