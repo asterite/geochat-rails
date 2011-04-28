@@ -118,8 +118,8 @@ class Node
         group = self[:user].groups.find_by_alias(name)
         return GroupTarget.new(name, :group => group) if group
 
-        invite = Invite.joins(:group).where('user_id = ? and groups.alias = ?', self[:user].id, name).first
-        return GroupTarget.new(name, :group => invite.group, :invite => invite) if invite
+        invites = Invite.joins(:group).where('user_id = ? and groups.alias = ?', self[:user].id, name).all
+        return GroupTarget.new(name, :group => invites.first.group, :invites => invites) if invites.present?
       end
 
       nil

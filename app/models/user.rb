@@ -92,7 +92,7 @@ class User < ActiveRecord::Base
   # user can be a User or a string, in which case a new User will be created with that login
   # options = :to => group
   def invite(user, options = {})
-    group = options[:to]
+    group = options[:to] or raise "Must give a :to => group option"
     if user.kind_of?(String)
       user = User.create! :login => user, :created_from_invite => true
     end
@@ -101,6 +101,10 @@ class User < ActiveRecord::Base
 
   def invite_in(group)
     Invite.where(:user_id => self.id, :group_id => group.id).first
+  end
+
+  def invites_in(group)
+    Invite.where(:user_id => self.id, :group_id => group.id).all
   end
 
   def request_join(group)

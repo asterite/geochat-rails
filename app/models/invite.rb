@@ -4,6 +4,9 @@ class Invite < ActiveRecord::Base
   belongs_to :requestor, :class_name => 'User'
   before_save :cache_in_data
 
+  validates_presence_of :user_id
+  validates_presence_of :group_id
+
   data_accessor :user_login
   data_accessor :requestor_login
   data_accessor :group_alias

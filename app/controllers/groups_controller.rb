@@ -65,20 +65,19 @@ class GroupsController < ApplicationController
     if @user.belongs_to? @group
       flash[:notice] = "You already are a member of #{@group}"
     elsif @group.requires_approval_to_join?
-      @invite = @user.invite_in @group
-      if @invite
-        if @invite.admin_accepted?
+      invites = @user.invites_in @group
+      if invites.present?
+        if invites.any? &:admin_accepted?
           @user.join @group
-          @invite.destroy
+          invites.each &:destroy
 
           flash[:notice] = "You are now a member of #{@group}"
-        elsif !@invite.user_accepted?
-          @invite.user_accepted = true
-          @invite.save!
+        elsif invites.any? &:user_accepted?
+          flash[:notice] = "You already requested to join #{@group}"
+        else
+          invites.each { |x| x.user_accepted = true; x.save! }
 
           flash[:notice] = "Request to join group #{@group} sent"
-        else
-          flash[:notice] = "You already requested to join #{@group}"
         end
       else
         @user.request_join @group
@@ -86,7 +85,7 @@ class GroupsController < ApplicationController
       end
     else
       @user.join @group
-      flash[:notice] = "You are now a member of #{@group.alias}"
+      flash[:notice] = "You are now a member of #{@group}"
     end
 
     redirect_to @group
@@ -98,6 +97,8 @@ class GroupsController < ApplicationController
     other_user = invite.user
     other_user.join @group
     invite.destroy
+
+    other_user.invites_in(@group).each &:destroy
 
     flash[:notice] = "You have accepted #{other_user.login} in #{@group}"
     redirect_to invites_path

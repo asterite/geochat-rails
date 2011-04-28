@@ -115,7 +115,7 @@ class MessageNode < Node
     elsif self.target.is_a?(GroupTarget)
       @group = self.target.payload[:group]
       @explicit_group = true
-      @invite = self.target.payload[:invite]
+      @invites = self.target.payload[:invites]
     end
   end
 
@@ -180,13 +180,13 @@ class MessageNode < Node
   end
 
   def has_invite?
-    @invite
+    @invites.present?
   end
 
   def validate_invite
-    if @invite.admin_accepted? || !@group.requires_approval_to_join?
+    if @invites.any?(&:admin_accepted?) || !@group.requires_approval_to_join?
       join_and_welcome current_user, @group
-      @invite.destroy
+      @invites.each &:destroy
     else
       reply T.cant_send_message_to_group_invitation_not_approved(@group)
       return false

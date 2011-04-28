@@ -32,15 +32,90 @@ class GroupsControllerTest < ActionController::TestCase
     assert @user.belongs_to?(group)
   end
 
-  test "can't join group that requires approval" do
+  test "join group deletes all invites to that group" do
+    group = User.make.create_group :alias => 'bar', :name => 'bar', :requires_approval_to_join => false
+
+    user2 = User.make
+    user3 = User.make
+  end
+
+  test "join in group that requires approval" do
     group = User.make.create_group :alias => 'bar', :name => 'bar', :requires_approval_to_join => true
 
     get :join, :id => 'bar'
 
-    assert "This group need approval to join"
+    assert "Request to join group #{group} sent", flash[:notice]
     assert_redirected_to group
-
     assert !@user.belongs_to?(group)
+
+    invites = Invite.all
+    assert_equal 1, invites.length
+    assert_equal @user.id, invites[0].user_id
+    assert_equal group.id, invites[0].group_id
+    assert invites[0].user_accepted?
+    assert !invites[0].admin_accepted?
+  end
+
+  test "join in group that requires approval but already requested" do
+    group = User.make.create_group :alias => 'bar', :name => 'bar', :requires_approval_to_join => true
+    @user.request_join group
+
+    get :join, :id => 'bar'
+
+    assert "You already requested to join #{group} sent", flash[:notice]
+    assert_redirected_to group
+    assert !@user.belongs_to?(group)
+    assert_equal 1, Invite.count
+  end
+
+  test "join in group that requires approval and invited from other users" do
+    group = User.make.create_group :alias => 'bar', :name => 'bar', :requires_approval_to_join => true
+
+    other_user_1 = User.make
+    other_user_1.join group
+
+    other_user_2 = User.make
+    other_user_2.join group
+
+    other_user_1.invite @user, :to => group
+    other_user_2.invite @user, :to => group
+
+    get :join, :id => 'bar'
+
+    assert "Request to join group #{group} sent", flash[:notice]
+    assert_redirected_to group
+    assert !@user.belongs_to?(group)
+
+    invites = Invite.all
+    assert_equal 2, invites.length
+    assert invites.all?(&:user_accepted?)
+    assert !invites.any?(&:admin_accepted?)
+
+    get :join, :id => 'bar'
+
+    assert "You already requested to join #{group}", flash[:notice]
+  end
+
+  test "join in group that requires approval and invited from other users and admin" do
+    admin = User.make
+    group = admin.create_group :alias => 'bar', :name => 'bar', :requires_approval_to_join => true
+
+    other_user_1 = User.make
+    other_user_1.join group
+
+    other_user_2 = User.make
+    other_user_2.join group
+
+    other_user_1.invite @user, :to => group
+    other_user_2.invite @user, :to => group
+    admin.invite @user, :to => group
+
+    get :join, :id => 'bar'
+
+    assert "You are now a member of #{group}", flash[:notice]
+    assert_redirected_to group
+    assert @user.belongs_to?(group)
+    assert_equal 0, Invite.count
   end
 
   test "join group when already joined" do
@@ -50,6 +125,25 @@ class GroupsControllerTest < ActionController::TestCase
 
     assert "You already are a member of #{group.alias}"
     assert_redirected_to group
+  end
+
+  test "accept join request when requested to join" do
+    group = @user.create_group :alias => 'bar', :name => 'bar', :requires_approval_to_join => true
+
+    other_user = User.make
+    other_user.request_join group
+
+    user3 = User.make
+    user3.join group
+    user3.invite other_user, :to => group
+
+    get :accept_join_request, :id => group.alias, :user => other_user.login
+
+    assert_equal "You have accepted #{other_user.login} in #{group}", flash[:notice]
+    assert_redirected_to invites_path
+    assert other_user.belongs_to?(group)
+
+    assert_equal 0, Invite.count
   end
 
   [:admin, :owner].each do |role|
