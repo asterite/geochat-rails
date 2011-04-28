@@ -43,18 +43,11 @@ class CreateNode < Node
   end
 
   def process
-    check_can_create or return
+    return reply T.cannot_create_group_name_too_short(@alias) if @alias.length < 2
+    return reply T.cannot_create_group_name_reserved(@alias) if @alias.command?
+    return reply T.group_already_exists(@alias) if Group.find_by_alias @alias
 
     group = current_user.create_group :alias => @alias, :name => (@name || @alias), :chatroom => !@nochat
     reply T.group_created(@alias), :group => group
-  end
-
-  private
-
-  def check_can_create
-    reply T.cannot_create_group_name_too_short(@alias) and return false if @alias.length < 2
-    reply T.cannot_create_group_name_reserved(@alias) and return false if @alias.command?
-    reply T.group_already_exists(@alias) and return false if Group.find_by_alias @alias
-    true
   end
 end

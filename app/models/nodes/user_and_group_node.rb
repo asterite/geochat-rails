@@ -29,11 +29,6 @@ module UserAndGroupNode
       return false
     end
 
-    if group
-      @user, @group = user, group
-      true
-    else
-      false
-    end
+    group ? [user, group] : false
   end
 end
