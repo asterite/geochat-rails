@@ -146,6 +146,27 @@ class GroupsControllerTest < ActionController::TestCase
     assert_equal 0, Invite.count
   end
 
+  test "accept join request when someone invited to join" do
+    group = @user.create_group :alias => 'bar', :name => 'bar', :requires_approval_to_join => true
+
+    other_user = User.make
+
+    user3 = User.make
+    user3.join group
+    user3.invite other_user, :to => group
+
+    get :accept_join_request, :id => group.alias, :user => other_user.login
+
+    assert_equal "You have accepted #{other_user.login} in #{group}, but s/he has to join now", flash[:notice]
+    assert_redirected_to invites_path
+    assert !other_user.belongs_to?(group)
+
+    invites = Invite.all
+    assert_equal 1, invites.length
+    assert invites[0].admin_accepted?
+    assert !invites[0].user_accepted?
+  end
+
   [:admin, :owner].each do |role|
     test "change role to #{role} if owner" do
       group = @user.create_group :alias => 'bar', :name => 'bar'

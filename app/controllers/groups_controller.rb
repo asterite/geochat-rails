@@ -93,14 +93,18 @@ class GroupsController < ApplicationController
 
   def accept_join_request
     login = params[:user]
-    invite = @user.others_requests.all.select{|x| x.user_login == login}.first
-    other_user = invite.user
-    other_user.join @group
-    invite.destroy
+    invites = @user.others_requests.all.select{|x| x.user_login == login}
+    other_user = invites.first.user
+    if invites.any? &:user_accepted?
+      other_user.join @group
+      invites.each &:destroy
 
-    other_user.invites_in(@group).each &:destroy
+      flash[:notice] = "You have accepted #{other_user.login} in #{@group}"
+    else
+      invites.each { |x| x.admin_accepted = true; x.save! }
 
-    flash[:notice] = "You have accepted #{other_user.login} in #{@group}"
+      flash[:notice] = "You have accepted #{other_user.login} in #{@group}, but s/he has to join now"
+    end
     redirect_to invites_path
   end
 
