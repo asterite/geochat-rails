@@ -12,6 +12,7 @@ class UsersController < ApplicationController
 
   def show
     @other_user = User.find_by_login params[:id]
+    @memberships = @user.visible_memberships_of @other_user
   end
 
   def change_password

@@ -64,6 +64,10 @@ class Group < ActiveRecord::Base
     true
   end
 
+  def public?
+    !hidden?
+  end
+
   def as_json(options = {})
     hash = {:alias => self.alias}
     hash[:name] = self.name if self.name.present?

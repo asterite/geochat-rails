@@ -174,6 +174,12 @@ class User < ActiveRecord::Base
     group.blocked_users.try(:include?, self.id)
   end
 
+  def visible_memberships_of(other_user)
+    my_groups = self.groups.map &:id
+    other_user_memberships = other_user.memberships.includes(:group).all
+    other_user_memberships.select{|x| x.group.public? || my_groups.include?(x.group_id)}
+  end
+
   def as_json(options = {})
     hash = {:login => self.login}
     hash[:displayName] = self.display_name if self.display_name.present?

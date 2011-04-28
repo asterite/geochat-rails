@@ -81,6 +81,20 @@ class UserTest < ActiveSupport::TestCase
     assert_equal [invite], u1.invites
   end
 
+  test "visible memberships of another user" do
+    u1 = User.make
+    u2 = User.make
+
+    hidden_group = u2.create_group :name => 'hidden', :alias => 'hidden', :hidden => true
+    public_group = u2.create_group :name => 'public', :alias => 'public', :hidden => false
+    shared_group = u2.create_group :name => 'shared', :alias => 'shared', :hidden => true
+    u1.join shared_group
+
+    memberships = u1.visible_memberships_of u2
+    assert_equal 2, memberships.length
+    assert_equal [public_group.id, shared_group.id], memberships.sort{|x, y| x.group_id <=> y.group_id}.map(&:group_id)
+  end
+
   test "to json" do
     user = User.make
     assert_equal({
