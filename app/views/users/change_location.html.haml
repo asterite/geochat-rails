@@ -1,7 +1,7 @@
 %h4 Change your location
 
-= render :partial => 'location'
+= render 'location'
 
 = form_for @user, :url => update_user_location_path, :html => {:method => :post} do |f|
-  = render :partial => 'shared/location', :locals => {:f => f, :lat => @user.lat, :lon => @user.lon, :width => 800, :height => 300}
+  = render 'shared/location', :f => f, :lat => @user.lat, :lon => @user.lon, :width => 800, :height => 300
   = submit_tag 'Change your location'

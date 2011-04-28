@@ -32,6 +32,6 @@
     = f.label :forward_owners
     = f.check_box :forward_owners
   %p= f.label :location
-  = render :partial => 'shared/location', :locals => {:f => f, :lat => @group.lat || @user.lat, :lon => @group.lon || @user.lon, :width => 400, :height => 300}
+  = render 'shared/location', :f => f, :lat => @group.lat || @user.lat, :lon => @group.lon || @user.lon, :width => 400, :height => 300
   = submit_tag 'Create group'
 

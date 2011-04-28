@@ -1,0 +1,8 @@
+%h4 Location
+
+- if @group.location_known?
+  #{@group.location}.
+- else
+  This group's location is unknown.
+- if @user_membership.owner?
+  #{link_to 'change', change_group_location_path}

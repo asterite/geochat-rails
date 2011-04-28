@@ -1,6 +1,6 @@
 %h4 Your location
 
-= render :partial => 'location'
+= render 'location'
 
 #{link_to 'Change your location', change_user_location_path}
 
@@ -10,7 +10,7 @@
   Custom locations allow you to send shorter messages to report your location. <br/>
   For example, if you have a custom location named "work" you can just send "at work".
 
-= render :partial => 'shared/custom_locations', :locals => {:locatable => @user, :can_edit => true}
+= render 'shared/custom_locations', :locatable => @user, :can_edit => true
 
 %h4 Your password
 

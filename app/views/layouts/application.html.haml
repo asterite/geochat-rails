@@ -14,7 +14,7 @@
           %span#notice= flash[:notice]
         - if @user.persisted?
           %span#toolbar #{@user.login} | #{link_to 'Logout', session_path, :method => :delete}
-      = render :partial => 'shared/tabs' if @user.persisted?
+      = render 'shared/tabs' if @user.persisted?
       #main
         = content_for?(:content) ? yield(:content) : yield
     #version_separator

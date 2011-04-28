@@ -3,5 +3,5 @@
 %h4 Change location
 
 = form_for @group, :url => update_group_location_path, :html => {:method => :post} do |f|
-  = render :partial => 'shared/location', :locals => {:f => f, :lat => (@group.lat || @user.lat), :lon => (@group.lon || @user.lon), :width => 800, :height => 300}
+  = render 'shared/location', :f => f, :lat => (@group.lat || @user.lat), :lon => (@group.lon || @user.lon), :width => 800, :height => 300
   = submit_tag 'Change location'
