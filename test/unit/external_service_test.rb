@@ -100,6 +100,7 @@ class ExternalServiceTest < NodeTest
   end
 
   test "external service with location update with replace" do
+    @options.merge!(:lat => 48.856667, :lon => 2.350987)
     HTTParty.expects(:post).with("http://example.com?#{@options.to_query}", :body => 'something').returns(stub(:headers => {'x-geochat-action' => 'continue', 'x-geochat-replacewith' => 'abracadabra'}, :body => nil))
 
     expect_locate 'Paris', 48.856667, 2.350987, 'Paris, France'
