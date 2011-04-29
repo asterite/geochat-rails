@@ -208,15 +208,15 @@ class User < ActiveRecord::Base
   end
 
   def create_message_for_group(group, message, options = {})
-    Message.create_from_hash({
+    Message.create_from_hash(options.merge({
       :sender => self,
       :group => group,
       :text => message,
       :lat => self.lat,
       :lon => self.lon,
-      :location => self.location_short_url,
+      :location => self.location,
       :location_short_url => self.location_short_url
-    })
+    }))
   end
 
   def as_json(options = {})

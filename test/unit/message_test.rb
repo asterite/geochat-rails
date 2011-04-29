@@ -4,7 +4,7 @@ class MessageTest < ActiveSupport::TestCase
   test "to json" do
     message = Message.make
     assert_equal({
-      :id => message.id,
+      :id => message.id.to_s,
       :text => message.text,
       :group => message.group.alias,
       :sender => message.sender.login,
