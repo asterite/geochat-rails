@@ -30,6 +30,8 @@ class User < ActiveRecord::Base
 
   data_accessor :groups_count, :default => 0
   data_accessor :locale, :default => :en
+  data_accessor :groups_order, :default => 'activity'
+  data_accessor :groups_order_manually
   data_accessor :remember_me_token
 
   def self.find_by_login(login)
@@ -178,6 +180,26 @@ class User < ActiveRecord::Base
     my_groups = self.groups.map &:id
     other_user_memberships = other_user.memberships.includes(:group).all
     other_user_memberships.select{|x| x.group.public? || my_groups.include?(x.group_id)}
+  end
+
+  def sorted_groups
+    groups = self.groups.all
+    case self.groups_order
+    when 'activity'
+      # TODO
+    when 'alphabetically'
+      groups.sort! {|x, y| x.alias_downcase <=> y.alias_downcase }
+    when 'manually'
+      hash = {}
+      self.groups_order_manually.each_with_index { |group, i| hash[group] = i }
+
+      groups.sort! do |x, y|
+        idx_x = hash[x.alias_downcase] || 10000
+        idx_y = hash[y.alias_downcase] || 10000
+        idx_x <=> idx_y
+      end
+    end
+    groups
   end
 
   def as_json(options = {})

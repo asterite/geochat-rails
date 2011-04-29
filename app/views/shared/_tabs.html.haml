@@ -6,4 +6,4 @@
      ['Channels', :channels],
      ['Requests', :invites],
      ['Settings', :user]].each do |name, action|
-    %li{:class => (selected_tab == action ? 'selected' : '')}= link_to name, eval("#{action}_path")
+    %li{:class => (selected_tab == action ? 'selected' : '')}= link_to name, eval("#{action}_path"), :class => 'link'

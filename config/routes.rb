@@ -89,6 +89,8 @@ GeochatRails::Application.routes.draw do
       match "/:login" => "api#user"
       match "/:login/verify" => "api#verify_user_credentials"
       match "/:login/groups" => "api#user_groups"
+      get "/:login/groups/order" => "api#get_groups_order"
+      post "/:login/groups/order" => "api#set_groups_order"
     end
 
     scope "/groups" do

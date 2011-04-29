@@ -4,7 +4,7 @@
     var Resources = [];
     function gwtUserLogin() { return "#{@user.login}"; }
     function gwtGroups() { return #{@groups.to_json}; }
-    function gwtGroupsOrder() { return "name"; }
+    function gwtGroupsOrder() { return "#{@user.groups_order}"; }
     function gwtServerUtcTicks() { return #{Time.now.strftime('%s').to_i * 1000}; }
     var gwtClientUtcDateRef = (new Date()).getTime();
     function gwtClientUtcDate() { return gwtClientUtcDateRef; }

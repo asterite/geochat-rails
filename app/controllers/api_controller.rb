@@ -1,6 +1,7 @@
 class ApiController < ApplicationController
   skip_before_filter :check_login
   before_filter :authenticate, :except => [:create_user, :user, :verify_user_credentials]
+  before_filter :check_user, :only => [:user, :set_groups_order, :get_groups_order]
   before_filter :check_group, :only => [:group, :group_members]
 
   def create_user
@@ -11,9 +12,7 @@ class ApiController < ApplicationController
   end
 
   def user
-    user = User.find_by_login params[:login]
-    return head :not_found unless user
-    render :json => user
+    render :json => @user
   end
 
   def verify_user_credentials
@@ -21,7 +20,7 @@ class ApiController < ApplicationController
   end
 
   def user_groups
-    render :json => @user.groups
+    render :json => @user.sorted_groups
   end
 
   def group
@@ -48,12 +47,31 @@ class ApiController < ApplicationController
     render :json => {:items => messages}
   end
 
+  def set_groups_order
+    order = JSON.parse request.raw_post
+
+    @user.groups_order = order['by']
+    @user.groups_order_manually = order['order'] if @user.groups_order == "manually"
+    @user.save!
+
+    head :ok
+  end
+
+  def get_groups_order
+    render :text => @user.groups_order
+  end
+
   private
 
   def authenticate
     check_user_in_session or check_user_used_remember_me or authenticate_or_request_with_http_basic do |username, password|
       @user = User.authenticate username, password
     end
+  end
+
+  def check_user
+    @user = User.find_by_login params[:login]
+    return head :not_found unless @user
   end
 
   def check_group

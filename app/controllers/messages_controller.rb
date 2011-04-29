@@ -1,5 +1,5 @@
 class MessagesController < ApplicationController
   def index
-    @groups = @user.groups
+    @groups = @user.sorted_groups
   end
 end
