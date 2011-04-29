@@ -113,7 +113,7 @@ class Group < ActiveRecord::Base
       prefix << "[#{self.alias}] "
     end
     options = {}
-    options[:from] = "user://#{user.login}"
+    options[:from] = "user://#{msg.sender_login}"
     options[:to] = channel.full_address
     options[:body] = "#{prefix}#{msg.text}"
     options[:group] = self.alias
