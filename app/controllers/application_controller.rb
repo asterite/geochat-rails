@@ -4,7 +4,7 @@ class ApplicationController < ActionController::Base
   before_filter :check_login
 
   def check_login
-    check_user_in_session or check_user_used_remember_me or redirect_to new_session_path
+    check_user_in_session or check_user_used_remember_me or go_to_login
   end
 
   private
@@ -35,6 +35,11 @@ class ApplicationController < ActionController::Base
     @user = user
     session[:user_id] = @user_id
     true
+  end
+
+  def go_to_login
+    session[:url_after_login] = request.fullpath
+    redirect_to new_session_path
   end
 
 end
