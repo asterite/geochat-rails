@@ -112,6 +112,7 @@ class Group < ActiveRecord::Base
     if id != user.default_group_id && user.groups_count > 1
       prefix << "[#{self.alias}] "
     end
+    prefix << "#{msg.sender_login}: "
     options = {}
     options[:from] = "user://#{msg.sender_login}"
     options[:to] = channel.full_address
