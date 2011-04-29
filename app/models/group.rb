@@ -71,8 +71,11 @@ class Group < ActiveRecord::Base
   def as_json(options = {})
     hash = {:alias => self.alias}
     hash[:name] = self.name if self.name.present?
+    hash[:isPublic] = !self.hidden?
     hash[:requireApprovalToJoin] = self.requires_approval_to_join?
+    hash[:membersCount] = self.users_count
     hash[:isChatRoom] = self.chatroom?
+    hash.merge! location_json
     hash[:created] = self.created_at
     hash[:updated] = self.updated_at
     hash

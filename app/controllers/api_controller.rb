@@ -1,7 +1,7 @@
 class ApiController < ApplicationController
   skip_before_filter :check_login
   before_filter :authenticate, :except => [:create_user, :user, :verify_user_credentials]
-  before_filter :check_group, :only => [:group, :group_members, :group_messages]
+  before_filter :check_group, :only => [:group, :group_members]
 
   def create_user
     user = User.create! :login => params[:login], :password => params[:password], :display_name => params[:displayname]
@@ -33,16 +33,25 @@ class ApiController < ApplicationController
   end
 
   def group_messages
+    groups = params[:alias].split('+').map &:downcase
+    groups_length = groups.length
+    groups = Group.where(:alias_downcase => groups).select(:id).map(&:id)
+    return head :not_found if groups_length != groups.length
+    return head :unauthorized if Membership.where(:user_id => @user.id, :group_id => groups).count != groups.length
+
     page = (params[:page] || 1).to_i
     per_page = (params[:per_page] || 50).to_i
     offset = (page - 1) * per_page
-    render :json => {:items => @group.messages.order('created_at DESC').offset(offset).limit(per_page)}
+
+    messages = Message.where(:group_id => groups).order('created_at DESC').offset(offset).limit(per_page)
+    messages = messages.where('created_at > ?', Time.parse(params[:since])) if params[:since].present?
+    render :json => {:items => messages}
   end
 
   private
 
   def authenticate
-    authenticate_or_request_with_http_basic do |username, password|
+    check_user_in_session or check_user_used_remember_me or authenticate_or_request_with_http_basic do |username, password|
       @user = User.authenticate username, password
     end
   end

@@ -53,7 +53,9 @@ class GroupTest < ActiveSupport::TestCase
     assert_equal({
       :alias => group.alias,
       :name => group.name,
+      :isPublic => !group.hidden,
       :requireApprovalToJoin => group.requires_approval_to_join,
+      :membersCount => group.users_count,
       :isChatRoom => group.chatroom?,
       :created => group.created_at,
       :updated => group.updated_at,

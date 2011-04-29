@@ -26,4 +26,12 @@ module Locatable
 
     custom_locations.find_by_name name
   end
+
+  def location_json
+    if location_known?
+      {:lat => lat.to_f, :long => lon.to_f, :location => location}
+    else
+      {}
+    end
+  end
 end

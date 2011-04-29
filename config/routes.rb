@@ -8,6 +8,8 @@ GeochatRails::Application.routes.draw do
     post 'register', :on => :member
   end
 
+  resources :messages, :only => [:index]
+
   resources :channels, :only => [:index, :show, :destroy] do
     new do
       ['email', 'mobile_phone', 'xmpp'].each do |protocol|

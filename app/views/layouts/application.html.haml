@@ -13,7 +13,7 @@
         - if flash[:notice].present?
           %span#notice= flash[:notice]
         - if @user.persisted?
-          %span#toolbar #{@user.login} | #{link_to 'Logout', session_path, :method => :delete}
+          %span#toolbar #{@user.login} | #{link_to 'Logout', session_path, :method => :delete, :class => 'link'}
       = render 'shared/tabs' if @user.persisted?
       #main
         = content_for?(:content) ? yield(:content) : yield
