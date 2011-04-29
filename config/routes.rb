@@ -93,10 +93,11 @@ GeochatRails::Application.routes.draw do
       post "/:login/groups/order" => "api#set_groups_order"
     end
 
-    scope "/groups" do
-      match "/:alias" => "api#group"
-      match "/:alias/members" => "api#group_members"
-      match "/:alias/messages" => "api#group_messages"
+    scope "/groups/:alias" do
+      match "/" => "api#group"
+      get "/members" => "api#group_members"
+      get "/messages" => "api#group_messages"
+      post "/messages" => "api#send_message_to_group"
     end
   end
 

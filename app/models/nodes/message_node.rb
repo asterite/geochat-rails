@@ -281,27 +281,19 @@ class MessageNode < Node
         others = @users.reject{|x| x == user}
         send_message_to_user user, @text_to_send, :sender => current_user, :group => @group, :private => true, :receivers => others, :location => @location_info, :dont_translate => true
       end
-      if @group.forward_owners
+      if @group.forward_owners?
         send_message_to_group_owners @group, @text_to_send, :sender => current_user, :receivers => @users, :location => @location_info, :except => @users, :dont_translate => true
       end
-    elsif @group.chatroom || @blast
+    elsif @group.chatroom? || @blast
       send_message_to_group @group, @text_to_send, :sender => current_user, :location => @location_info, :dont_translate => true
-    elsif @group.forward_owners
+    elsif @group.forward_owners?
       send_message_to_group_owners @group, @text_to_send, :sender => current_user, :location => @location_info, :dont_translate => true
     end
   end
 
   def save_message
-    saved_message = {
-      :sender => current_user,
-      :group => @group,
-      :text => @text_to_save,
-      :lat => current_user.lat,
-      :lon => current_user.lon,
-      :location => current_user.location,
-      :location_short_url => current_user.location_short_url
-    }
-    saved_message[:receivers] = @users.map(&:id) if @users.present?
-    Message.create_from_hash saved_message
+    options = {}
+    options[:receivers] = @users.map(&:id) if @users.present?
+    current_user.create_message_for_group @group, @text_to_save, options
   end
 end

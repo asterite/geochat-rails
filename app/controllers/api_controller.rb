@@ -2,7 +2,7 @@ class ApiController < ApplicationController
   skip_before_filter :check_login
   before_filter :authenticate, :except => [:create_user, :user, :verify_user_credentials]
   before_filter :check_user, :only => [:user, :set_groups_order, :get_groups_order]
-  before_filter :check_group, :only => [:group, :group_members]
+  before_filter :check_group, :only => [:group, :group_members, :send_message_to_group]
 
   def create_user
     user = User.create! :login => params[:login], :password => params[:password], :display_name => params[:displayname]
@@ -45,6 +45,11 @@ class ApiController < ApplicationController
     messages = Message.where(:group_id => groups).order('created_at DESC').offset(offset).limit(per_page)
     messages = messages.where('created_at > ?', Time.parse(params[:since])) if params[:since].present?
     render :json => {:items => messages}
+  end
+
+  def send_message_to_group
+    msg = @user.send_message_to_group @group, params[:message]
+    render :text => %Q("#{msg.id}")
   end
 
   def set_groups_order

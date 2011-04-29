@@ -229,7 +229,7 @@ class Node
 
     I18n.with_locale user.locale do
       msg = check_symbol_message msg, options
-      user.active_channels.each do |channel|
+      user.active_channels.each/so |channel|
         send_message_to_channel user, channel, msg, options
       end
     end

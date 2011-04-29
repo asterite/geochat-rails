@@ -202,6 +202,23 @@ class User < ActiveRecord::Base
     groups
   end
 
+  def send_message_to_group(group, message)
+    msg = create_message_for_group group, message
+    group.send_message msg
+  end
+
+  def create_message_for_group(group, message, options = {})
+    Message.create_from_hash({
+      :sender => self,
+      :group => group,
+      :text => message,
+      :lat => self.lat,
+      :lon => self.lon,
+      :location => self.location_short_url,
+      :location_short_url => self.location_short_url
+    })
+  end
+
   def as_json(options = {})
     hash = {:login => self.login}
     hash[:displayName] = self.display_name if self.display_name.present?

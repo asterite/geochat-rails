@@ -68,6 +68,20 @@ class Group < ActiveRecord::Base
     !hidden?
   end
 
+  def send_message(msg)
+    if chatroom?
+      users.includes(:channels).reject{|x| x.id == msg.sender_id}.each do |user|
+        send_message_to_user user, msg
+      end
+    elsif forward_owners?
+      owners.includes(:channels).reject{|x| x.id == msg.sender_id}.each do |user|
+        send_message_to_user user, msg
+      end
+    end
+
+    msg
+  end
+
   def as_json(options = {})
     hash = {:alias => self.alias}
     hash[:name] = self.name if self.name.present?
@@ -86,6 +100,26 @@ class Group < ActiveRecord::Base
   end
 
   private
+
+  def send_message_to_user(user, msg)
+    user.active_channels.each do |channel|
+      send_message_to_channel user, channel, msg
+    end
+  end
+
+  def send_message_to_channel(user, channel, msg)
+    prefix = ""
+    if id != user.default_group_id && user.groups_count > 1
+      prefix << "[#{self.alias}] "
+    end
+    options = {}
+    options[:from] = "user://#{user.login}"
+    options[:to] = channel.full_address
+    options[:body] = "#{prefix}#{msg.text}"
+    options[:group] = self.alias
+
+    Nuntium.new_from_config.send_ao options
+  end
 
   def update_alias_downcase
     self.alias_downcase = self.alias.downcase

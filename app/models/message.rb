@@ -17,10 +17,12 @@ class Message < ActiveRecord::Base
     hash[:sender_login] = msg.sender.login
     msg.data = hash
     msg.save!
+
+    msg
   end
 
   def as_json(options = {})
-    hash = {:id => self.id, :text => self.text, :group => self.group.alias, :sender => self.sender.login}
+    hash = {:id => self.id.to_s, :text => self.text, :group => self.group.alias, :sender => self.sender.login}
     hash[:lat] = self.lat.to_f if self.lat.present?
     hash[:long] = self.lon.to_f if self.lon.present?
     hash[:location] = self.location if self.location.present?
