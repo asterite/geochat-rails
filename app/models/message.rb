@@ -3,6 +3,8 @@ class Message < ActiveRecord::Base
   belongs_to :receiver, :class_name => 'User'
   belongs_to :group
 
+  before_save :cache_data
+
   data_accessor :group_alias
   data_accessor :sender_login
 
@@ -13,8 +15,6 @@ class Message < ActiveRecord::Base
     [:group, :sender, :text, :lat, :lon, :location, :location_short_url].each do |method|
       msg.send "#{method}=", hash.delete(method)
     end
-    hash[:group_alias] = msg.group.alias
-    hash[:sender_login] = msg.sender.login
     msg.data = hash
     msg.save!
 
@@ -29,5 +29,12 @@ class Message < ActiveRecord::Base
     hash[:location_short_url] = self.location_short_url if self.location_short_url.present?
     hash[:created] = self.created_at
     hash
+  end
+
+  private
+
+  def cache_data
+    self.group_alias = self.group.alias if self.group_id?
+    self.sender_login = self.sender.login if self.sender_id?
   end
 end
