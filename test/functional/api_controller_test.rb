@@ -115,7 +115,11 @@ class ApiControllerTest < ActionController::TestCase
           get :group_messages, :alias => @group.alias, :page => '2', :per_page => '3'
           assert_response :ok
 
-          assert_equal({:items => @group.messages.order('created_at DESC')[3 ... 6]}.to_json, @response.body)
+          assert_equal({
+            :items => @group.messages.order('created_at DESC')[3 ... 6],
+            :previousPage => "#{request.protocol}#{request.host_with_port}#{request.path}?page=1&per_page=3",
+            :nextPage => "#{request.protocol}#{request.host_with_port}#{request.path}?page=3&per_page=3",
+            }.to_json, @response.body)
         end
       end
 

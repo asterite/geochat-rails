@@ -38,13 +38,10 @@ class ApiController < ApplicationController
     return head :not_found if groups_length != groups.length
     return head :unauthorized if Membership.where(:user_id => @user.id, :group_id => groups).count != groups.length
 
-    page = (params[:page] || 1).to_i
-    per_page = (params[:per_page] || 50).to_i
-    offset = (page - 1) * per_page
-
-    messages = Message.where(:group_id => groups).order('created_at DESC').offset(offset).limit(per_page)
+    messages = Message.where(:group_id => groups).order('created_at DESC')
     messages = messages.where('created_at > ?', Time.parse(params[:since])) if params[:since].present?
-    render :json => {:items => messages}
+
+    paginate messages, :alias
   end
 
   def send_message_to_group
@@ -83,5 +80,33 @@ class ApiController < ApplicationController
     @group = Group.find_by_alias params[:alias]
     return head :not_found unless @group
     return head :unauthorized unless @user.belongs_to? @group
+  end
+
+  def paginate(objects, *delete_params)
+    page = (params[:page] || 1).to_i
+    per_page = (params[:per_page] || 50).to_i
+    offset = (page - 1) * per_page
+
+    objects = objects.offset(offset).limit(per_page + 1).all
+    has_previous_page = page > 1
+    has_next_page = objects.length > per_page
+
+    answer = {:items => (has_next_page ? objects[0 .. -2] : objects)}
+    answer[:previousPage] = current_page_url(:page => page - 1, :delete => delete_params) if has_previous_page
+    answer[:nextPage] = current_page_url(:page => page + 1, :delete => delete_params) if has_next_page
+
+    render :json => answer
+  end
+
+  def current_page_url(options = {})
+    deleted_params = options.delete :delete
+
+    params_dup = params.dup
+    params_dup.delete :action
+    params_dup.delete :controller
+    deleted_params.each { |p| params_dup.delete p } if deleted_params
+    params_dup.merge! options
+
+    "#{request.protocol}#{request.host_with_port}#{request.path}?#{params_dup.to_query}"
   end
 end
