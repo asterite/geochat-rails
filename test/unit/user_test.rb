@@ -8,7 +8,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "doesn't allow login command" do
-    user = User.make_unsaved :login => 'block'
+    user = User.make_unsaved :login => 'create'
     assert !user.valid?
     assert_equal ['is a reserved name'], user.errors[:login]
   end

@@ -172,10 +172,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  def is_blocked_in?(group)
-    group.blocked_users.try(:include?, self.id)
-  end
-
   def visible_memberships_of(other_user)
     my_groups = self.groups.map &:id
     other_user_memberships = other_user.memberships.includes(:group).all

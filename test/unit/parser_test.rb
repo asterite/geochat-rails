@@ -217,14 +217,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_leave "<alias", :group => 'alias'
   it_parses_leave "< alias", :group => 'alias'
 
-  it_parses_block "block someone", :user => 'someone'
-  it_parses_block ".block someone", :user => 'someone'
-  it_parses_block "block someone somegroup", :user => 'someone', :group => 'somegroup'
-  it_parses_block "@somegroup block someone", :user => 'someone', :group => 'somegroup'
-  it_parses_block "@somegroup .block someone", :user => 'someone', :group => 'somegroup'
-  it_parses_block "MyGroup block someone", :user => 'someone', :group => 'MyGroup'
-  it_parses_block "MyGroup .block someone", :user => 'someone', :group => 'MyGroup'
-
   it_parses_owner "owner someone", :user => 'someone'
   it_parses_owner "owner someone somegroup", :user => 'someone', :group => 'somegroup'
   it_parses_owner "owner 123456 somegroup", :user => '123456', :group => 'somegroup'
@@ -457,11 +449,6 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help "owner", :node => OwnerNode
   it_parses_help ".ow ?", :node => OwnerNode
   it_parses_help "? .ow", :node => OwnerNode
-  it_parses_help "block help", :node => BlockNode
-  it_parses_help "help block", :node => BlockNode
-  it_parses_help "block ?", :node => BlockNode
-  it_parses_help "? block", :node => BlockNode
-  it_parses_help "block", :node => BlockNode
   it_parses_help "lang help", :node => LanguageNode
   it_parses_help "help lang", :node => LanguageNode
   it_parses_help "help .lang", :node => LanguageNode

@@ -17,7 +17,6 @@ class Group < ActiveRecord::Base
   before_validation :update_alias_downcase
 
   data_accessor :users_count, :default => 0
-  data_accessor :blocked_users, :default => []
   data_accessor :external_service_url
   data_accessor :external_service_prefix
 
@@ -40,45 +39,17 @@ class Group < ActiveRecord::Base
     User.joins(:memberships).where('memberships.group_id = ? AND (role = ? OR role = ?)', self.id, :admin, :owner)
   end
 
-  def block(user)
-    return false if self.blocked_users.include?(user.id)
-
-    # Block it
-    self.blocked_users << user.id
-
-    save!
-
-    # Remove user from group
-    membership = user.membership_in(self)
-    membership.destroy if membership
-
-    true
-  end
-
-  def unblock(user)
-    return false unless self.blocked_users && self.blocked_users.include?(user.id)
-
-    self.blocked_users.delete user.id
-    save!
-
-    true
-  end
-
   def public?
     !hidden?
   end
 
   def send_message(msg)
-    if chatroom?
-      users.includes(:channels).reject{|x| x.id == msg.sender_id}.each do |user|
-        send_message_to_user user, msg
-      end
-    elsif forward_owners?
-      owners.includes(:channels).reject{|x| x.id == msg.sender_id}.each do |user|
-        send_message_to_user user, msg
+    targets = chatroom? ? users : owners
+    targets.includes(:channels).each do |user|
+      user.active_channels.each do |channel|
+        send_message_to_channel user, channel, msg
       end
     end
-
     msg
   end
 

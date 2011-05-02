@@ -142,20 +142,12 @@ module T
       I18n.t! :you_cant_set_owner_you_dont_belong_to_group, :user => user, :group => group
     end
 
-    def you_cant_block_you_dont_belong_to_group(user, group)
-      I18n.t! :you_cant_block_you_dont_belong_to_group, :user => user, :group => group
-    end
-
     def you_cant_set_owner_you_are_not_owner(user, group)
       I18n.t! :you_cant_set_owner_you_are_not_owner, :user => user, :group => group
     end
 
     def user_already_an_owner(user, group)
       I18n.t! :user_already_an_owner, :user => user, :group => group
-    end
-
-    def user_already_blocked(user, group)
-      I18n.t! :user_already_blocked, :user => user, :group => group
     end
 
     def user_set_as_owner(user, group)
@@ -228,14 +220,6 @@ module T
       else
         I18n.t! :users_already_belong_to_group, :users => user.join(', '), :group => group
       end
-    end
-
-    def user_blocked(user, group)
-      I18n.t! :user_blocked, :user => user, :group => group
-    end
-
-    def you_cant_block_you_are_not_owner(user, group)
-      I18n.t! :you_cant_set_owner_you_are_not_owner, :user => user, :group => group
     end
   end
 end
