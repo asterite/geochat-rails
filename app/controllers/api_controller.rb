@@ -40,6 +40,7 @@ class ApiController < ApplicationController
 
     messages = Message.where(:group_id => groups).order('created_at DESC')
     messages = messages.where('created_at > ?', Time.parse(params[:since])) if params[:since].present?
+    messages = messages.where('created_at < ?', Time.parse(params[:until])) if params[:until].present?
 
     paginate messages, :alias
   end
