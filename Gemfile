@@ -17,6 +17,10 @@ gem 'validates_email_format_of', :git => 'git://github.com/alexdunae/validates_e
 gem "will_paginate", "~> 3.0.pre2"
 gem 'geokit'
 
+group :development do
+  gem 'rails-footnotes', '>= 3.7'
+end
+
 group :test do
   gem 'machinist'
   gem 'ffaker'
