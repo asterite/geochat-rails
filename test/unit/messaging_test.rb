@@ -367,20 +367,6 @@ class MessagingTest < NodeTest
     end
   end
 
-
-  test "reports group" do
-    create_users 1, 2, 3
-
-    send_message 1, "create group Group1 reports"
-
-    send_message 2..3, "join Group1"
-
-    send_message 2, "Hello!"
-    assert_messages_sent_to 1, "User2: Hello!", :group => 'Group1'
-    assert_no_messages_sent_to 3
-    assert_message_saved "User2", "Group1", "Hello!"
-  end
-
   test "send message does not belong to group" do
     create_users 1
     send_message 1, "Hello!"

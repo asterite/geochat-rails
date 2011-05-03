@@ -68,11 +68,14 @@ class Group < ActiveRecord::Base
   def send_message(msg, membership = nil)
     membership ||= msg.sender.membership_in self
     targets = message_targets membership
-    return if targets == :all ? users : owners
+    return if targets == :none
 
+    nuntium = Nuntium.new_from_config
+
+    targets = targets == :all ? users : owners
     targets.includes(:channels).each do |user|
       user.active_channels.each do |channel|
-        send_message_to_channel user, channel, msg
+        send_message_to_channel user, channel, msg, nuntium
       end
     end
     msg
@@ -97,13 +100,7 @@ class Group < ActiveRecord::Base
 
   private
 
-  def send_message_to_user(user, msg)
-    user.active_channels.each do |channel|
-      send_message_to_channel user, channel, msg
-    end
-  end
-
-  def send_message_to_channel(user, channel, msg)
+  def send_message_to_channel(user, channel, msg, nuntium)
     prefix = ""
     if id != user.default_group_id && user.groups_count > 1
       prefix << "[#{self.alias}] "
@@ -115,7 +112,7 @@ class Group < ActiveRecord::Base
     options[:body] = "#{prefix}#{msg.text}"
     options[:group] = self.alias
 
-    Nuntium.new_from_config.send_ao options
+    nuntium.send_ao options
   end
 
   def update_alias_downcase

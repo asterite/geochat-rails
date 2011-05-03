@@ -95,6 +95,54 @@ class UserTest < ActiveSupport::TestCase
     assert_equal [public_group.id, shared_group.id], memberships.sort{|x, y| x.group_id <=> y.group_id}.map(&:group_id)
   end
 
+  context "send message to group" do
+    setup do
+      Node.process :from => 'sms://1', :body => 'name User1'
+      Node.process :from => 'sms://2', :body => 'name User2'
+      Node.process :from => 'sms://3', :body => 'name User3'
+
+      @u1 = User.find_by_login 'User1'
+      @u2 = User.find_by_login 'User2'
+      @u3 = User.find_by_login 'User3'
+    end
+
+    context 'reports and alerts group' do
+      setup do
+        @group = @u1.create_group :name => 'foo', :alias => 'foo', :kind => :reports_and_alerts
+        @u2.join @group
+        @u3.join @group
+      end
+
+      should "send message to owner in reports group" do
+        nuntium = mock('nuntium')
+        Nuntium.expects(:new_from_config).returns(nuntium)
+        nuntium.expects(:send_ao).with(:from => 'user://User2', :to => 'sms://1', :body => 'User2: Hello!', :group => @group.alias)
+
+        @u2.send_message_to_group @group, 'Hello!'
+
+        assert_message_saved @u2, @group, 'Hello!'
+      end
+    end
+
+    context 'messaging group' do
+      setup do
+        @group = @u1.create_group :name => 'foo', :alias => 'foo', :kind => :messaging
+        @u2.join @group
+        @u3.join @group
+      end
+
+      should "not send message to messaging group" do
+        Nuntium.expects(:new_from_config).never
+
+        @u1.send_message_to_group @group, 'Hello!'
+
+        assert_message_saved @u1, @group, 'Hello!'
+      end
+    end
+
+
+  end
+
   test "to json" do
     user = User.make
     assert_equal({

@@ -57,4 +57,30 @@ class ActiveSupport::TestCase
       raise "Expected 2 or 3 params for expect_shorten_google_maps"
     end
   end
+
+  def assert_message_saved(user, group, text)
+    messages = Message.all
+    assert_equal 1, messages.length
+    message = messages.first
+    if user.is_a? User
+      assert_equal user, message.sender
+    else
+      assert_equal user, message.sender.login
+    end
+    if group.is_a? Group
+      assert_equal group, message.group
+    else
+      assert_equal group, message.group.alias
+    end
+    assert_equal text, message.text
+    message
+  end
+
+  def assert_message_saved_with_location(user, group, text, location, lat, lon, short_url)
+    message = assert_message_saved(user, group, text)
+    assert_equal location, message.location
+    assert_in_delta lat, message.lat, 1e-07
+    assert_in_delta lon, message.lon, 1e-07
+    assert_equal short_url, message.location_short_url
+  end
 end

@@ -157,24 +157,6 @@ class NodeTest < ActiveSupport::TestCase
     assert_equal short_url, user.location_short_url
   end
 
-  def assert_message_saved(user, group, text)
-    messages = Message.all
-    assert_equal 1, messages.length
-    message = messages.first
-    assert_equal user, message.sender.login
-    assert_equal group, message.group.alias
-    assert_equal text, message.text
-    message
-  end
-
-  def assert_message_saved_with_location(user, group, text, location, lat, lon, short_url)
-    message = assert_message_saved(user, group, text)
-    assert_equal location, message.location
-    assert_in_delta lat, message.lat, 1e-07
-    assert_in_delta lon, message.lon, 1e-07
-    assert_equal short_url, message.location_short_url
-  end
-
   def create_users(*args)
     args = args.first.to_a if args.first.is_a?(Range)
     args.each do |num|
