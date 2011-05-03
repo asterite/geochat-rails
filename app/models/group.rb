@@ -20,6 +20,8 @@ class Group < ActiveRecord::Base
   data_accessor :external_service_url
   data_accessor :external_service_prefix
 
+  attr_reader_as_symbol :kind
+
   scope :public, where(:hidden => false)
 
   def self.find_by_alias(talias)
@@ -43,8 +45,31 @@ class Group < ActiveRecord::Base
     !hidden?
   end
 
-  def send_message(msg)
-    targets = chatroom? ? users : owners
+  # Returns the targets of having membership send a message to this group.
+  # Returns:
+  #  - :none : if no one should receive the message
+  #  - :owners : if owners should receive the message
+  #  - :all : if owners should receive the message
+  def message_targets(membership)
+    case kind
+    when :chatroom
+      :all
+    when :reports_and_alerts
+      membership.owner? ? :all : :owners
+    when :reports
+      membership.owner? ? :none : :owners
+    when :messaging
+      :none
+    when :alerts
+      membership.owner? ? :all : :none
+    end
+  end
+
+  def send_message(msg, membership = nil)
+    membership ||= msg.sender.membership_in self
+    targets = message_targets membership
+    return if targets == :all ? users : owners
+
     targets.includes(:channels).each do |user|
       user.active_channels.each do |channel|
         send_message_to_channel user, channel, msg
@@ -59,7 +84,7 @@ class Group < ActiveRecord::Base
     hash[:isPublic] = !self.hidden?
     hash[:requireApprovalToJoin] = self.requires_approval_to_join?
     hash[:membersCount] = self.users_count
-    hash[:isChatRoom] = self.chatroom?
+    hash[:kind] = self.kind.to_s
     hash.merge! location_json
     hash[:created] = self.created_at
     hash[:updated] = self.updated_at

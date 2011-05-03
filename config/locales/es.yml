@@ -361,7 +361,6 @@ es:
   at_place_with_location_info: "en %{place}, %{location_info}"
   message_only_to_you: "%{name} sólo a tí"
   message_only_to_others_and_you: "%{from} sólo a %{others} y a tí"
-  message_only_to_users: "%{from} sólo a %{to}"
   device_belongs_to_another_user: "Este dispositivo pertence a otro usuario. Para desasociarlo envía: bye"
   cannot_signup_name_too_short: "No puedes registrarte como '%{name}' porque es muy corto (el mínimo es 2 caracteres)."
   cannot_signup_name_reserved: "No puedes registrarte como '%{name}' porque es un nombre reservado."

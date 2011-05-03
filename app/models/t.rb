@@ -182,11 +182,6 @@ module T
       end
     end
 
-    def message_only_to_users(from, to)
-      to = *to
-      I18n.t! :message_only_to_users, :from => from, :to => to.join(', ')
-    end
-
     def welcome_to_geochat(user)
       user = user.display_name if user.is_a?(User)
       I18n.t! :welcome_to_geochat, :name => user

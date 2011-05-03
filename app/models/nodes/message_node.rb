@@ -172,9 +172,6 @@ class MessageNode < Node
   def validate_default_group
     if !@group
       @group = default_group :no_default_group_message => T.you_dont_have_a_default_group_prefix_messages
-
-      # This saves us a query because we know the group came from the user memberships
-      @current_user_belongs_to_group = true
     end
     @group
   end
@@ -195,7 +192,7 @@ class MessageNode < Node
   end
 
   def belongs_to_group?
-    @current_user_belongs_to_group || current_user.belongs_to?(@group)
+    @membership = current_user.membership_in @group
   end
 
   def validate_can_join_group
@@ -281,13 +278,14 @@ class MessageNode < Node
         others = @users.reject{|x| x == user}
         send_message_to_user user, @text_to_send, :sender => current_user, :group => @group, :private => true, :receivers => others, :location => @location_info, :dont_translate => true
       end
-      if @group.forward_owners?
-        send_message_to_group_owners @group, @text_to_send, :sender => current_user, :receivers => @users, :location => @location_info, :except => @users, :dont_translate => true
-      end
-    elsif @group.chatroom? || @blast
+    else
+      targets = @blast ? :all : @group.message_targets(@membership)
+      case targets
+      when :owners
+        send_message_to_group_owners @group, @text_to_send, :sender => current_user, :location => @location_info, :dont_translate => true
+      when :all
       send_message_to_group @group, @text_to_send, :sender => current_user, :location => @location_info, :dont_translate => true
-    elsif @group.forward_owners?
-      send_message_to_group_owners @group, @text_to_send, :sender => current_user, :location => @location_info, :dont_translate => true
+      end
     end
   end
 

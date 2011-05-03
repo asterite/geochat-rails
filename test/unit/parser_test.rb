@@ -153,21 +153,24 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_create "create 123alias", :alias => '123alias'
   it_parses_create "creategroup alias", :alias => 'alias'
   it_parses_create "create group alias", :alias => 'alias'
-  it_parses_create "create alias nochat", :alias => 'alias', :nochat => true
-  it_parses_create "create alias alert", :alias => 'alias', :nochat => true
+  it_parses_create "create alias chat", :alias => 'alias', :kind => :chatroom
+  it_parses_create "create alias chatroom", :alias => 'alias', :kind => :chatroom
+  it_parses_create "create alias alert", :alias => 'alias', :kind => :alerts
+  it_parses_create "create alias alerts", :alias => 'alias', :kind => :alerts
+  it_parses_create "create alias report", :alias => 'alias', :kind => :reports
+  it_parses_create "create alias reports", :alias => 'alias', :kind => :reports
+  it_parses_create "create alias messaging", :alias => 'alias', :kind => :messaging
   it_parses_create "create alias public", :alias => 'alias', :public => true
   it_parses_create "create alias nohide", :alias => 'alias', :public => true
   it_parses_create "create alias hide", :alias => 'alias', :public => false
   it_parses_create "create alias private", :alias => 'alias', :public => false
   it_parses_create "create alias visible", :alias => 'alias', :public => true
-  it_parses_create "create alias chat", :alias => 'alias', :nochat => false
-  it_parses_create "create alias chatroom", :alias => 'alias', :nochat => false
-  it_parses_create "create alias public nochat", :alias => 'alias', :public => true, :nochat => true
-  it_parses_create "create alias nochat public", :alias => 'alias', :public => true, :nochat => true
+  it_parses_create "create alias public alerts", :alias => 'alias', :public => true, :kind => :alerts
+  it_parses_create "create alias alerts public", :alias => 'alias', :public => true, :kind => :alerts
   it_parses_create "create alias name foobar", :alias => 'alias', :name => 'foobar'
   it_parses_create "create alias name foo bar baz", :alias => 'alias', :name => 'foo bar baz'
-  it_parses_create "create alias name foo bar baz public nochat", :alias => 'alias', :name => 'foo bar baz', :public => true, :nochat => true
-  it_parses_create "create alias public name foo bar baz nochat", :alias => 'alias', :name => 'foo bar baz', :public => true, :nochat => true
+  it_parses_create "create alias name foo bar baz public alerts", :alias => 'alias', :name => 'foo bar baz', :public => true, :kind => :alerts
+  it_parses_create "create alias public name foo bar baz alerts", :alias => 'alias', :name => 'foo bar baz', :public => true, :kind => :alerts
   it_parses_create ".cg alias", :alias => 'alias'
   it_parses_create "*alias", :alias => 'alias'
   it_parses_create "* alias", :alias => 'alias'

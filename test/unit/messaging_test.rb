@@ -38,10 +38,10 @@ class MessagingTest < NodeTest
     assert_no_messages_saved
   end
 
-  test "send message to nochat group" do
+  test "send message to messaging group" do
     create_users 1, 2
 
-    send_message 1, "create group Group1 nochat"
+    send_message 1, "create group Group1 messaging"
     send_message 2, "join Group1"
 
     send_message 1, "Hello!"
@@ -283,11 +283,10 @@ class MessagingTest < NodeTest
     assert_messages_sent_to 2, "[Group2] #{T.message_only_to_you('User1', [])}: Hello!", :group => 'Group2'
   end
 
-  test "forward owners" do
+  test "reports group" do
     create_users 1, 2, 3
 
-    send_message 1, "create group Group1 nochat"
-    set_forward_owners "Group1"
+    send_message 1, "create group Group1 reports"
 
     send_message 2..3, "join Group1"
 
@@ -297,12 +296,11 @@ class MessagingTest < NodeTest
     assert_message_saved "User2", "Group1", "Hello!"
   end
 
-  test "forward owners many groups" do
+  test "reports group many groups" do
     create_users 1, 2, 3
 
-    send_message 1, "create group Group1 nochat"
+    send_message 1, "create group Group1 reports"
     send_message 1, "create group Group2"
-    set_forward_owners "Group1"
 
     send_message 2..3, "join Group1"
 
@@ -312,33 +310,28 @@ class MessagingTest < NodeTest
     assert_message_saved "User2", "Group1", "Hello!"
   end
 
-  test "forward owners direct message" do
+  test "reports direct message" do
     create_users 1, 2, 3
 
-    send_message 1, "create group Group1 nochat"
-    set_forward_owners "Group1"
+    send_message 1, "create group Group1 reports"
 
     send_message 2..3, "join Group1"
 
     send_message 2, "@User3 Hello!"
-    assert_messages_sent_to 1, "#{T.message_only_to_users('User2', 'User3')}: Hello!", :group => 'Group1'
     assert_messages_sent_to 3, "#{T.message_only_to_you('User2', [])}: Hello!", :group => 'Group1'
     assert_message_saved "User2", "Group1", "Hello!"
   end
 
-  test "forward owners direct message to owner" do
+  test "reports direct message to owner" do
     create_users 1..4
 
-    send_message 1, "create group Group1 nochat"
+    send_message 1, "create group Group1 reports"
     send_message 4, "join Group1"
     send_message 1, "owner User4"
-
-    set_forward_owners "Group1"
 
     send_message 2..3, "join Group1"
 
     send_message 2, "@User4 Hello!"
-    assert_messages_sent_to 1, "#{T.message_only_to_users('User2', 'User4')}: Hello!", :group => 'Group1'
     assert_messages_sent_to 4, "#{T.message_only_to_you('User2', [])}: Hello!", :group => 'Group1'
     assert_message_saved "User2", "Group1", "Hello!"
   end

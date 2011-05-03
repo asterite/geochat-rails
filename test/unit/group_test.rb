@@ -56,7 +56,7 @@ class GroupTest < ActiveSupport::TestCase
       :isPublic => !group.hidden,
       :requireApprovalToJoin => group.requires_approval_to_join,
       :membersCount => group.users_count,
-      :isChatRoom => group.chatroom?,
+      :kind => group.kind.to_s,
       :created => group.created_at,
       :updated => group.updated_at,
     }.to_json, group.to_json)

@@ -81,7 +81,6 @@ en:
   at_place_with_location_info: "at %{place}, %{location_info}"
   message_only_to_you: "%{name} only to you"
   message_only_to_others_and_you: "%{from} only to %{others} and you"
-  message_only_to_users: "%{from} only to %{to}"
   device_belongs_to_another_user: "This device already belongs to another user. To dettach it send: bye"
   cannot_signup_name_too_short: "You cannot signup as '%{name}' because it is too short (minimum is 2 characters)."
   cannot_signup_name_reserved: "You cannot signup as '%{name}' because it is a reserved name."

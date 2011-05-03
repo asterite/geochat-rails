@@ -198,9 +198,9 @@ class User < ActiveRecord::Base
     groups
   end
 
-  def send_message_to_group(group, message)
+  def send_message_to_group(group, message, membership = nil)
     msg = create_message_for_group group, message
-    group.send_message msg
+    group.send_message msg, membership
   end
 
   def create_message_for_group(group, message, options = {})

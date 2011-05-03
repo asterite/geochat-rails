@@ -205,10 +205,4 @@ class NodeTest < ActiveSupport::TestCase
     group.requires_approval_to_join = true
     group.save!
   end
-
-  def set_forward_owners(group)
-    group = Group.find_by_alias group
-    group.forward_owners = true
-    group.save!
-  end
 end

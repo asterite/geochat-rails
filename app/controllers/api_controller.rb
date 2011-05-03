@@ -80,7 +80,8 @@ class ApiController < ApplicationController
   def check_group
     @group = Group.find_by_alias params[:alias]
     return head :not_found unless @group
-    return head :unauthorized unless @user.belongs_to? @group
+    @membership = @user.membership_in @group
+    return head :unauthorized unless @membership
   end
 
   def paginate(objects, *delete_params)
