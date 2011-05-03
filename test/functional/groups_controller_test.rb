@@ -17,7 +17,7 @@ class GroupsControllerTest < ActionController::TestCase
 
     assert @user.is_owner_of?(groups[0])
     group_plan.each do |key, value|
-      assert_equal value, groups[0].send(key)
+      assert_equal value, groups[0].send(key).to_s
     end
   end
 

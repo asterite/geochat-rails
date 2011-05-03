@@ -2,6 +2,8 @@
 
 %p= @group.description
 
+%p This is a #{@group.kind.to_s.gsub('_', ' ')} group.
+
 = render 'location'
 = render 'members'
 = render 'custom_locations'

@@ -20,17 +20,28 @@
     %br
     = f.text_area :description, :rows => 5
   %p
-    = f.label :hidden
+    = f.label :hidden, "Hidden (won't be visible in the public groups listing)"
     = f.check_box :hidden
   %p
-    = f.label :requires_approval_to_join
+    = f.label :requires_approval_to_join, "Require approval to join?"
     = f.check_box :requires_approval_to_join
   %p
-    = f.label :chatroom
-    = f.check_box :chatroom
-  %p
-    = f.label :forward_owners
-    = f.check_box :forward_owners
+    = f.label:kind, "Select the group kind:"
+    %br
+    = f.radio_button :kind, :chatroom
+    Chatroom: all sent messages are received by all members and owners in the group, as well as appear on the website.
+    %br
+    = f.radio_button :kind, :reports_and_alerts
+    Reports and Alerts: messages sent by owners are received by everyone; messages sent by non-owners are only received by owners. All messages appear on the website.
+    %br
+    = f.radio_button :kind, :reports
+    Reports: messages sent by owners are only shown on the website; messages sent by non-owners are received by owners and shown on the website.
+    %br
+    = f.radio_button :kind, :alerts
+    Alerts: messages sent by owners are received by everyone and shown on the website; messages sent by non-owners are only shown on the website.
+    %br
+    = f.radio_button :kind, :messaging
+    Messaging: only direct messages are sent to their destintation; all messages are shown on the website.
   %p= f.label :location
   = render 'shared/location', :f => f, :lat => @group.lat || @user.lat, :lon => @group.lon || @user.lon, :width => 400, :height => 300
   = submit_tag 'Create group'

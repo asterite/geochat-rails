@@ -24,8 +24,8 @@ end
 Group.blueprint do
   send("alias") { Sham.short_name }
   name
+  kind { "chatroom" }
 end
-
 
 Membership.blueprint do
   group
