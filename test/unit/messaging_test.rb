@@ -283,6 +283,91 @@ class MessagingTest < NodeTest
     assert_messages_sent_to 2, "[Group2] #{T.message_only_to_you('User1', [])}: Hello!", :group => 'Group2'
   end
 
+  context "reports and alerts group" do
+    setup do
+      create_users 1..3
+      send_message 1, "create group Group1 reports alerts"
+      send_message 2..3, "join Group1"
+    end
+
+    should "send to owners when member sends" do
+      send_message 2, "Hello!"
+      assert_messages_sent_to 1, "User2: Hello!", :group => 'Group1'
+      assert_no_messages_sent_to 3
+      assert_message_saved "User2", "Group1", "Hello!"
+    end
+
+    should "send to everyone when owner sends" do
+      send_message 1, "Hello!"
+      assert_no_messages_sent_to 1
+      assert_messages_sent_to 2..3, "User1: Hello!", :group => 'Group1'
+      assert_message_saved "User1", "Group1", "Hello!"
+    end
+  end
+
+  context "reports group" do
+    setup do
+      create_users 1..3
+      send_message 1, "create group Group1 reports"
+      send_message 2..3, "join Group1"
+    end
+
+    should "send to owners when member sends" do
+      send_message 2, "Hello!"
+      assert_messages_sent_to 1, "User2: Hello!", :group => 'Group1'
+      assert_no_messages_sent_to 3
+      assert_message_saved "User2", "Group1", "Hello!"
+    end
+
+    should "send to none when owner sends" do
+      send_message 1, "Hello!"
+      assert_no_messages_sent_to 1..3
+      assert_message_saved "User1", "Group1", "Hello!"
+    end
+  end
+
+  context "alerts group" do
+    setup do
+      create_users 1..3
+      send_message 1, "create group Group1 alerts"
+      send_message 2..3, "join Group1"
+    end
+
+    should "send to no one when member sends" do
+      send_message 2, "Hello!"
+      assert_no_messages_sent_to 1..3
+      assert_message_saved "User2", "Group1", "Hello!"
+    end
+
+    should "send to everyone when owner sends" do
+      send_message 1, "Hello!"
+      assert_no_messages_sent_to 1
+      assert_messages_sent_to 2..3, "User1: Hello!", :group => 'Group1'
+      assert_message_saved "User1", "Group1", "Hello!"
+    end
+  end
+
+  context "messaging group" do
+    setup do
+      create_users 1..3
+      send_message 1, "create group Group1 messaging"
+      send_message 2..3, "join Group1"
+    end
+
+    should "send to no one when member sends" do
+      send_message 2, "Hello!"
+      assert_no_messages_sent_to 1..3
+      assert_message_saved "User2", "Group1", "Hello!"
+    end
+
+    should "send to no one when owner sends" do
+      send_message 1, "Hello!"
+      assert_no_messages_sent_to 1..3
+      assert_message_saved "User1", "Group1", "Hello!"
+    end
+  end
+
+
   test "reports group" do
     create_users 1, 2, 3
 
@@ -293,46 +378,6 @@ class MessagingTest < NodeTest
     send_message 2, "Hello!"
     assert_messages_sent_to 1, "User2: Hello!", :group => 'Group1'
     assert_no_messages_sent_to 3
-    assert_message_saved "User2", "Group1", "Hello!"
-  end
-
-  test "reports group many groups" do
-    create_users 1, 2, 3
-
-    send_message 1, "create group Group1 reports"
-    send_message 1, "create group Group2"
-
-    send_message 2..3, "join Group1"
-
-    send_message 2, "Hello!"
-    assert_messages_sent_to 1, "[Group1] User2: Hello!", :group => 'Group1'
-    assert_no_messages_sent_to 3
-    assert_message_saved "User2", "Group1", "Hello!"
-  end
-
-  test "reports direct message" do
-    create_users 1, 2, 3
-
-    send_message 1, "create group Group1 reports"
-
-    send_message 2..3, "join Group1"
-
-    send_message 2, "@User3 Hello!"
-    assert_messages_sent_to 3, "#{T.message_only_to_you('User2', [])}: Hello!", :group => 'Group1'
-    assert_message_saved "User2", "Group1", "Hello!"
-  end
-
-  test "reports direct message to owner" do
-    create_users 1..4
-
-    send_message 1, "create group Group1 reports"
-    send_message 4, "join Group1"
-    send_message 1, "owner User4"
-
-    send_message 2..3, "join Group1"
-
-    send_message 2, "@User4 Hello!"
-    assert_messages_sent_to 4, "#{T.message_only_to_you('User2', [])}: Hello!", :group => 'Group1'
     assert_message_saved "User2", "Group1", "Hello!"
   end
 

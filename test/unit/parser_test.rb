@@ -159,6 +159,8 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_create "create alias alerts", :alias => 'alias', :kind => :alerts
   it_parses_create "create alias report", :alias => 'alias', :kind => :reports
   it_parses_create "create alias reports", :alias => 'alias', :kind => :reports
+  it_parses_create "create alias reports alerts", :alias => 'alias', :kind => :reports_and_alerts
+  it_parses_create "create alias alerts reports", :alias => 'alias', :kind => :reports_and_alerts
   it_parses_create "create alias messaging", :alias => 'alias', :kind => :messaging
   it_parses_create "create alias public", :alias => 'alias', :public => true
   it_parses_create "create alias nohide", :alias => 'alias', :public => true
