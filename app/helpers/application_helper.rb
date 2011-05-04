@@ -49,7 +49,7 @@ module ApplicationHelper
   end
 
   def link_to_user(user)
-    link_to user, other_user_path(user)
+    user.email? ? user : link_to(user, other_user_path(user))
   end
 
   def link_to_group(group)
