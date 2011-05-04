@@ -142,8 +142,8 @@ class GroupsController < ApplicationController
       def create_custom_#{kind}_channel
         @custom_channel = @group.custom_#{nuntium_kind}_channels.new params[:custom_#{nuntium_kind}_channel]
         if @custom_channel.save
-          flash[:notice] = "Custom #{kind} channel " + @custom_channel.name + " created"
-          redirect_to group_path(@group)
+          flash.notice = "Custom #{kind} channel " + @custom_channel.name + " created"
+          redirect_to @group
         else
           render :new_custom_#{nuntium_kind}_channel
         end
@@ -155,8 +155,8 @@ class GroupsController < ApplicationController
     @custom_channel = @group.custom_channels.find params[:custom_channel_id]
     @custom_channel.destroy
 
-    flash[:notice] = "Custom #{@custom_channel.kind} channel #{@custom_channel.name} deleted"
-    redirect_to group_path(@group)
+    flash.notice = "Custom #{@custom_channel.kind} channel #{@custom_channel.name} deleted"
+    redirect_to @group
   end
 
   def change_external_service
@@ -168,11 +168,22 @@ class GroupsController < ApplicationController
     @group.save!
 
     if @group.external_service_url.present?
-      flash[:notice] = "Now messages are forwarded to an external service"
+      flash.notice = "Now messages are forwarded to an external service"
     else
-      flash[:notice] = "Now messages are not forwarded to an external service"
+      flash.notice = "Now messages are not forwarded to an external service"
     end
-    redirect_to group_path(@group)
+    redirect_to @group
+  end
+
+  def change_kind
+  end
+
+  def update_kind
+    @group.kind = params[:group][:kind]
+    @group.save!
+
+    flash.notice = "Now #{@group} is a #{@group.kind} group"
+    redirect_to @group
   end
 
   include LocatableActions
@@ -186,6 +197,6 @@ class GroupsController < ApplicationController
   end
 
   def check_is_admin
-    redirect_to group_path(@group) unless @user.is_admin_of? @group
+    redirect_to @group unless @user.is_admin_of? @group
   end
 end

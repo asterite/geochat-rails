@@ -1,0 +1,17 @@
+%p
+  = f.label:kind, "Select the group kind:"
+  %br
+  = f.radio_button :kind, :chatroom
+  Chatroom: all sent messages are received by all members and admins in the group, as well as appear on the website.
+  %br
+  = f.radio_button :kind, :reports_and_alerts
+  Reports and Alerts: messages sent by admins are received by everyone; messages sent by non-admins are only received by admins. All messages appear on the website.
+  %br
+  = f.radio_button :kind, :reports
+  Reports: messages sent by admins are only shown on the website; messages sent by non-admins are received by admins and shown on the website.
+  %br
+  = f.radio_button :kind, :alerts
+  Alerts: messages sent by admins are received by everyone and shown on the website; messages sent by non-admins are only shown on the website.
+  %br
+  = f.radio_button :kind, :messaging
+  Messaging: only direct messages are sent to their destintation; all messages are shown on the website.

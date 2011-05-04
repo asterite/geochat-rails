@@ -2,7 +2,7 @@
 
 %p= @group.description
 
-%p This is a #{@group.kind.to_s.gsub('_', ' ')} group.
+%p This is a #{@group.kind.to_s.gsub('_', ' ')} group. #{link_to 'change', change_group_kind_path if @user_membership.admin?}
 
 - if @group.requires_approval_to_join?
   %p This group requires approval to join. #{link_to 'change', change_requires_approval_group_path if @user_membership.admin?}

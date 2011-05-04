@@ -14,6 +14,8 @@ class Group < ActiveRecord::Base
   validates_presence_of :name
   validate :alias_not_a_command
 
+  validates_inclusion_of :kind, :in => %w(chatroom reports_and_alerts reports alerts messaging).map(&:to_sym)
+
   before_validation :update_alias_downcase
 
   data_accessor :users_count, :default => 0

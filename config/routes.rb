@@ -31,8 +31,13 @@ GeochatRails::Application.routes.draw do
     get 'change_requires_approval', :on => :member
   end
   scope '/groups/:id' do
-    get '/users/:user/make_admin' => 'groups#make_admin', :as => 'make_admin'
-    get '/users/:user/accept_join_request' => 'groups#accept_join_request', :as => 'accept_join_group_request'
+    scope '/users/:user' do
+      get '/make_admin' => 'groups#make_admin', :as => 'make_admin'
+      get '/accept_join_request' => 'groups#accept_join_request', :as => 'accept_join_group_request'
+    end
+
+    get '/kind' => 'groups#change_kind', :as => 'change_group_kind'
+    post '/kind' => 'groups#update_kind', :as => 'update_group_kind'
 
     get '/location' => 'groups#change_location', :as => 'change_group_location'
     post '/location' => 'groups#update_location', :as => 'update_group_location'
