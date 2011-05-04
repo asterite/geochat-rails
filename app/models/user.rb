@@ -40,7 +40,7 @@ class User < ActiveRecord::Base
   class << self; alias_method :[], :find_by_login; end
 
   def self.find_by_email_or_mobile_number(address)
-    User.includes(:channels).where('(channels.protocol = ? and channels.address = ?) or (channels.protocol = ? and channels.address = ?)', 'sms', address, 'mailto', address).first
+    User.joins(:channels).where('(channels.protocol = ? and channels.address = ?) or (channels.protocol = ? and channels.address = ?)', 'sms', address, 'mailto', address).first
   end
 
   def self.find_suitable_login(suggested_login)
@@ -74,6 +74,8 @@ class User < ActiveRecord::Base
   end
 
   def authenticate(password)
+    return nil if created_from_invite?
+
     salt = self.password[0 .. 24]
     encoded_password = self.class.hash_password salt, password
     encoded_password == self.password[24 .. -1] ? self : nil

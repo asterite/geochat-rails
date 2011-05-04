@@ -63,6 +63,11 @@ class UserTest < ActiveSupport::TestCase
     assert_not_nil User.authenticate 'foo', 'manzana'
   end
 
+  test "authenticate doesn't work for created from invite" do
+    user = User.make :password => 'bar', :created_from_invite => true
+    assert_nil user.authenticate('bar')
+  end
+
   test "requests" do
     u1 = User.make
     u2 = User.make
@@ -139,8 +144,6 @@ class UserTest < ActiveSupport::TestCase
         assert_message_saved @u1, @group, 'Hello!'
       end
     end
-
-
   end
 
   test "to json" do
