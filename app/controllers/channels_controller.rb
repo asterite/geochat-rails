@@ -18,7 +18,7 @@ class ChannelsController < ApplicationController
   def create_email
     @channel = @user.email_channels.new :address => params[:email_channel][:address], :status => :pending
     if @channel.save
-      flash[:notice] = "An email has been sent to #{@channel.address}"
+      flash.notice = "An email has been sent to #{@channel.address}"
       redirect_to channel_path(@channel)
     else
       render :new_email
@@ -38,7 +38,7 @@ class ChannelsController < ApplicationController
     @channel.country_iso2 = params[:sms_channel][:country_iso2]
     @channel.carrier_guid = params[:sms_channel][:carrier_guid]
     if @channel.save
-      flash[:notice] = "A message has been sent to #{@channel.address}"
+      flash.notice = "A message has been sent to #{@channel.address}"
       redirect_to channel_path(@channel)
     else
       render :new_mobile_phone
@@ -61,7 +61,7 @@ class ChannelsController < ApplicationController
   def activate
     if ['mailto', 'sms'].include?(@channel.protocol) && @channel.activate(params[:activation_code])
       @channel.turn :on
-      flash[:notice] = "Your #{@channel.protocol_name} channel for #{@channel.address} is now active"
+      flash.notice = "Your #{@channel.protocol_name} channel for #{@channel.address} is now active"
       redirect_to channels_path
     else
       render :show
@@ -70,7 +70,7 @@ class ChannelsController < ApplicationController
 
   def send_activation_code
     @channel.send_activation_code
-    flash[:notice] = "Activation code sent to #{@channel.address}"
+    flash.notice = "Activation code sent to #{@channel.address}"
     redirect_to channel_path(@channel)
   end
 
@@ -78,7 +78,7 @@ class ChannelsController < ApplicationController
     define_method "turn_#{status}" do
       if @channel.status != :pending
         @channel.turn status
-        flash[:notice] = "Channel #{@channel.address} turned #{status}"
+        flash.notice = "Channel #{@channel.address} turned #{status}"
       end
 
       redirect_to channels_path
@@ -88,7 +88,7 @@ class ChannelsController < ApplicationController
   def destroy
     @channel.destroy
 
-    flash[:notice] = "Channel #{@channel.address} deleted"
+    flash.notice = "Channel #{@channel.address} deleted"
     redirect_to channels_path
   end
 

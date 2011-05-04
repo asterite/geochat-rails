@@ -18,7 +18,7 @@ module LocatableActions
 
     locatable.save!
 
-    flash[:notice] = "Location successfully updated to #{locatable.location}"
+    flash.notice = "Location successfully updated to #{locatable.location}"
     redirect_to locatable_path
   end
 
@@ -29,7 +29,7 @@ module LocatableActions
   def create_custom_location
     @custom_location = locatable.custom_locations.new params[:custom_location]
     if @custom_location.save
-      flash[:notice] = "Custom location #{@custom_location.name} created"
+      flash.notice = "Custom location #{@custom_location.name} created"
       redirect_to locatable_path
     else
       render :new_custom_location
@@ -44,7 +44,7 @@ module LocatableActions
     @custom_location = locatable.custom_locations.find_by_name params[:custom_location_id]
     @custom_location.attributes = params[:custom_location]
     if @custom_location.save
-      flash[:notice] = "Custom location #{@custom_location.name} updated"
+      flash.notice = "Custom location #{@custom_location.name} updated"
       redirect_to locatable_path
     else
       render :edit_custom_location
@@ -55,7 +55,7 @@ module LocatableActions
     @custom_location = locatable.custom_locations.find_by_name params[:custom_location_id]
     @custom_location.destroy
 
-    flash[:notice] = "Custom location #{@custom_location.name} deleted"
+    flash.notice = "Custom location #{@custom_location.name} deleted"
     redirect_to locatable_path
   end
 end

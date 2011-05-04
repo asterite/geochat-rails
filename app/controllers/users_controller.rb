@@ -29,7 +29,7 @@ class UsersController < ApplicationController
     end
 
     if @user.save
-      flash[:notice] = 'Your password was changed'
+      flash.notice = 'Your password was changed'
       redirect_to root_path
     else
       render :change_password

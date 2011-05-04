@@ -31,7 +31,7 @@ class GroupsController < ApplicationController
     if @group.save
       @user.join_as_admin @group
 
-      flash[:notice] = "Group #{@group.alias} created"
+      flash.notice = "Group #{@group.alias} created"
       redirect_to groups_path
     else
       render :new
@@ -62,7 +62,7 @@ class GroupsController < ApplicationController
 
   def join
     if @user.belongs_to? @group
-      flash[:notice] = "You already are a member of #{@group}"
+      flash.notice = "You already are a member of #{@group}"
     elsif @group.requires_approval_to_join?
       invites = @user.invites_in @group
       if invites.present?
@@ -70,21 +70,21 @@ class GroupsController < ApplicationController
           @user.join @group
           invites.each &:destroy
 
-          flash[:notice] = "You are now a member of #{@group}"
+          flash.notice = "You are now a member of #{@group}"
         elsif invites.any? &:user_accepted?
-          flash[:notice] = "You already requested to join #{@group}"
+          flash.notice = "You already requested to join #{@group}"
         else
           invites.each { |x| x.user_accepted = true; x.save! }
 
-          flash[:notice] = "Request to join group #{@group} sent"
+          flash.notice = "Request to join group #{@group} sent"
         end
       else
         @user.request_join @group
-        flash[:notice] = "Request to join group #{@group} sent"
+        flash.notice = "Request to join group #{@group} sent"
       end
     else
       @user.join @group
-      flash[:notice] = "You are now a member of #{@group}"
+      flash.notice = "You are now a member of #{@group}"
     end
 
     redirect_to @group
@@ -98,11 +98,11 @@ class GroupsController < ApplicationController
       other_user.join @group
       invites.each &:destroy
 
-      flash[:notice] = "You have accepted #{other_user.login} in #{@group}"
+      flash.notice = "You have accepted #{other_user.login} in #{@group}"
     else
       invites.each { |x| x.admin_accepted = true; x.save! }
 
-      flash[:notice] = "You have accepted #{other_user.login} in #{@group}, but s/he has to join now"
+      flash.notice = "You have accepted #{other_user.login} in #{@group}, but s/he has to join now"
     end
     redirect_to invites_path
   end
@@ -117,7 +117,7 @@ class GroupsController < ApplicationController
     membership.admin = true
     membership.save!
 
-    flash[:notice] = "User #{params[:user]} is now an admin in #{@group}"
+    flash.notice = "User #{params[:user]} is now an admin in #{@group}"
     redirect_to @group
   end
 
