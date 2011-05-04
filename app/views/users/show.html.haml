@@ -19,6 +19,6 @@
     - @memberships.each do |membership|
       %tr
         %td= link_to_group membership.group.alias
-        %td= membership.role
+        %td= membership.owner? ? 'owner' : 'member'
 - else
   #{@other_user.login} doesn't have public groups and you do don't share groups with #{@other_user.login}.
