@@ -28,6 +28,7 @@ GeochatRails::Application.routes.draw do
   resources :groups do
     get 'public', :on => :collection
     get 'join', :on => :member
+    get 'change_requires_approval', :on => :member
   end
   scope '/groups/:id' do
     get '/users/:user/make_admin' => 'groups#make_admin', :as => 'make_admin'

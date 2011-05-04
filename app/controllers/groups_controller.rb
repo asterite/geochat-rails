@@ -1,6 +1,6 @@
 class GroupsController < ApplicationController
   before_filter :get_group, :except => [:index, :public, :new, :create]
-  before_filter :check_is_admin, :except => [:index, :public, :new, :create, :show, :join, :make_admin]
+  before_filter :check_is_admin, :except => [:index, :public, :new, :create, :show, :join, :make_admin, :change_requires_approval]
 
   def index
     @memberships = @user.memberships.includes(:group).all
@@ -118,6 +118,18 @@ class GroupsController < ApplicationController
     membership.save!
 
     flash[:notice] = "User #{params[:user]} is now an admin in #{@group}"
+    redirect_to @group
+  end
+
+  def change_requires_approval
+    @group.requires_approval_to_join = !@group.requires_approval_to_join?
+    @group.save!
+
+    if @group.requires_approval_to_join?
+      flash.notice = "Now group #{@group} requires approval to join"
+    else
+      flash.notice = "Now group #{@group} doesn't requires approval to join"
+    end
     redirect_to @group
   end
 

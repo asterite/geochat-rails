@@ -5,9 +5,9 @@
 %p This is a #{@group.kind.to_s.gsub('_', ' ')} group.
 
 - if @group.requires_approval_to_join?
-  %p This group requires approval to join.
+  %p This group requires approval to join. #{link_to 'change', change_requires_approval_group_path if @user_membership.admin?}
 - else
-  %p Anyone can join this group.
+  %p Anyone can join this group. #{link_to 'change', change_requires_approval_group_path if @user_membership.admin?}
 
 = render 'location'
 = render 'members'
