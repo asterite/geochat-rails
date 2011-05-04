@@ -37,8 +37,8 @@ class Group < ActiveRecord::Base
     name == self.alias ? name : "#{name} (alias: #{self.alias})"
   end
 
-  def owners
-    User.joins(:memberships).where('memberships.group_id = ? AND (role = ? OR role = ?)', self.id, :admin, :owner)
+  def admins
+    User.joins(:memberships).where('memberships.group_id = ? AND memberships.admin = ?', self.id, true)
   end
 
   def public?
@@ -48,20 +48,20 @@ class Group < ActiveRecord::Base
   # Returns the targets of having membership send a message to this group.
   # Returns:
   #  - :none : if no one should receive the message
-  #  - :owners : if owners should receive the message
-  #  - :all : if owners should receive the message
+  #  - :admins : if admins should receive the message
+  #  - :all : if everyone should receive the message
   def message_targets(membership)
     case kind
     when :chatroom
       :all
     when :reports_and_alerts
-      membership.owner? ? :all : :owners
+      membership.admin? ? :all : :admins
     when :reports
-      membership.owner? ? :none : :owners
+      membership.admin? ? :none : :admins
     when :messaging
       :none
     when :alerts
-      membership.owner? ? :all : :none
+      membership.admin? ? :all : :none
     end
   end
 
@@ -72,7 +72,7 @@ class Group < ActiveRecord::Base
 
     nuntium = Nuntium.new_from_config
 
-    targets = targets == :all ? users : owners
+    targets = targets == :all ? users : admins
     targets.includes(:channels).each do |user|
       user.active_channels.each do |channel|
         send_message_to_channel user, channel, msg, nuntium

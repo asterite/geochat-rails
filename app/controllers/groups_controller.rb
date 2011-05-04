@@ -1,12 +1,11 @@
 class GroupsController < ApplicationController
   before_filter :get_group, :except => [:index, :public, :new, :create]
-  before_filter :check_is_owner, :except => [:index, :public, :new, :create, :show, :join, :change_role, :accept_join_request]
-  before_filter :check_is_admin_or_owner, :only => [:accept_join_request]
+  before_filter :check_is_admin, :except => [:index, :public, :new, :create, :show, :join, :make_admin]
 
   def index
     @memberships = @user.memberships.includes(:group).all
     @groups = @memberships.map &:group
-    @owned_groups = @memberships.select{|m| m.role == :owner}.map &:group
+    @owned_groups = @memberships.select(&:admin?).map &:group
   end
 
   def public
@@ -30,7 +29,7 @@ class GroupsController < ApplicationController
     end
 
     if @group.save
-      @user.join @group, :as => :owner
+      @user.join_as_admin @group
 
       flash[:notice] = "Group #{@group.alias} created"
       redirect_to groups_path
@@ -108,21 +107,17 @@ class GroupsController < ApplicationController
     redirect_to invites_path
   end
 
-  def change_role
+  def make_admin
     user_membership = @user.membership_in(@group)
+    redirect_to @group and return if user_membership.member?
+
     membership = @group.memberships.joins(:user).where('users.login_downcase = ?', params[:user].downcase).first
+    redirect_to @group and return unless membership.member?
 
-    # Can't touch someone bigger or same than you
-    return redirect_to @group if membership >= user_membership
-
-    membership.role = params[:role].to_sym
-
-    # Can't change to someone bigger than you
-    return redirect_to @group if membership > user_membership
-
+    membership.admin = true
     membership.save!
 
-    flash[:notice] = "User #{params[:user]} is now #{params[:role]} in #{@group}"
+    flash[:notice] = "User #{params[:user]} is now an admin in #{@group}"
     redirect_to @group
   end
 
@@ -178,12 +173,7 @@ class GroupsController < ApplicationController
     @group = Group.find_by_alias params[:id]
   end
 
-  def check_is_owner
-    redirect_to group_path(@group) unless @user.is_owner_of? @group
-  end
-
-  def check_is_admin_or_owner
-    @membership = @user.membership_in @group
-    redirect_to group_path(@group) unless @membership >= :admin
+  def check_is_admin
+    redirect_to group_path(@group) unless @user.is_admin_of? @group
   end
 end

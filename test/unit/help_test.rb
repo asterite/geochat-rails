@@ -8,7 +8,7 @@ class HelpTest < NodeTest
     assert_messages_sent_to 1, T.help_help
   end
 
-  ['signup', 'login', 'logout', 'create', 'join', 'leave', 'invite', 'on', 'off', 'my', 'owner'].each do |name|
+  ['signup', 'login', 'logout', 'create', 'join', 'leave', 'invite', 'on', 'off', 'my', 'admin'].each do |name|
     test "help #{name}" do
       send_message 1, "help #{name}"
       assert_messages_sent_to 1, T.send("help_#{name}")

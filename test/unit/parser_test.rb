@@ -222,19 +222,19 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_leave "<alias", :group => 'alias'
   it_parses_leave "< alias", :group => 'alias'
 
-  it_parses_owner "owner someone", :user => 'someone'
-  it_parses_owner "owner someone somegroup", :user => 'someone', :group => 'somegroup'
-  it_parses_owner "owner 123456 somegroup", :user => '123456', :group => 'somegroup'
-  it_parses_owner ".owner someone", :user => 'someone'
-  it_parses_owner ".ow someone", :user => 'someone'
-  it_parses_owner "@somegroup owner someone", :user => 'someone', :group => 'somegroup'
-  it_parses_owner "@somegroup .ow someone", :user => 'someone', :group => 'somegroup'
-  it_parses_owner "MyGroup owner someone", :user => 'someone', :group => 'MyGroup'
-  it_parses_owner "MyGroup .ow someone", :user => 'someone', :group => 'MyGroup'
-  it_parses_owner "$someone", :user => 'someone'
-  it_parses_owner "$ someone", :user => 'someone'
-  it_parses_owner "$someone somegroup", :user => 'someone', :group => 'somegroup'
-  it_parses_owner "MyGroup $someone", :user => 'someone', :group => 'MyGroup'
+  it_parses_admin "admin someone", :user => 'someone'
+  it_parses_admin "admin someone somegroup", :user => 'someone', :group => 'somegroup'
+  it_parses_admin "admin 123456 somegroup", :user => '123456', :group => 'somegroup'
+  it_parses_admin ".admin someone", :user => 'someone'
+  it_parses_admin ".ow someone", :user => 'someone'
+  it_parses_admin "@somegroup admin someone", :user => 'someone', :group => 'somegroup'
+  it_parses_admin "@somegroup .ow someone", :user => 'someone', :group => 'somegroup'
+  it_parses_admin "MyGroup admin someone", :user => 'someone', :group => 'MyGroup'
+  it_parses_admin "MyGroup .ow someone", :user => 'someone', :group => 'MyGroup'
+  it_parses_admin "$someone", :user => 'someone'
+  it_parses_admin "$ someone", :user => 'someone'
+  it_parses_admin "$someone somegroup", :user => 'someone', :group => 'somegroup'
+  it_parses_admin "MyGroup $someone", :user => 'someone', :group => 'MyGroup'
 
   it_parses_my ".my groups", :key => MyNode::Groups, :value => nil
   it_parses_my ".my group", :key => MyNode::Group, :value => nil
@@ -445,15 +445,15 @@ class ParserTest < ActiveSupport::TestCase
   it_parses_help ".i", :node => InviteNode
   it_parses_help "help invite", :node => InviteNode
   it_parses_help ".my", :node => MyNode
-  it_parses_help "owner help", :node => OwnerNode
-  it_parses_help "help owner", :node => OwnerNode
-  it_parses_help "help group owner", :node => OwnerNode
-  it_parses_help "help owner group", :node => OwnerNode
-  it_parses_help "owner ?", :node => OwnerNode
-  it_parses_help "? owner", :node => OwnerNode
-  it_parses_help "owner", :node => OwnerNode
-  it_parses_help ".ow ?", :node => OwnerNode
-  it_parses_help "? .ow", :node => OwnerNode
+  it_parses_help "admin help", :node => AdminNode
+  it_parses_help "help admin", :node => AdminNode
+  it_parses_help "help group admin", :node => AdminNode
+  it_parses_help "help admin group", :node => AdminNode
+  it_parses_help "admin ?", :node => AdminNode
+  it_parses_help "? admin", :node => AdminNode
+  it_parses_help "admin", :node => AdminNode
+  it_parses_help ".ow ?", :node => AdminNode
+  it_parses_help "? .ow", :node => AdminNode
   it_parses_help "lang help", :node => LanguageNode
   it_parses_help "help lang", :node => LanguageNode
   it_parses_help "help .lang", :node => LanguageNode

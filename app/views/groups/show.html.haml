@@ -4,8 +4,13 @@
 
 %p This is a #{@group.kind.to_s.gsub('_', ' ')} group.
 
+- if @group.requires_approval_to_join?
+  %p This group requires approval to join.
+- else
+  %p Anyone can join this group.
+
 = render 'location'
 = render 'members'
 = render 'custom_locations'
-= render 'custom_sms_channels' if @user_membership.owner?
+= render 'custom_sms_channels' if @user_membership.admin?
 = render 'external_service'

@@ -4,5 +4,5 @@
   #{@group.location}.
 - else
   This group's location is unknown.
-- if @user_membership.owner?
+- if @user_membership.admin?
   #{link_to 'change', change_group_location_path}

@@ -92,10 +92,10 @@ class NodeTest < ActiveSupport::TestCase
     assert_equal 0, Message.count
   end
 
-  def assert_is_not_group_owner(group, user)
+  def assert_is_not_group_admin(group, user)
     user = User.find_by_login(user)
     group = Group.find_by_alias group
-    assert !user.is_owner_of?(group)
+    assert !user.is_admin_of?(group)
   end
 
   def assert_group_exists(group_alias, *users)
@@ -105,9 +105,9 @@ class NodeTest < ActiveSupport::TestCase
     assert_equal users.sort, group.users.map(&:login).sort
   end
 
-  def assert_group_owners(group_alias, *users)
+  def assert_group_admins(group_alias, *users)
     group = Group.find_by_alias group_alias
-    actual = group.owners.map!(&:login)
+    actual = group.admins.map!(&:login)
     assert_equal users.sort, actual.sort
   end
 

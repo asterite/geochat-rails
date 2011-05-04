@@ -34,16 +34,16 @@ class JoinTest < NodeTest
     assert_group_exists "Group1", "User1", "User2"
   end
 
-  test "join not allowed if not invited but later joined automatically if invited many owners" do
+  test "join not allowed if not invited but later joined automatically if invited many admins" do
     create_users 1, 2, 3
 
     send_message 1, "create group Group1"
     set_requires_approval_to_join "Group1"
     send_message 1, "invite User3"
     send_message 3, "join Group1"
-    send_message 1, "owner User3"
+    send_message 1, "admin User3"
 
-    assert_group_owners "Group1", "User1", "User3"
+    assert_group_admins "Group1", "User1", "User3"
 
     send_message 2, "join Group1"
     assert_pending_approval "Group1", "User2"
@@ -68,7 +68,7 @@ class JoinTest < NodeTest
     assert_no_invite_exists
   end
 
-  test "invite when not owner" do
+  test "invite when not admin" do
     create_users 1, 2, 3
 
     send_message 1, "create group Group1"
@@ -97,7 +97,7 @@ class JoinTest < NodeTest
     assert_no_invite_exists
   end
 
-  test "invite when not owner, other side" do
+  test "invite when not admin, other side" do
     create_users 1, 2, 3
 
     send_message 1, "create group Group1"
@@ -124,7 +124,7 @@ class JoinTest < NodeTest
     assert_no_invite_exists
   end
 
-  test "join and invite from not owner" do
+  test "join and invite from not admin" do
     create_users 1, 2, 3
 
     send_message 1, "create group Group1"

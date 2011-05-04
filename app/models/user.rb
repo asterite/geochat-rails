@@ -81,14 +81,16 @@ class User < ActiveRecord::Base
 
   def create_group(options = {})
     group = Group.create! options
-    join group, :as => :owner
+    join_as_admin group
     group
   end
 
-  # options:
-  # :as => the role to join (:member by default)
-  def join(group, options = {})
-    Membership.create! :user => self, :group => group, :role => (options[:as] || :member)
+  def join(group)
+    Membership.create! :user => self, :group => group
+  end
+
+  def join_as_admin(group)
+    Membership.create! :user => self, :group => group, :admin => true
   end
 
   # user can be a User or a string, in which case a new User will be created with that login
@@ -98,7 +100,7 @@ class User < ActiveRecord::Base
     if user.kind_of?(String)
       user = User.create! :login => user, :created_from_invite => true
     end
-    Invite.create! :group => group, :user => user, :admin_accepted => self.can_invite_in?(group), :requestor => self
+    Invite.create! :group => group, :user => user, :admin_accepted => self.is_admin_of?(group), :requestor => self
   end
 
   def invite_in(group)
@@ -118,23 +120,15 @@ class User < ActiveRecord::Base
   end
 
   def others_requests
-    Invite.includes(:group => :memberships).where('invites.admin_accepted = ? and memberships.user_id = ? and (memberships.role = ? or memberships.role = ?)', false, id, :admin, :owner)
+    Invite.includes(:group => :memberships).where('invites.admin_accepted = ? and memberships.user_id = ? and memberships.admin = ?', false, id, true)
   end
 
   def invites
     Invite.where(:requestor_id => id)
   end
 
-  def role_in(group)
-    Membership.find_by_group_id_and_user_id(group.id, self.id).try(:role).try(:to_sym)
-  end
-
-  def is_owner_of?(group)
-    role_in(group) == :owner
-  end
-
-  def can_invite_in?(group)
-    [:owner, :admin].include?(role_in group)
+  def is_admin_of?(group)
+    membership_in(group).try(:admin?)
   end
 
   def shares_a_common_group_with?(user)

@@ -196,7 +196,7 @@ class Node
   end
 
   def notify_join_request(group)
-    send_message_to_group_owners group, :invitation_pending_for_approval, :args => [current_user, group]
+    send_message_to_group_admins group, :invitation_pending_for_approval, :args => [current_user, group]
     reply T.group_requires_approval(group)
   end
 
@@ -208,10 +208,10 @@ class Node
     end
   end
 
-  def send_message_to_group_owners(group, msg, options = {})
+  def send_message_to_group_admins(group, msg, options = {})
     options = options.merge :group => group
 
-    targets = group.owners
+    targets = group.admins
     targets.reject!{|x| options[:except].include?(x)} if options[:except]
     targets.each do |user|
       send_message_to_user user, msg, options

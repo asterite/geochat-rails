@@ -5,10 +5,10 @@
     %p Messages sent to this group that start with "#{@group.external_service_prefix}" are forwarded to #{@group.external_service_url}
   - else
     %p All messages sent to this group are forwarded to #{@group.external_service_url}
-  - if @user_membership.owner?
+  - if @user_membership.admin?
     #{link_to 'Change external service configuration', change_external_service_path}
 - else
   %p No external service is defined for this group.
   %p External services allow you to forward all or some messages sent to this group to an external services.
-  - if @user_membership.owner?
+  - if @user_membership.admin?
     #{link_to 'Configure an external service', change_external_service_path}

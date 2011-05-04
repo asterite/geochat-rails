@@ -113,7 +113,7 @@ class UserTest < ActiveSupport::TestCase
         @u3.join @group
       end
 
-      should "send message to owner in reports group" do
+      should "send message to admin in reports group" do
         nuntium = mock('nuntium')
         Nuntium.expects(:new_from_config).returns(nuntium)
         nuntium.expects(:send_ao).with(:from => 'user://User2', :to => 'sms://1', :body => 'User2: Hello!', :group => @group.alias)

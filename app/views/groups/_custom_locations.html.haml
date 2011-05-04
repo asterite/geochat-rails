@@ -4,4 +4,4 @@
   Custom locations allow members in this group to send shorter messages to report their location. <br/>
   For example, if this group has a custom location named "hospital" members can just send "at hospital".
 
-= render 'shared/custom_locations', :locatable => @group, :can_edit => @user.is_owner_of?(@group)
+= render 'shared/custom_locations', :locatable => @group, :can_edit => @user.is_admin_of?(@group)

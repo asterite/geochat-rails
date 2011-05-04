@@ -281,8 +281,8 @@ class MessageNode < Node
     else
       targets = @blast ? :all : @group.message_targets(@membership)
       case targets
-      when :owners
-        send_message_to_group_owners @group, @text_to_send, :sender => current_user, :location => @location_info, :dont_translate => true
+      when :admins
+        send_message_to_group_admins @group, @text_to_send, :sender => current_user, :location => @location_info, :dont_translate => true
       when :all
       send_message_to_group @group, @text_to_send, :sender => current_user, :location => @location_info, :dont_translate => true
       end

@@ -16,15 +16,15 @@
       %th Members
       %th
     - @groups.each do |group|
-      - role = @memberships.select{|m| m.group == group}.first.role
+      - admin = @memberships.select{|m| m.group == group}.first.admin?
       %tr
         %td= link_to group.alias, group
         %td= group.name
-        %td= role
+        %td= admin ? 'admin' : 'member'
         %td= group.hidden? ? 'Yes' : 'No'
         %td= group.requires_approval_to_join? ? 'Yes' : 'No'
         %td= group.kind.to_s.gsub('_', ' ')
         %td{:align => :right}= group.users_count
         %td
           = link_to 'view', group
-          = link_to 'set location', change_group_location_path(group) if !group.location_known? && role == :owner
+          = link_to 'set location', change_group_location_path(group) if admin && !group.location_known?

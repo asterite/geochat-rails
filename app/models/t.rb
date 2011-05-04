@@ -138,24 +138,24 @@ module T
       I18n.t! :user_does_not_belong_to_group, :user => user, :group => group
     end
 
-    def you_cant_set_owner_you_dont_belong_to_group(user, group)
-      I18n.t! :you_cant_set_owner_you_dont_belong_to_group, :user => user, :group => group
+    def you_cant_set_admin_you_dont_belong_to_group(user, group)
+      I18n.t! :you_cant_set_admin_you_dont_belong_to_group, :user => user, :group => group
     end
 
-    def you_cant_set_owner_you_are_not_owner(user, group)
-      I18n.t! :you_cant_set_owner_you_are_not_owner, :user => user, :group => group
+    def you_cant_set_admin_you_are_not_admin(user, group)
+      I18n.t! :you_cant_set_admin_you_are_not_admin, :user => user, :group => group
     end
 
-    def user_already_an_owner(user, group)
-      I18n.t! :user_already_an_owner, :user => user, :group => group
+    def user_already_an_admin(user, group)
+      I18n.t! :user_already_an_admin, :user => user, :group => group
     end
 
-    def user_set_as_owner(user, group)
-      I18n.t! :user_set_as_owner, :user => user, :group => group
+    def user_set_as_admin(user, group)
+      I18n.t! :user_set_as_admin, :user => user, :group => group
     end
 
-    def user_has_made_you_owner(user, group)
-      I18n.t! :user_has_made_you_owner, :user => user, :group => group
+    def user_has_made_you_admin(user, group)
+      I18n.t! :user_has_made_you_admin, :user => user, :group => group
     end
 
     def a_or_b(a, b)

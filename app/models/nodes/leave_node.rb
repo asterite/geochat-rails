@@ -15,7 +15,7 @@ class LeaveNode < Node
 
     membership = current_user.membership_in(group)
     return reply T.you_cant_leave_group_because_you_dont_belong_to_it(group) unless membership
-    return reply T.you_cant_leave_group_because_you_are_its_only_owner(group), :group => group if group.owners == [current_user]
+    return reply T.you_cant_leave_group_because_you_are_its_only_admin(group), :group => group if group.admins == [current_user]
 
     membership.destroy
 

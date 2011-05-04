@@ -52,18 +52,18 @@ class LeaveTest < NodeTest
     assert_messages_sent_to 2, T.you_cant_leave_group_because_you_dont_belong_to_it('Group1')
   end
 
-  test "leave group only owner" do
+  test "leave group only admin" do
     create_users 1
     send_message 1, "create Group1"
     send_message 1, "leave Group1"
-    assert_messages_sent_to 1, T.you_cant_leave_group_because_you_are_its_only_owner('Group1'), :group => 'Group1'
+    assert_messages_sent_to 1, T.you_cant_leave_group_because_you_are_its_only_admin('Group1'), :group => 'Group1'
   end
 
-  test "leave group not only owner" do
+  test "leave group not only admin" do
     create_users 1, 2
     send_message 1, "create Group1"
     send_message 2, "join Group1"
-    send_message 1, "owner User2"
+    send_message 1, "admin User2"
 
     send_message 1, "leave Group1"
     assert_messages_sent_to 1, T.good_bye_from_only_group('User1', 'Group1'), :group => 'Group1'

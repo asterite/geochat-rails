@@ -30,7 +30,6 @@ end
 Membership.blueprint do
   group
   user
-  role { :owner }
 end
 
 SmsChannel.blueprint do

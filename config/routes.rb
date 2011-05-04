@@ -30,7 +30,7 @@ GeochatRails::Application.routes.draw do
     get 'join', :on => :member
   end
   scope '/groups/:id' do
-    get '/users/:user/change_role/:role' => 'groups#change_role', :as => 'change_role'
+    get '/users/:user/make_admin' => 'groups#make_admin', :as => 'make_admin'
     get '/users/:user/accept_join_request' => 'groups#accept_join_request', :as => 'accept_join_group_request'
 
     get '/location' => 'groups#change_location', :as => 'change_group_location'

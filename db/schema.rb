@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110503074928) do
+ActiveRecord::Schema.define(:version => 20110504015902) do
 
   create_table "channels", :force => true do |t|
     t.string   "protocol"
@@ -86,7 +86,7 @@ ActiveRecord::Schema.define(:version => 20110503074928) do
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "role"
+    t.boolean  "admin",      :default => false
   end
 
   add_index "memberships", ["group_id", "user_id"], :name => "index_memberships_on_group_id_and_user_id"

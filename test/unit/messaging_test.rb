@@ -290,14 +290,14 @@ class MessagingTest < NodeTest
       send_message 2..3, "join Group1"
     end
 
-    should "send to owners when member sends" do
+    should "send to admins when member sends" do
       send_message 2, "Hello!"
       assert_messages_sent_to 1, "User2: Hello!", :group => 'Group1'
       assert_no_messages_sent_to 3
       assert_message_saved "User2", "Group1", "Hello!"
     end
 
-    should "send to everyone when owner sends" do
+    should "send to everyone when admin sends" do
       send_message 1, "Hello!"
       assert_no_messages_sent_to 1
       assert_messages_sent_to 2..3, "User1: Hello!", :group => 'Group1'
@@ -312,14 +312,14 @@ class MessagingTest < NodeTest
       send_message 2..3, "join Group1"
     end
 
-    should "send to owners when member sends" do
+    should "send to admins when member sends" do
       send_message 2, "Hello!"
       assert_messages_sent_to 1, "User2: Hello!", :group => 'Group1'
       assert_no_messages_sent_to 3
       assert_message_saved "User2", "Group1", "Hello!"
     end
 
-    should "send to none when owner sends" do
+    should "send to none when admin sends" do
       send_message 1, "Hello!"
       assert_no_messages_sent_to 1..3
       assert_message_saved "User1", "Group1", "Hello!"
@@ -339,7 +339,7 @@ class MessagingTest < NodeTest
       assert_message_saved "User2", "Group1", "Hello!"
     end
 
-    should "send to everyone when owner sends" do
+    should "send to everyone when admin sends" do
       send_message 1, "Hello!"
       assert_no_messages_sent_to 1
       assert_messages_sent_to 2..3, "User1: Hello!", :group => 'Group1'
@@ -360,7 +360,7 @@ class MessagingTest < NodeTest
       assert_message_saved "User2", "Group1", "Hello!"
     end
 
-    should "send to no one when owner sends" do
+    should "send to no one when admin sends" do
       send_message 1, "Hello!"
       assert_no_messages_sent_to 1..3
       assert_message_saved "User1", "Group1", "Hello!"
