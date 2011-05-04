@@ -111,7 +111,7 @@ class MessageNode < Node
   def validate_first_target
     if self.target.is_a?(UnknownTarget)
       @group = Group.find_by_alias self.target.name
-      user = User.find_by_login_or_mobile_number(self.target.name) and @users << user unless @group
+      user = User.find_by_login_or_email_or_mobile_number(self.target.name) and @users << user unless @group
     elsif self.target.is_a?(GroupTarget)
       @group = self.target.payload[:group]
       @explicit_group = true
@@ -122,20 +122,20 @@ class MessageNode < Node
   def validate_other_targets
     @targets[1 .. -1].each do |target|
       if @group
-        validate_target_is_a_mobile_number target.name, @group
+        validate_target_is_an_email_or_mobile_number target.name, @group
       elsif @users.present?
         @group = Group.find_by_alias target.name
         if @group
           @explicit_group = true
         else
-          validate_target_is_a_mobile_number target.name
+          validate_target_is_an_email_or_mobile_number target.name
         end
       end
     end
   end
 
-  def validate_target_is_a_mobile_number(target, group = nil)
-    user = User.find_by_login_or_mobile_number target
+  def validate_target_is_an_email_or_mobile_number(target, group = nil)
+    user = User.find_by_login_or_email_or_mobile_number target
     if user
       @users << user
     else

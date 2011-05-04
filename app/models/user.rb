@@ -17,7 +17,7 @@ class User < ActiveRecord::Base
     )
   end
 
-  validates :login, :presence => true, :length => {:minimum => 3}, :format => {:with => /\A[a-zA-Z0-9]+\Z/, :message => 'can only contain alphanumeric characters'}
+  validates :login, :presence => true, :length => {:minimum => 3}, :format => {:with => /\A[a-zA-Z0-9]+\Z/, :message => 'can only contain alphanumeric characters'}, :unless => :created_from_invite?
   validates :login_downcase, :presence => true, :uniqueness => true, :if => :login_changed?
   validate :login_not_a_command
   validates :password, :presence => true, :unless => :created_from_invite?
@@ -39,8 +39,8 @@ class User < ActiveRecord::Base
   end
   class << self; alias_method :[], :find_by_login; end
 
-  def self.find_by_mobile_number(number)
-    User.joins(:channels).where('channels.protocol = ? and channels.address = ?', 'sms', number).first
+  def self.find_by_email_or_mobile_number(address)
+    User.includes(:channels).where('(channels.protocol = ? and channels.address = ?) or (channels.protocol = ? and channels.address = ?)', 'sms', address, 'mailto', address).first
   end
 
   def self.find_suitable_login(suggested_login)
@@ -53,9 +53,9 @@ class User < ActiveRecord::Base
     login
   end
 
-  def self.find_by_login_or_mobile_number(search)
+  def self.find_by_login_or_email_or_mobile_number(search)
     user = self.find_by_login search
-    user = self.find_by_mobile_number search unless user
+    user = self.find_by_email_or_mobile_number search unless user
     user
   end
 

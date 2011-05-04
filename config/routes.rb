@@ -7,6 +7,7 @@ GeochatRails::Application.routes.draw do
   resource :session, :only => [:new, :create, :destroy] do
     post 'register', :on => :member
   end
+  get 'sessions/activate_email/:id/:group' => 'sessions#activate_email', :as => 'activate_email'
 
   resources :messages, :only => [:index]
 

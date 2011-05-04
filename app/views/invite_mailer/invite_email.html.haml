@@ -1,0 +1,9 @@
+%p Hello!
+
+%p #{@invite.user.login} has invited you to GeoChat group #{@invite.group}.
+
+%p #{link_to 'GeoChat', root_url} is a collaboration tool that allows anyone to chat, report and get alerts on their phone.
+
+%p To join, click the following link:
+
+#{link_to activate_email_url(:id => @invite.id, :email => @invite.user.login, :group => @invite.group.alias), activate_email_url(:id => @invite.id, :email => @invite.user.login, :group => @invite.group.alias)}

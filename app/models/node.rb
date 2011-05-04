@@ -349,6 +349,7 @@ class Node
     when 0
       reply T.you_dont_belong_to_any_group_yet
     when 1
+      # Don't change this to just first: it will give an ActiveRecord::ReadOnly exception somewhere
       return current_user.groups.all.first
     else
       reply options[:no_default_group_message]

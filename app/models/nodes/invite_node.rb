@@ -55,9 +55,7 @@ class InviteNode < Node
   end
 
   def process
-    group = fix_group || default_group({
-      :no_default_group_message => T.you_must_specify_a_group_to_invite
-    })
+    group = fix_group || default_group(:no_default_group_message => T.you_must_specify_a_group_to_invite)
     return unless group
 
     membership = current_user.membership_in group
@@ -71,7 +69,7 @@ class InviteNode < Node
     invited_self = false
 
     @users.each do |name|
-      user = User.find_by_login_or_mobile_number name
+      user = User.find_by_login_or_email_or_mobile_number name
 
       # If the invited user is not found
       if !user
@@ -79,6 +77,11 @@ class InviteNode < Node
         if name.integer?
           current_user.invite name, :to => group
           send_message :to => "sms://#{name}", :body => T.welcome_to_group_signup_and_join(group)
+          sent << name
+        # It might be an email => invite that email
+        elsif name.email?
+          invite = current_user.invite name, :to => group
+          InviteMailer.invite_email(invite).deliver
           sent << name
         else
           not_found << name unless not_found.include? name

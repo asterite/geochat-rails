@@ -4,6 +4,10 @@ class String
     Integer(self) rescue nil
   end
 
+  def email?
+    self =~ ValidatesEmailFormatOf::Regex
+  end
+
   def levenshtein(other)
     other = other.to_s
     distance = Array.new(self.size + 1, 0)

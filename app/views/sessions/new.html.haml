@@ -1,3 +1,9 @@
+- if @invite
+  To accept the invite to #{@invite.group} you can either:
+  %ul
+    %li create a new account, or
+    %li login to your account if you are already a user of GeoChat (even if the invite email was sent to an email address you don't use for GeoChat)
+
 %h3 Login to your account:
 
 = form_for @user, :url => session_path, :html => {:id => :login} do |f|

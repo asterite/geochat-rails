@@ -11,7 +11,7 @@ class WhoIsNode < Node
   end
 
   def process
-    user = User.find_by_login_or_mobile_number @user
+    user = User.find_by_login_or_email_or_mobile_number @user
     return reply T.user_does_not_exist(@user) unless user
 
     if user != current_user && !current_user.shares_a_common_group_with?(user)

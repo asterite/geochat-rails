@@ -15,6 +15,10 @@ class ActiveSupport::TestCase
   # Add more helper methods to be used by all tests here...
   include Mocha::API
 
+  setup do
+    ActionMailer::Base.deliveries = []
+  end
+
   def http_auth(user, pass)
     @request.env['HTTP_AUTHORIZATION'] = 'Basic ' + Base64.encode64(user + ':' + pass)
   end

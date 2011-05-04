@@ -270,4 +270,34 @@ class InviteTest < NodeTest
     send_message 2, "invite Group1 User3"
     assert_messages_sent_to 2, T.you_cant_invite_you_dont_belong('Group1')
   end
+
+  test "invite email that doesn't exist" do
+    create_users 1
+    send_message 1, "create group Group1"
+    send_message 1, "invite foo@bar.com"
+
+    assert_invite_exists "Group1", "foo@bar.com"
+
+    deliveries = ActionMailer::Base.deliveries
+    assert_equal 1, deliveries.length
+
+    assert_equal ['foo@bar.com'], deliveries[0].to
+    assert_equal "User1 has invited you to GeoChat group Group1", deliveries[0].subject
+  end
+
+  test "invite email that exists" do
+    create_users 1
+    send_message 1, "create group Group1"
+    send_message 'mailto://foo@bar.com', 'name User2'
+
+    send_message 1, "invite foo@bar.com"
+
+    assert_invite_exists "Group1", "User2"
+
+    assert_messages_sent_to 'mailto://foo@bar.com', T.user_has_invited_you('User1', 'Group1')
+    assert_messages_sent_to 1, T.invitations_sent_to_users('foo@bar.com'), :group => 'Group1'
+
+    deliveries = ActionMailer::Base.deliveries
+    assert_equal 0, deliveries.length
+  end
 end
