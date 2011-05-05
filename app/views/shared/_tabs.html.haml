@@ -1,9 +1,12 @@
 %ul#tabs
+  - interesting_requests_count = @user.interesting_requests_count
+  - requests_label = 'Requests'
+  - requests_label << " (#{interesting_requests_count})" if interesting_requests_count > 0
   - selected_tab = @selected_tab || controller.class.name[0 .. -11].underscore.to_sym
   - [['Home', :root],
      ['Messages', :messages],
      ['Groups', :groups],
      ['Channels', :channels],
-     ['Requests', :invites],
+     [requests_label, :invites],
      ['Settings', :user]].each do |name, action|
     %li{:class => (selected_tab == action ? 'selected' : '')}= link_to name, eval("#{action}_path"), :class => 'link'

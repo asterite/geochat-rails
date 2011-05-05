@@ -125,6 +125,10 @@ class User < ActiveRecord::Base
     Invite.includes(:group => :memberships).where('invites.admin_accepted = ? and memberships.user_id = ? and memberships.admin = ?', false, id, true)
   end
 
+  def interesting_requests_count
+    Invite.includes(:group => :memberships).where('invites.user_id = ? or (invites.admin_accepted = ? and memberships.user_id = ? and memberships.admin = ?)', id, false, id, true).count
+  end
+
   def invites
     Invite.where(:requestor_id => id)
   end
