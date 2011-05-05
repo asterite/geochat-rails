@@ -2,14 +2,49 @@
 
 %h4 Configure external service
 
+%p External services allow you to forward all or some messages sent to this group to an external services.
+
 = form_for @group, :url => update_external_service_path, :html => {:method => :post} do |f|
+  - if @group.errors.any?
+    #error_explanation
+      %h2 #{pluralize(@group.errors.count, "error")} prohibited you from configuring an external service:
+      %ul
+        - @group.errors.full_messages.each do |msg|
+          %li= msg
   %p
-    = f.label :external_service_prefix, 'Forward messages that start with (or leave blank to forward all messages)'
+    = f.radio_button :external_service_forward, 'none'
+    = f.label :external_service_forward_none, "Don't forward messages to an external service"
+    %br
+    = f.radio_button :external_service_forward, 'prefix'
+    = f.label :external_service_forward_prefix, "Forward messages that start with a prefix"
+    %br
+    = f.radio_button :external_service_forward, 'all'
+    = f.label :external_service_forward_all, " Forward all messages"
+  %p#external_service_prefix_container
+    = f.label :external_service_prefix, 'Prefix'
     %br
     = f.text_field :external_service_prefix, :size => 10
-  %p
-    = f.label :external_service_url, 'to URL (or leave blank to not forward any message)'
+  %p#external_service_url_container
+    = f.label :external_service_url, 'to this URL'
     %br
     = f.text_field :external_service_url, :size => 80
   = submit_tag 'Configure external service'
 
+= content_for :head do
+  :javascript
+    $(function() {
+      $('#group_external_service_forward_none').change(function() {
+        $('#external_service_prefix_container').hide();
+        $('#external_service_url_container').hide();
+      });
+      $('#group_external_service_forward_prefix').change(function() {
+        $('#external_service_prefix_container').show();
+        $('#external_service_url_container').show();
+      });
+      $('#group_external_service_forward_all').change(function() {
+        $('#external_service_prefix_container').hide();
+        $('#external_service_url_container').show();
+      });
+      #{"$('#external_service_prefix_container').hide();" if ['none', 'all'].include? @group.external_service_forward}
+      #{"$('#external_service_url_container').hide();" if @group.external_service_forward == 'none'}
+    });

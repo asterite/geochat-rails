@@ -1,6 +1,7 @@
 class GroupsController < ApplicationController
   before_filter :get_group, :except => [:index, :public, :new, :create]
   before_filter :check_is_admin, :except => [:index, :public, :new, :create, :show, :join, :make_admin, :change_requires_approval]
+  before_filter :augment_for_external_service_ui, :only => [:change_external_service, :update_external_service]
 
   def index
     @memberships = @user.memberships.includes(:group).all
@@ -163,16 +164,19 @@ class GroupsController < ApplicationController
   end
 
   def update_external_service
-    @group.external_service_prefix = params[:group][:external_service_prefix]
+    @group.external_service_forward = params[:group][:external_service_forward]
+    @group.external_service_prefix= params[:group][:external_service_prefix]
     @group.external_service_url = params[:group][:external_service_url]
-    @group.save!
-
-    if @group.external_service_url.present?
-      flash.notice = "Now messages are forwarded to an external service"
+    if @group.save
+      if @group.external_service_url.present?
+        flash.notice = "Now messages are forwarded to an external service"
+      else
+        flash.notice = "Now messages are not forwarded to an external service"
+      end
+      redirect_to @group
     else
-      flash.notice = "Now messages are not forwarded to an external service"
+      render :change_external_service
     end
-    redirect_to @group
   end
 
   def change_kind
@@ -198,5 +202,35 @@ class GroupsController < ApplicationController
 
   def check_is_admin
     redirect_to @group unless @user.is_admin_of? @group
+  end
+
+  def augment_for_external_service_ui
+    class << @group
+      before_validation :apply_external_service_forward
+      validates_presence_of :external_service_prefix, :if => lambda { external_service_forward == 'prefix' }
+      validates_presence_of :external_service_url, :if => lambda { ['all', 'prefix'].include? external_service_forward }
+
+      def external_service_forward=(value)
+        @external_service_forward = value
+      end
+
+      def external_service_forward
+        @external_service_forward ||= if external_service_url.present?
+          external_service_prefix.present? ? 'prefix' : 'all'
+        else
+          'none'
+        end
+      end
+
+      def apply_external_service_forward
+        case external_service_forward
+        when 'none'
+          self.external_service_prefix = nil
+          self.external_service_url = nil
+        when 'all'
+          self.external_service_prefix = nil
+        end
+      end
+    end
   end
 end
