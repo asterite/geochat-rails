@@ -17,7 +17,11 @@ module ActiveRecord
 
       define_method "#{symbol}=" do |value|
         self.data ||= {}
-        self.data[symbol] = value
+        if value.nil?
+          self.data.delete symbol
+        else
+          self.data[symbol] = value
+        end
       end
     end
   end

@@ -146,6 +146,51 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  context "interesting requests count" do
+    setup do
+      @user = User.make
+      assert_equal 0, @user.interesting_requests_count
+    end
+
+    should "be incremented when invited to a group" do
+      user2 = User.make
+      group = user2.create_group :alias => 'foo', :name => 'foo'
+
+      user2.invite @user, :to => group
+
+      @user.reload
+      assert_equal 1, @user.interesting_requests_count
+    end
+
+    should "be incremented when someone asks to join a group" do
+      group = @user.create_group :alias => 'foo', :name => 'foo', :requires_approval_to_join => true
+
+      user2 = User.make
+      user2.request_join group
+
+      @user.reload
+      assert_equal 1, @user.interesting_requests_count
+    end
+
+    should "change when becomes an admin" do
+      user2 = User.make
+      group = user2.create_group :alias => 'foo', :name => 'foo', :requires_approval_to_join => true
+
+      @user.join group
+
+      user3 = User.make
+      user3.request_join group
+
+      @user.reload
+      assert_equal 0, @user.interesting_requests_count
+
+      @user.membership_in(group).make_admin
+
+      @user.reload
+      assert_equal 1, @user.interesting_requests_count
+    end
+  end
+
   test "to json" do
     user = User.make
     assert_equal({

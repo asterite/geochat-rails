@@ -33,6 +33,7 @@ class User < ActiveRecord::Base
   data_accessor :groups_order, :default => 'activity'
   data_accessor :groups_order_manually
   data_accessor :remember_me_token
+  data_accessor :interesting_requests_count_cache
 
   def self.find_by_login(login)
     self.find_by_login_downcase login.downcase
@@ -126,7 +127,10 @@ class User < ActiveRecord::Base
   end
 
   def interesting_requests_count
-    Invite.includes(:group => :memberships).where('invites.user_id = ? or (invites.admin_accepted = ? and memberships.user_id = ? and memberships.admin = ?)', id, false, id, true).count
+    if !self.interesting_requests_count_cache
+      self.interesting_requests_count_cache = Invite.includes(:group => :memberships).where('(invites.user_id = ? and invites.requestor_id is not null && invites.user_accepted = ?) or (invites.admin_accepted = ? and memberships.user_id = ? and memberships.admin = ?)', id, false, false, id, true).count
+    end
+    self.interesting_requests_count_cache
   end
 
   def invites

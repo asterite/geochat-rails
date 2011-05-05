@@ -4,8 +4,9 @@ class Membership < ActiveRecord::Base
 
   validates_uniqueness_of :user_id, :scope => :group_id
 
-  after_create :increment_user_groups_count
-  after_destroy :decrement_user_groups_count
+  after_create :increment_user_groups_count_and_clear_interesting_requests_count_cache
+  after_update :clear_user_interesting_requests_count_cache
+  after_destroy :decrement_user_groups_count_and_clear_interesting_requests_count_cache
 
   after_create :increment_group_users_count
   after_destroy :decrement_group_users_count
@@ -26,13 +27,20 @@ class Membership < ActiveRecord::Base
 
   private
 
-  def increment_user_groups_count
+  def increment_user_groups_count_and_clear_interesting_requests_count_cache
     user.groups_count += 1
+    user.interesting_requests_count_cache = nil
     user.save!
   end
 
-  def decrement_user_groups_count
+  def decrement_user_groups_count_and_clear_interesting_requests_count_cache
     user.groups_count -= 1
+    user.interesting_requests_count_cache = nil
+    user.save!
+  end
+
+  def clear_user_interesting_requests_count_cache
+    user.interesting_requests_count_cache = nil
     user.save!
   end
 
