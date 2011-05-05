@@ -129,6 +129,7 @@ class User < ActiveRecord::Base
   def interesting_requests_count
     if !self.interesting_requests_count_cache
       self.interesting_requests_count_cache = Invite.includes(:group => :memberships).where('(invites.user_id = ? and invites.requestor_id is not null && invites.user_accepted = ?) or (invites.admin_accepted = ? and memberships.user_id = ? and memberships.admin = ?)', id, false, false, id, true).count
+      self.save!
     end
     self.interesting_requests_count_cache
   end
