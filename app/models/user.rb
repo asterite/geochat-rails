@@ -24,7 +24,7 @@ class User < ActiveRecord::Base
   validates_confirmation_of :password, :unless => lambda { password_confirmation.nil? }
 
   belongs_to :default_group, :class_name => 'Group'
-  before_validation :update_login_downcase
+  before_validation :update_login_downcase, :if => lambda { new_record? || login_changed? }
   before_save :update_location_reported_at
   before_save :encode_password, :if => :password_changed?
 
@@ -41,7 +41,7 @@ class User < ActiveRecord::Base
   class << self; alias_method :[], :find_by_login; end
 
   def self.find_by_email_or_mobile_number(address)
-    User.joins(:channels).where('(channels.protocol = ? and channels.address = ?) or (channels.protocol = ? and channels.address = ?)', 'sms', address, 'mailto', address).first
+    User.includes(:channels).where('(channels.protocol = ? and channels.address = ?) or (channels.protocol = ? and channels.address = ?)', 'sms', address, 'mailto', address).first
   end
 
   def self.find_suitable_login(suggested_login)

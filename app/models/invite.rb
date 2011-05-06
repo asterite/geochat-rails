@@ -25,7 +25,7 @@ class Invite < ActiveRecord::Base
 
   def clear_user_interesting_requests_count_cache
     self.user.interesting_requests_count_cache = nil
-    self.user.save!
+    self.user.save! if self.user.persisted?
   end
 
 end
