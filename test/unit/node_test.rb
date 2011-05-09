@@ -69,9 +69,11 @@ class NodeTest < ActiveSupport::TestCase
     address.each do |a|
       a = "#{@protocol}://#{a}" if a.is_a?(Integer)
       actual = @messages.select{|x| x[:to] == a}
+      actual.each { |x| x.delete :from }
       msgs = *msgs
       i = -1
-      expected = msgs.map{|x| i += 1; (options.is_a?(Array) ? options[i] : options).merge(:from => 'geochat://system', :to => a, :body => x)}
+      expected = msgs.map{|x| i += 1; (options.is_a?(Array) ? options[i] : options).merge(:to => a, :body => x)}
+      expected.each { |x| x.delete :from }
       assert_equal expected, actual, "Mismatched messages to #{a}"
     end
   end

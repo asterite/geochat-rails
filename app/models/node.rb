@@ -287,6 +287,7 @@ class Node
 
     msg = "#{prefix}#{msg}"
 
+    message_properties[:from] = current_channel.full_address if current_channel
     message_properties[:to] = channel.full_address
     message_properties[:body] = msg
 
@@ -294,7 +295,7 @@ class Node
   end
 
   def send_message(options = {})
-    options[:from] = 'geochat://system'
+    options[:from] ||= 'geochat://system'
     @messages << options
   end
 
