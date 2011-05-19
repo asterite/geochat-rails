@@ -36,12 +36,7 @@ class Command
   def args(*args)
     return @args if args.length == 0
 
-    args_options = args.last
-    if args_options.is_a?(Hash)
-      args.pop
-    else
-      args_options = {}
-    end
+    args_options = args.extract_options!
 
     self.args_optional = true if args_options.has_key?(:optional) && args_options[:optional]
     spaces_in_args = !args_options.has_key?(:spaces_in_args) || args_options[:spaces_in_args]
