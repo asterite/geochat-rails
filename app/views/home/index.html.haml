@@ -14,4 +14,4 @@
   %h4 Last messages from your groups
   %ul
     - @last_messages.each do |msg|
-      %li #{msg.sender_login} to #{link_to msg.group_alias, group_path(msg.group_alias)} #{time_ago_in_words msg.created_at} ago: #{truncate msg.text, :length => 50}
+      %li #{msg.sender_login} to #{link_to msg.group_alias, group_path(msg.group_alias)} #{time_ago_in_words msg.created_at} ago: #{truncate msg.text, :length => 50} (#{link_to 'who got this message?', message_path(msg.id)})

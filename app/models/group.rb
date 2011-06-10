@@ -113,6 +113,7 @@ class Group < ActiveRecord::Base
     options[:to] = channel.full_address
     options[:body] = "#{prefix}#{msg.text}"
     options[:group] = self.alias
+    options[:token] = msg.nuntium_token
 
     nuntium.send_ao options
   end

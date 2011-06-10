@@ -7,6 +7,7 @@ class Message < ActiveRecord::Base
 
   data_accessor :group_alias
   data_accessor :sender_login
+  data_accessor :nuntium_token
 
   def self.create_from_hash(hash)
     return unless hash
@@ -16,6 +17,7 @@ class Message < ActiveRecord::Base
       msg.send "#{method}=", hash.delete(method)
     end
     msg.data = hash
+    msg.nuntium_token ||= Guid.new.to_s
     msg.save!
 
     msg
@@ -29,6 +31,17 @@ class Message < ActiveRecord::Base
     hash[:location_short_url] = self.location_short_url if self.location_short_url.present?
     hash[:created] = self.created_at
     hash
+  end
+
+  def generated_messages
+    return [] if nuntium_token.blank?
+
+    messages = Nuntium.new_from_config.get_ao nuntium_token
+    messages.each do |msg|
+      msg['target_channel'] = Channel.includes(:user).find_by_protocol_and_address(*msg['to'].split('://'))
+      msg['target_user'] = msg['target_channel'].user
+    end
+    messages
   end
 
   private

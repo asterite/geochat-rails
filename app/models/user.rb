@@ -173,7 +173,7 @@ class User < ActiveRecord::Base
     if self.channels.loaded?
       self.channels.select &:active?
     else
-      self.channels.where('status = ?', :on)
+      self.channels.where :status => :on
     end
   end
 

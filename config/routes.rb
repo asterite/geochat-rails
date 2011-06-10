@@ -9,7 +9,7 @@ GeochatRails::Application.routes.draw do
   end
   get 'sessions/activate_email/:id/:group' => 'sessions#activate_email', :as => 'activate_email'
 
-  resources :messages, :only => [:index]
+  resources :messages, :only => [:index, :show]
 
   resources :channels, :only => [:index, :show, :destroy] do
     new do

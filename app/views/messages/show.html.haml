@@ -1,0 +1,8 @@
+%h3 Who got message "#{@msg.text}" from "#{@msg.sender_login}"?
+
+- if @messages.blank?
+  Nobody :-(
+- else
+  %ul
+    - @messages.each do |message|
+      %li User #{message['target_user'].login} in his/her #{message['target_channel'].protocol_name} (#{message['state']})

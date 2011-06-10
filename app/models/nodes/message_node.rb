@@ -292,6 +292,7 @@ class MessageNode < Node
   def save_message
     options = {}
     options[:receivers] = @users.map(&:id) if @users.present?
+    options[:nuntium_token] = message[:guid]
     current_user.create_message_for_group @group, @text_to_save, options
   end
 end

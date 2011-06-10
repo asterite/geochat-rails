@@ -7,7 +7,7 @@ gem 'rails', '3.0.3'
 
 gem 'sqlite3-ruby', :require => 'sqlite3'
 gem 'mysql2'
-gem 'nuntium_api', :require => 'nuntium'
+gem 'nuntium_api', '>=0.11', :require => 'nuntium'
 gem 'json'
 gem 'httparty'
 gem 'haml'
