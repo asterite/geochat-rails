@@ -38,6 +38,9 @@
       google.maps.event.addListener(map, 'click', function(event) {
         setObjectLocation(event.latLng);
       });
+      google.maps.event.addListener(marker, 'dragend', function(event) {
+        setObjectLocation(event.latLng);
+      });
 
       $('#location_search_button').click(function() {
         searchLocation();
